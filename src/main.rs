@@ -1,7 +1,22 @@
+use clap::Parser;
+use cli::{Cli, Commands};
+
 /*
  * CLI for operating the library
  */
+mod cli;
 
 fn main() {
-    println!("Hello, world!");
+    let cli = Cli::parse();
+    
+    match &cli.command {
+        Commands::Dl => {
+            log::debug!("downloading...");
+            todo!("download prices");
+        },
+        Commands::Compare => {
+            log::debug!("comparing prices");
+            todo!("Compare prices")
+        }
+    };
 }
