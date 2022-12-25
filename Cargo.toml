@@ -6,7 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.68"
 clap = { version = "4.0.32", features = ["derive"] }
 env_logger = "0.10.0"
 log = "0.4.17"
+sqlx = { version="0.6.2", features = ["runtime-tokio-rustls", "sqlite"] }
 test-log = "0.2.11"
+tokio = { version = "1.23.0", features = ["full"] }
