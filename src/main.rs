@@ -1,3 +1,7 @@
+/*!
+ * CLI for ibflex library
+ */
+
 use clap::Parser;
 use cli::{Cli, Commands};
 use ibflex::read_config;

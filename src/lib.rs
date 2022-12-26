@@ -10,8 +10,6 @@ pub mod flex_query_def;
 pub mod flex_query_parser;
 pub mod flex_statement;
 
-//pub const APP_NAME: &str = "ibflex";
-
 /**
  * Reads the current configuration from the config file.
  * The config file is expected to be in the current directory and be named `ibflex.toml`.

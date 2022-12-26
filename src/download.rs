@@ -1,5 +1,5 @@
 /*!
- * The module for download of IB Flex reports.
+ * The module for download of IB Flex Query reports.
  *
  * <https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm>
  */
