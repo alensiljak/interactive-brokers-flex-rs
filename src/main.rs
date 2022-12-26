@@ -6,8 +6,7 @@ use cli::{Cli, Commands};
  */
 mod cli;
 
-#[tokio::main]
-async fn main() -> Result<(), sqlx::Error> {
+fn main() {
     let cli = Cli::parse();
     
     match &cli.command {
@@ -16,9 +15,8 @@ async fn main() -> Result<(), sqlx::Error> {
             todo!("download prices");
         },
         Commands::Compare => {
-            ibflex::compare::compare().await;
+            ibflex::compare::compare();
         }
     };
 
-    Ok(())
 }
