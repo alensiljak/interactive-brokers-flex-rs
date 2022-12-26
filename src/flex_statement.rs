@@ -1,10 +1,14 @@
+use serde::{Serialize, Deserialize};
+
 /**
  * Statement request protocol.
  */
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize)]
 pub struct FlexStatementResponse {
-    timestamp: String,
-    
-    Status: String,
-    ReferenceCode: String,
-    Url: String,
+    pub timestamp: String,
+
+    pub Status: String,
+    pub ReferenceCode: String,
+    pub Url: String,
 }

@@ -1,9 +1,10 @@
 use chrono::Local;
-use const_format::concatcp;
+
+use crate::flex_statement::FlexStatementResponse;
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
-const REQUEST_URL: &str = concatcp!(FLEX_URL, "FlexStatementService.SendRequest");
-const STMT_URL: &str = concatcp!(FLEX_URL, "FlexStatementService.GetStatement");
+const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
+const STMT_ENDPOINT: &str = "FlexStatementService.GetStatement";
 
 /**
  * The module for download of IB Flex reports.
@@ -32,11 +33,22 @@ pub async fn download() {
  * and the query id (Reports / Flex Queries / Custom Flex Queries / Configure).
  */
 pub async fn download_report(query_id: &str, token: &str) -> String {
-    request_statement(query_id, token).await
+    let resp = request_statement(query_id, token).await;
+    // parse
+    let stmt_resp: FlexStatementResponse =
+        serde_xml_rs::from_str(&resp).expect("parsed statement response");
+
+    // log::debug!("result of the request is {:?}", response);
+
+    // Now request the actual report.
+    let stmt_text = download_statement_text(&stmt_resp.ReferenceCode, token).await;
+    //let resp = parse_stmt_text(&stmt_text);
+
+    stmt_text
 }
 
 async fn request_statement(query_id: &str, token: &str) -> String {
-    let url = format!("{REQUEST_URL}{}{}{token}{}{query_id}", "?v=3", ",t=", ",q=");
+    let url = format!("{FLEX_URL}{REQUEST_ENDPOINT}?v=3&t={token}&q={query_id}");
 
     let client = reqwest::Client::new();
     let res = client
@@ -47,14 +59,28 @@ async fn request_statement(query_id: &str, token: &str) -> String {
         .expect("response received");
 
     res.text().await.expect("contents of the response")
+}
 
-    // log::debug!("result of the request is {:?}", x);
+async fn download_statement_text(ref_code: &String, token: &str) -> String {
+    let url = format!("{FLEX_URL}{STMT_ENDPOINT}?v=3&q={ref_code}&t={token}");
+
+    reqwest::get(url)
+        .await
+        .expect("downloaded statement")
+        .text()
+        .await
+        .expect("text response (xml)")
+}
+
+fn parse_stmt_text(text: &String) -> FlexStatementResponse {
+    let statement: FlexStatementResponse = serde_xml_rs::from_str(text).expect("parsed statement");
+    statement
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        download::{request_statement, REQUEST_URL},
+        download::{request_statement, FLEX_URL, REQUEST_ENDPOINT},
         read_config,
     };
 
@@ -63,19 +89,15 @@ mod tests {
     #[test]
     /// Test concatenating constants.
     fn constants_test() {
+        let actual = format!("{FLEX_URL}{REQUEST_ENDPOINT}");
+
         assert_eq!("https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest",
-        REQUEST_URL);
-    }
-
-    #[tokio::test]
-    async fn report_download_test() {
-        let cfg = read_config();
-        let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
-
-        assert_eq!("yo".to_string(), result);
+        actual);
     }
 
     /**
+     * Test sending the Flex request. This is step 1 of the 2-step process.
+     * 
      * To run the test, create ibflex.toml config and populate with valid parameters.
      */
     #[tokio::test]
@@ -83,6 +105,20 @@ mod tests {
         let cfg = read_config();
         let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
 
-        assert_eq!(String::default(), actual);
+        assert_ne!(String::default(), actual);
+        assert!(!actual.contains("ERROR"));
+    }
+
+    /**
+     * Request the full Flex report, using 2-step process.
+     *
+     * To run the test, create ibflex.toml config and populate with valid parameters.
+     */
+    #[tokio::test]
+    async fn report_download_test() {
+        let cfg = read_config();
+        let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
+
+        assert!(result.contains("FlexQueryResponse"));
     }
 }

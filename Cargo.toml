@@ -16,7 +16,6 @@ anyhow = "1.0.68"
 chrono = "0.4.23"
 clap = { version = "4.0.32", features = ["derive"] }
 confy = "0.5.1"
-const_format = "0.2.30"
 env_logger = "0.10.0"
 glob = "0.3.0"
 log = "0.4.17"

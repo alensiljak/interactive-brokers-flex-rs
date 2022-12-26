@@ -2,7 +2,7 @@
  * Test parsing the Flex report
  */
 
-use ibflex::{flex_query_def::{FlexQueryResponse, CashTransaction}, flex_query_parser::{parse_file, parse_string}};
+use ibflex::{flex_query_def::{FlexQueryResponse, CashTransaction}, flex_query_parser::parse_string};
 
 #[test_log::test]
 fn parse_file_test() {
