@@ -8,21 +8,23 @@ use ibflex::{flex_report::{FlexQueryResponse, CashTransaction}, ib_flex_parser::
 fn parse_file_test() {
     let mut expected = FlexQueryResponse::default();
     let tx1 = CashTransaction {
-        reportDate: "2022-12-23".to_string(),
-        amount: "".to_string(),
-        currency: "".to_string(),
-        dateTime: "".to_string(),
-        description: "".to_string(),
-        listingExchange: "".to_string(),
-        symbol: "".to_string(),
-        r#type: "".to_string(),
+        reportDate: "2022-12-14".to_string(),
+        amount: "-0.91".to_string(),
+        currency: "EUR".to_string(),
+        dateTime: "2022-12-15;12:20:00".to_string(),
+        description: "TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX".to_string(),
+        listingExchange: "AEB".to_string(),
+        symbol: "TCBT".to_string(),
+        r#type: "Withholding Tax".to_string(),
     };
     expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction.push(tx1);
 
     let filename = "tests/report_1.xml".to_string();
     let actual = ibflex::ib_flex_parser::parse_file(filename);
 
-    assert_eq!(expected, actual);
+    //assert_eq!(expected, actual);
+    assert_eq!(expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0],
+        actual.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0]);
 }
 
 #[test]
