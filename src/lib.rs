@@ -1,5 +1,5 @@
 /*!
- * Interactive Brokers Flex library
+ * Interactive Brokers Flex Query library
  * 
  * Project documentation: <https://github.com/alensiljak/interactive-brokers-flex-rs>
  */
