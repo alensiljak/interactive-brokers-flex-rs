@@ -16,3 +16,4 @@ Cargo.lock
 
 # Custom
 .ledgerrc
+ibflex.toml
