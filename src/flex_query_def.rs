@@ -1,3 +1,7 @@
+/*!
+ * Definitions for Flex Query report
+ */
+
 use serde::Deserialize;
 
 /**

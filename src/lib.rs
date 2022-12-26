@@ -1,5 +1,7 @@
-/*
- * Shareable library
+/*!
+ * Interactive Brokers Flex library
+ * 
+ * Project documentation: <https://github.com/alensiljak/interactive-brokers-flex-rs>
  */
 pub mod compare;
 pub mod config;
@@ -8,7 +10,7 @@ pub mod flex_query_def;
 pub mod flex_query_parser;
 pub mod flex_statement;
 
-pub const APP_NAME: &str = "ibflex";
+//pub const APP_NAME: &str = "ibflex";
 
 pub fn read_config() -> config::Config {
     // confy::load(APP_NAME, None)

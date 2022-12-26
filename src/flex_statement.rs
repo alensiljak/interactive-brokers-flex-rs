@@ -1,3 +1,7 @@
+/*!
+ * Flex Statement request protocol
+ */
+
 use serde::{Deserialize, Serialize};
 
 /**

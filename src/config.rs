@@ -1,3 +1,7 @@
+/*!
+ * Contains the configuration file structure
+ */
+
 use serde::{Deserialize, Serialize};
 
 /**

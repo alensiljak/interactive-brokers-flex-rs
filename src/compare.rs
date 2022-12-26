@@ -1,5 +1,5 @@
-/*
- * Compare the downloaded report with Ledger
+/*!
+ * Compares the downloaded Flex report with Ledger
  */
 
 use std::{collections::HashMap, process::Command};

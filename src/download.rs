@@ -1,3 +1,9 @@
+/*!
+ * The module for download of IB Flex reports.
+ *
+ * https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm
+ */
+
 use chrono::Local;
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
@@ -5,9 +11,7 @@ const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
 const STMT_ENDPOINT: &str = "FlexStatementService.GetStatement";
 
 /**
- * The module for download of IB Flex reports.
- *
- * https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm
+ * Downloads the Flex Query Cash Transactions report into a file in the current directory.
  */
 pub async fn download() -> String {
     // download the report

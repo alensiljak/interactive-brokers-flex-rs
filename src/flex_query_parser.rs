@@ -1,5 +1,5 @@
-/*
- * Parse IB Flex Query transactions.
+/*!
+ * Parses IB Flex Query transactions.
  */
 
 use crate::flex_query_def::FlexQueryResponse;
