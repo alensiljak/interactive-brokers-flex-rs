@@ -6,13 +6,13 @@ The crate is incomplete but there are funcioning parts. These can be seen in Tes
 This crate contains a CLI and a library which assist with Flex Reports from Interactive Brokers.
 There are several components involved:
 
-- CLI `ibflex` uses the `ibflex` library
+- The command-line application (CLI) `ibflex`, provides all the features of the `ibflex` library ✅
 - `ibflex` library exposes the following functionality
-  - downloans the Flex report (incomplete)
-  - runs the comparison for the downloaded Cash Transactions Flex .xml report and the last 60 days in Ledger (incomplete)
-  - parses IB Flex report
+  - downloans the Flex report ✅
+  - parses IB Flex report ✅
   - runs Ledger command to retrieve the distribution transactions in the last 60 days (incomplete)
-- `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) uses a database which contains the list of securities with the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually.
+  - runs the comparison for the downloaded Cash Transactions Flex .xml report and the last 60 days in Ledger (incomplete)
+- `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually to read from own database. ✅
 
 # Usage
 
@@ -44,6 +44,8 @@ Once this is set up, invoke the CLI:
 ```
 ifblex dl
 ```
+
+This will save the report in the current directory. The filename will contain today's date.
 
 # Credits
 
