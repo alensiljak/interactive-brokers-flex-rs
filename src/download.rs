@@ -1,7 +1,7 @@
 /*!
  * The module for download of IB Flex reports.
  *
- * https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm
+ * <https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm>
  */
 
 use chrono::Local;
