@@ -12,6 +12,17 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    // #[command(about = "Configuration")]
+    // #[clap(subcommand)]
+    // Cfg(ConfigCmd),
+    Cfg,
     Dl,
     Compare
+}
+
+#[derive(Debug, Subcommand)]
+pub enum ConfigCmd {
+    /// Shows the configuration file path
+    // Path,
+    Show,
 }

@@ -13,3 +13,30 @@ There are several components involved:
   - parses IB Flex report
   - runs Ledger command to retrieve the distribution transactions in the last 60 days (incomplete)
 - `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) uses a database which contains the list of securities with the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually.
+
+# Usage
+
+Prior to running, you may need to configure the required parameters in the configuration file `ibflex.toml`, which is located in the current directory.
+
+## Configuration
+
+To view the current configuration, run
+
+```
+ibflex cfg
+```
+
+This will display the current parameters. To edit the values, use any text editor.
+
+## Download
+
+The required parameters for downloading the Flex report are:
+
+- `flex_query_id`
+- `ib_token`
+
+Once this is set up, invoke the CLI:
+
+```
+ifblex dl
+```
