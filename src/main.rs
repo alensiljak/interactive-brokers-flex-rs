@@ -12,7 +12,7 @@ fn main() {
     match &cli.command {
         Commands::Dl => {
             log::debug!("downloading...");
-            todo!("download prices");
+            ibflex::download::download();
         },
         Commands::Compare => {
             ibflex::compare::compare();

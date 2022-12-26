@@ -7,7 +7,7 @@ authors = ["Alen Šiljak <dev@alensiljak.eu.org>"]
 license = 'GPL-3.0-or-later'
 repository = 'https://github.com/alensiljak/interactive-brokers-flex-rs'
 categories = ['command-line-utilities', 'finance']
-keywords = ["interactive brokers", "finance", "cli", "flex", "reports"]
+keywords = ["interactivebrokers", "finance", "cli", "flex", "reports"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
