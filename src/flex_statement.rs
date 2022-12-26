@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /**
  * Statement request protocol.
@@ -11,4 +11,9 @@ pub struct FlexStatementResponse {
     pub Status: String,
     pub ReferenceCode: String,
     pub Url: String,
+}
+
+pub fn parse_stmt_text(text: &String) -> FlexStatementResponse {
+    let statement: FlexStatementResponse = serde_xml_rs::from_str(text).expect("parsed statement");
+    statement
 }

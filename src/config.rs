@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::APP_NAME;
-
 /**
  * Configuration structure for ibflex
  */

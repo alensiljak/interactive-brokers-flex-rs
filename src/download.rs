@@ -14,7 +14,7 @@ const STMT_ENDPOINT: &str = "FlexStatementService.GetStatement";
  * Old:
  * https://www.interactivebrokers.com/en/software/am/am/reports/flex_web_service_version_3.htm
  */
-pub async fn download() {
+pub async fn download() -> String {
     let today_date = Local::now().date_naive();
     let today = today_date.format("%Y-%m-%d");
     let output_filename = format!("{today}_cash-tx.xml");
@@ -24,7 +24,9 @@ pub async fn download() {
     let report = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
 
     // save to the output
-    std::fs::write(output_filename, report).expect("successfully saved");
+    std::fs::write(&output_filename, report).expect("successfully saved");
+
+    output_filename
 }
 
 /**
@@ -70,11 +72,6 @@ async fn download_statement_text(ref_code: &String, token: &str) -> String {
         .text()
         .await
         .expect("text response (xml)")
-}
-
-fn parse_stmt_text(text: &String) -> FlexStatementResponse {
-    let statement: FlexStatementResponse = serde_xml_rs::from_str(text).expect("parsed statement");
-    statement
 }
 
 #[cfg(test)]

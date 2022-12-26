@@ -13,8 +13,11 @@ async fn main() {
 
     match &cli.command {
         Commands::Dl => {
-            log::debug!("downloading...");
-            ibflex::download::download().await;
+            println!("downloading report...");
+
+            let path = ibflex::download::download().await;
+
+            println!("Flex Query saved to {path}");
         }
         Commands::Compare => {
             ibflex::compare::compare();
