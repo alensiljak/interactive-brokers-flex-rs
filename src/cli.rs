@@ -12,17 +12,17 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    // #[command(about = "Configuration")]
-    // #[clap(subcommand)]
-    // Cfg(ConfigCmd),
+    #[command(about = "display configuration settings")]
     Cfg,
+    #[command(about = "downloads the IB Flex Cash Tx report")]
     Dl,
+    #[command(about = "compares IB Flex Cash Tx report and Ledger")]
     Compare
 }
 
-#[derive(Debug, Subcommand)]
-pub enum ConfigCmd {
-    /// Shows the configuration file path
-    // Path,
-    Show,
-}
+// #[derive(Debug, Subcommand)]
+// pub enum ConfigCmd {
+//     /// Shows the configuration file path
+//     // Path,
+//     Show,
+// }
