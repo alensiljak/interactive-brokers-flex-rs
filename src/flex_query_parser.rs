@@ -2,7 +2,7 @@
  * Parse IB Flex transactions.
  */
 
-use crate::flex_report::FlexQueryResponse;
+use crate::flex_query_def::FlexQueryResponse;
 
 const FILE_SUFFIX: &str = "_cash-tx.xml";
 
