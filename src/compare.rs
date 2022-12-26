@@ -7,6 +7,8 @@ use std::{collections::HashMap, process::Command};
 use anyhow::{Error, Ok};
 use chrono::{Days, Local};
 
+use crate::flex_query_parser::parse_file;
+
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
 const TRANSACTION_DAYS: u8 = 60;
@@ -97,6 +99,12 @@ fn run_ledger(cmd: String) -> Vec<String> {
 }
 
 fn get_ib_tx() -> Vec<String> {
+    // todo: get the latest filename
+    let filename = "".to_string();
+    // todo: load
+    // todo: parse
+    let report = parse_file(&filename);
+
     todo!("get ib transactions");
 }
 

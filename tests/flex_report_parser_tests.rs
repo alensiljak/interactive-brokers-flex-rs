@@ -20,7 +20,7 @@ fn parse_file_test() {
     expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction.push(tx1);
 
     let filename = "tests/report_1.xml".to_string();
-    let actual = ibflex::flex_query_parser::parse_file(filename);
+    let actual = ibflex::flex_query_parser::parse_file(&filename);
 
     //assert_eq!(expected, actual);
     assert_eq!(expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0],

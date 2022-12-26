@@ -1,5 +1,5 @@
 /*
- * Parse IB Flex transactions.
+ * Parse IB Flex Query transactions.
  */
 
 use crate::flex_query_def::FlexQueryResponse;
@@ -11,10 +11,10 @@ pub fn parse() -> FlexQueryResponse {
     let pattern = format!("*{}", FILE_SUFFIX);
     let filename = get_latest_file(&pattern);
 
-    parse_file(filename)
+    parse_file(&filename)
 }
 
-pub fn parse_file(filename: String) -> FlexQueryResponse {
+pub fn parse_file(filename: &String) -> FlexQueryResponse {
     let content = std::fs::read_to_string(filename).expect("xml file read");
     //log::debug!("file content: {:?}", content);
 
