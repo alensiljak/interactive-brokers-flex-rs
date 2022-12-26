@@ -26,7 +26,11 @@ To view the current configuration, run
 ibflex cfg
 ```
 
-This will display the current parameters. To edit the values, use any text editor.
+This will display the current parameters. 
+
+If the file does not exist, it will be automatically created by this command.
+
+To edit the values, use any text editor.
 
 ## Download
 

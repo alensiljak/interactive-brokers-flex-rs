@@ -7,13 +7,14 @@ use ibflex::read_config;
  */
 mod cli;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
         Commands::Dl => {
             log::debug!("downloading...");
-            ibflex::download::download();
+            ibflex::download::download().await;
         }
         Commands::Compare => {
             ibflex::compare::compare();

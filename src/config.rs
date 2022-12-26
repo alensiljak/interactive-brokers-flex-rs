@@ -7,8 +7,8 @@ use crate::APP_NAME;
  */
 #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Config {
-    flex_query_id: String,
-    ib_token: String,
+    pub flex_query_id: String,
+    pub ib_token: String,
 }
 
 // pub fn get_config_path() -> String {
