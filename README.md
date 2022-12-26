@@ -44,3 +44,11 @@ Once this is set up, invoke the CLI:
 ```
 ifblex dl
 ```
+
+# Credits
+
+- [ibflex](https://github.com/csingley/ibflex) Python library
+
+# License
+
+See [LICENSE](LICENSE) file.
