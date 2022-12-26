@@ -23,8 +23,11 @@ pub fn compare() {
     // get_ledger_tx
     let ledger_tx = get_ledger_tx();
 
-    todo!("get_ib_report_tx");
-    todo!("compare");
+    // get_ib_report_tx
+    let ib_tx = get_ib_tx();
+
+    // compare
+    compare_txs(ib_tx, ledger_tx);
 }
 
 /// Load symbol mappings from PriceDb
@@ -50,7 +53,7 @@ fn load_symbols() -> Result<HashMap<String, String>, Error> {
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
-fn get_ledger_tx() {
+fn get_ledger_tx() -> Vec<String> {
     let end_date = Local::now().date_naive();
     let start_date = end_date
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
@@ -65,6 +68,11 @@ fn get_ledger_tx() {
     if DATE_MODE == "effective" {
         command += " --effective"
     }
+
+    let output = run_ledger(command);
+
+    // Parse output.
+    todo!("parse");
 }
 
 /// Runs Ledger with the given command and returns the output in lines.
@@ -87,6 +95,16 @@ fn run_ledger(cmd: String) -> Vec<String> {
 
     result
 }
+
+fn get_ib_tx() -> Vec<String> {
+    todo!("get ib transactions");
+}
+
+fn compare_txs(ib_txs: Vec<String>, ledger_txs: Vec<String>) {
+    todo!("compare");
+}
+
+// Tests
 
 #[cfg(test)]
 mod tests {
