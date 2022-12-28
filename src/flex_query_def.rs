@@ -13,11 +13,20 @@ pub struct FlexQueryResponse {
     pub FlexStatements: FlexStatements,
 }
 
+impl From<String> for FlexQueryResponse {
+    /**
+     * Parses the file contents (xml) into the FlexQueryResponse object.
+     */
+    fn from(value: String) -> Self {
+        serde_xml_rs::from_str(&value).expect("parsed XML")
+    }
+}
+
 #[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct FlexStatements {
     pub count: i32,
-    pub FlexStatement: FlexStatement
+    pub FlexStatement: FlexStatement,
 }
 
 #[allow(non_snake_case)]
@@ -28,14 +37,14 @@ pub struct FlexStatement {
     pub toDate: String,
     pub period: String,
     pub whenGenerated: String,
-    
+
     pub CashTransactions: CashTransactions,
 }
 
 #[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct CashTransactions {
-    pub CashTransaction: Vec<CashTransaction>
+    pub CashTransaction: Vec<CashTransaction>,
 }
 
 /**
@@ -60,5 +69,3 @@ pub struct CashTransaction {
 //     Dividends,
 //     WithholdingTax
 // }
-
-

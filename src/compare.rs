@@ -22,14 +22,11 @@ const TRANSACTION_DAYS: u8 = 60;
 pub fn compare() -> anyhow::Result<()> {
     log::debug!("comparing distributions");
 
-    // load symbols
-    let symbols = load_symbols()?;
-
     // get_ledger_tx
     let ledger_tx = get_ledger_tx();
 
     // get_ib_report_tx
-    let ib_tx = get_ib_tx(symbols);
+    let ib_tx = get_ib_tx();
 
     // compare
     compare_txs(ib_tx, ledger_tx);
@@ -114,8 +111,11 @@ fn run_ledger(cmd: String) -> Vec<String> {
  * Returns transactions from the Flex Report, for comparison.
  * symbols is a HashMap of symbol rewrites.
  */
-fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<LedgerTransaction> {
-    let ib_txs = read_ib_cash_transactions();
+fn get_ib_tx() -> Vec<LedgerTransaction> {
+    // load symbols
+    let symbols = load_symbols().unwrap();
+
+    let ib_txs = read_flex_report();
 
     let mut txs: Vec<LedgerTransaction> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
@@ -137,7 +137,7 @@ fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<LedgerTransaction> {
  * Reads the Cash Transaction records from the Flex Report.
  * Sorts by date/time, symbol, type.
  */
-fn read_ib_cash_transactions() -> Vec<CashTransaction> {
+fn read_flex_report() -> Vec<CashTransaction> {
     let response = flex_query_parser::parse();
 
     let mut ib_txs = response
@@ -163,10 +163,12 @@ fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction
         let matches: Vec<&LedgerTransaction> = if DATE_MODE == "effective" {
             todo!("complete");
         } else {
-            ledger_txs.iter()
-                .filter(|tx| tx.date == ibtx.date && tx.symbol == ibtx.symbol &&
-                    tx.amount == ibtx.amount)
-                    .collect()
+            ledger_txs
+                .iter()
+                .filter(|tx| {
+                    tx.date == ibtx.date && tx.symbol == ibtx.symbol && tx.amount == ibtx.amount
+                })
+                .collect()
         };
 
         if matches.is_empty() {
@@ -224,9 +226,7 @@ mod tests {
 
     #[rstest::rstest]
     fn read_ib_txs(cash_transactions: Vec<CashTransaction>) {
-        let symbols = HashMap::default();
-
-        let ib_tx = get_ib_tx(symbols);
+        let ib_tx = get_ib_tx();
 
         assert!(!ib_tx.is_empty());
     }

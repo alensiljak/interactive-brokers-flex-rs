@@ -26,14 +26,7 @@ pub fn parse_file(filename: &str) -> FlexQueryResponse {
     let content = std::fs::read_to_string(filename).expect("xml file read");
     //log::debug!("file content: {:?}", content);
 
-    parse_string(&content)
-}
-
-/**
- * Parse the file contents (xml) into the FlexQueryResponse object.
- */
-pub fn parse_string(content: &str) -> FlexQueryResponse {
-    serde_xml_rs::from_str(content).expect("parsed XML")
+    FlexQueryResponse::from(content)
 }
 
 /// Get the latest of the filest matching the given pattern.
