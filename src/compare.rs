@@ -103,24 +103,13 @@ fn run_ledger(cmd: String) -> Vec<String> {
     result
 }
 
+/**
+ * Returns transactions from the Flex Report, for comparison.
+ * symbols is a HashMap of symbol rewrites.
+ */
 fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<String> {
-    let response = flex_query_parser::parse();
-
-    let mut ib_txs = response
-        .FlexStatements
-        .FlexStatement
-        .CashTransactions
-        .CashTransaction;
-
-    // txs.sort(key=operator.attrgetter("dateTime", "symbol", "type.name"))
-    ib_txs.sort_unstable_by_key(|ct| {
-        (
-            ct.dateTime.to_owned(),
-            ct.symbol.to_owned(),
-            ct.r#type.to_owned(),
-        )
-    });
-
+    let ib_txs = read_ib_cash_transactions();
+    
     let mut txs: Vec<String> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
     for tx in ib_txs {
@@ -138,6 +127,31 @@ fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<String> {
     txs
 }
 
+/**
+ * Reads the Cash Transaction records from the Flex Report.
+ * Sorts by date/time, symbol, type.
+ */
+fn read_ib_cash_transactions() -> Vec<CashTransaction> {
+    let response = flex_query_parser::parse();
+
+    let mut ib_txs = response
+        .FlexStatements
+        .FlexStatement
+        .CashTransactions
+        .CashTransaction;
+
+    // txs.sort(key=operator.attrgetter("dateTime", "symbol", "type.name"))
+    ib_txs.sort_unstable_by_key(|ct| {
+        (
+            ct.dateTime.to_owned(),
+            ct.symbol.to_owned(),
+            ct.r#type.to_owned(),
+        )
+    });
+
+    ib_txs
+}
+
 fn compare_txs(ib_txs: Vec<String>, ledger_txs: Vec<String>) {
     todo!("compare");
 }
@@ -148,6 +162,9 @@ fn compare_txs(ib_txs: Vec<String>, ledger_txs: Vec<String>) {
 mod tests {
     use std::collections::HashMap;
 
+    use rstest::fixture;
+
+    use crate::flex_query_def::CashTransaction;
     use super::{load_symbols, run_ledger, get_ib_tx};
 
     /// Load symbols through PriceDb.
@@ -168,13 +185,30 @@ mod tests {
         assert_ne!(actual[0], String::default());
     }
 
-    #[test]
-    fn read_ib_txs() {
-        let filename = "tests/report_1.xml";
+    #[fixture]
+    fn cash_transactions() -> Vec<CashTransaction> {
+        let dist = CashTransaction {
+            reportDate: "today".into(),
+            amount: "10".into(),
+            currency: "EUR".into(),
+            dateTime: "2022-12-26".into(),
+            description: "TCBT distribution".into(),
+            r#type: "DIST".into(),
+            listingExchange: "AMS".into(),
+            symbol: "TCBT".into()
+        };
+
+        vec![dist]
+    }
+
+    #[rstest::rstest]
+    fn read_ib_txs(cash_transactions: Vec<CashTransaction>) {
         let symbols = HashMap::default();
 
         let ib_tx = get_ib_tx(symbols);
 
         assert!(!ib_tx.is_empty());
     }
+
+
 }

@@ -38,6 +38,10 @@ pub struct CashTransactions {
     pub CashTransaction: Vec<CashTransaction>
 }
 
+/**
+ * .report_date is the real date, when the transaction appears in the IB report.
+ * .date is the transaction effective date.
+ */
 #[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct CashTransaction {

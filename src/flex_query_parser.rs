@@ -65,8 +65,6 @@ fn get_latest_filename(file_pattern: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::canonicalize;
-
     use super::{get_latest_filename, parse_file};
 
     #[test]
