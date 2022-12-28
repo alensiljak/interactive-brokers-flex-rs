@@ -4,18 +4,42 @@
  * <https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm>
  */
 
+use std::env;
+
 use chrono::Local;
+
+use crate::config::get_config;
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
 const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
 const STMT_ENDPOINT: &str = "FlexStatementService.GetStatement";
 
+#[derive(Debug, Default)]
+pub struct DownloadParams {
+    pub query_id: Option<u32>,
+    pub token: Option<String>,
+}
+
+impl DownloadParams {
+    pub fn new(query_id: Option<u32>, token: &Option<String>) -> Self {
+        Self {
+            query_id,
+            token: match token {
+                Some(tkn) => Some(tkn.to_owned()),
+                None => None,
+            },
+        }
+    }
+}
+
 /**
  * Downloads the Flex Query Cash Transactions report into a file in the current directory.
  */
-pub async fn download() -> String {
+pub async fn download(params: DownloadParams) -> String {
+    // get the configuration
+    let cfg = get_config(params);
+
     // download the report
-    let cfg = crate::read_config();
     let report = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
 
     // save to text file
@@ -45,7 +69,7 @@ async fn download_report(query_id: &str, token: &str) -> String {
 }
 
 /**
- * Requests the statement. Receives the request id. 
+ * Requests the statement. Receives the request id.
  * Returns the text of the response, the content is xml.
  */
 async fn request_statement(query_id: &str, token: &str) -> String {
@@ -80,8 +104,7 @@ async fn download_statement_text(ref_code: &String, token: &str) -> String {
 #[cfg(test)]
 mod tests {
     use crate::{
-        download::{request_statement, FLEX_URL, REQUEST_ENDPOINT},
-        read_config,
+        download::{request_statement, FLEX_URL, REQUEST_ENDPOINT, DownloadParams}
     };
 
     use super::download_report;
@@ -97,12 +120,12 @@ mod tests {
 
     /**
      * Test sending the Flex request. This is step 1 of the 2-step process.
-     * 
+     *
      * To run the test, create ibflex.toml config and populate with valid parameters.
      */
     #[tokio::test]
     async fn request_report_test() {
-        let cfg = read_config();
+        let cfg = crate::config::get_config(DownloadParams::default());
         let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
 
         assert_ne!(String::default(), actual);
@@ -116,7 +139,7 @@ mod tests {
      */
     #[tokio::test]
     async fn report_download_test() {
-        let cfg = read_config();
+        let cfg = crate::config::get_config(DownloadParams::default());
         let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
 
         assert!(result.contains("FlexQueryResponse"));

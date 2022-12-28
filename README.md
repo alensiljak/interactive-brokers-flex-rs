@@ -16,7 +16,17 @@ There are several components involved:
 
 # Usage
 
-Prior to running, you may need to configure the required parameters in the configuration file `ibflex.toml`, which is located in the current directory.
+Downloading the Flex Query report requires Query Id and the Token. These can be passed in several ways:
+
+1) as parameters to the download (Dl) method. Use parameters `--queryid` and `--token`.
+2) as environment variables:
+
+  The application will read the values from environment variables:
+
+  - `IBFLEX_TOKEN`
+  - `IBFLEX_QUERYID`
+
+3) in the configuration file: The application will read the configuration file `ibflex.toml`, which is located in the current directory.
 
 ## Configuration
 

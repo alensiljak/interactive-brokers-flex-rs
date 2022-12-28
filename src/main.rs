@@ -4,7 +4,7 @@
 
 use clap::Parser;
 use cli::{Cli, Commands};
-use ibflex::read_config;
+use ibflex::{download::DownloadParams, config::get_config};
 
 /*
  * CLI for operating the library
@@ -16,10 +16,11 @@ async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Dl => {
+        Commands::Dl(params) => {
             println!("downloading report...");
 
-            let path = ibflex::download::download().await;
+            let dl_params = DownloadParams::new(params.query_id, &params.token);
+            let path = ibflex::download::download(dl_params).await;
 
             println!("Flex Query saved to {path}");
         }
@@ -27,7 +28,7 @@ async fn main() {
             ibflex::compare::compare();
         }
         Commands::Cfg => {
-            let cfg = read_config();
+            let cfg = get_config(DownloadParams::default());
             println!("{:?}", cfg);
         }
     }
