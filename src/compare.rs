@@ -131,7 +131,7 @@ fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<String> {
 
         // todo: rewrite the symbols if found in the symbols collection
         // i.e. VHYL = VHYL.AS
-        
+
         txs.push(format!("{:?}", tx));
     }
     
@@ -146,7 +146,9 @@ fn compare_txs(ib_txs: Vec<String>, ledger_txs: Vec<String>) {
 
 #[cfg(test)]
 mod tests {
-    use super::{load_symbols, run_ledger};
+    use std::collections::HashMap;
+
+    use super::{load_symbols, run_ledger, get_ib_tx};
 
     /// Load symbols through PriceDb.
     #[test]
@@ -164,5 +166,15 @@ mod tests {
 
         assert!(!actual.is_empty());
         assert_ne!(actual[0], String::default());
+    }
+
+    #[test]
+    fn read_ib_txs() {
+        let filename = "tests/report_1.xml";
+        let symbols = HashMap::default();
+
+        let ib_tx = get_ib_tx(symbols);
+
+        assert!(!ib_tx.is_empty());
     }
 }

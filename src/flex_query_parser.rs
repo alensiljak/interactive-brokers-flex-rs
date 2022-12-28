@@ -33,8 +33,7 @@ pub fn parse_file(filename: &str) -> FlexQueryResponse {
  * Parse the file contents (xml) into the FlexQueryResponse object.
  */
 pub fn parse_string(content: &str) -> FlexQueryResponse {
-    serde_xml_rs::from_str(content)
-        .expect("parsed XML")
+    serde_xml_rs::from_str(content).expect("parsed XML")
 }
 
 /// Get the latest of the filest matching the given pattern.
@@ -66,7 +65,9 @@ fn get_latest_filename(file_pattern: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{get_latest_filename};
+    use std::fs::canonicalize;
+
+    use super::{get_latest_filename, parse_file};
 
     #[test]
     fn test_dir_list() {
@@ -82,4 +83,32 @@ mod tests {
 
     //     assert_ne!(String::default(), actual);
     // }
+
+    #[test]
+    fn test_parse_file() -> anyhow::Result<()> {
+        let cur_dir = std::env::current_dir()?;
+        let filename = format!(
+            "{}{}{}{}{}",
+            cur_dir.display(),
+            std::path::MAIN_SEPARATOR,
+            "tests",
+            std::path::MAIN_SEPARATOR,
+            "report_1.xml"
+        );
+        // canonicalize(path)
+
+        let actual = parse_file(&filename);
+
+        assert_ne!(
+            0,
+            actual
+                .FlexStatements
+                .FlexStatement
+                .CashTransactions
+                .CashTransaction
+                .len()
+        );
+
+        Ok(())
+    }
 }
