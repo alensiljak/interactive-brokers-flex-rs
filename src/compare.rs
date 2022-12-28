@@ -8,9 +8,8 @@ use anyhow::{Error, Ok};
 use chrono::{Days, Local};
 
 use crate::{
-    flex_query_def::CashTransaction,
-    flex_query_parser::{self, parse_file},
-    model::LedgerTransaction,
+    flex_query_def::{CashTransaction, FlexQueryResponse},
+    model::LedgerTransaction, flex_query_reader::load_report,
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -19,14 +18,14 @@ const TRANSACTION_DAYS: u8 = 60;
 /**
  * Compares transactions in the downloaded IB Flex report to Ledger.
  */
-pub fn compare() -> anyhow::Result<()> {
+pub fn compare(flex_report_path: Option<String>) -> anyhow::Result<()> {
     log::debug!("comparing distributions");
+
+    // get_ib_report_tx
+    let ib_tx = get_ib_tx(flex_report_path);
 
     // get_ledger_tx
     let ledger_tx = get_ledger_tx();
-
-    // get_ib_report_tx
-    let ib_tx = get_ib_tx();
 
     // compare
     compare_txs(ib_tx, ledger_tx);
@@ -111,11 +110,12 @@ fn run_ledger(cmd: String) -> Vec<String> {
  * Returns transactions from the Flex Report, for comparison.
  * symbols is a HashMap of symbol rewrites.
  */
-fn get_ib_tx() -> Vec<LedgerTransaction> {
+fn get_ib_tx(flex_report_path: Option<String>) -> Vec<LedgerTransaction> {
     // load symbols
     let symbols = load_symbols().unwrap();
 
-    let ib_txs = read_flex_report();
+
+    let ib_txs = read_flex_report(flex_report_path);
 
     let mut txs: Vec<LedgerTransaction> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
@@ -137,8 +137,9 @@ fn get_ib_tx() -> Vec<LedgerTransaction> {
  * Reads the Cash Transaction records from the Flex Report.
  * Sorts by date/time, symbol, type.
  */
-fn read_flex_report() -> Vec<CashTransaction> {
-    let response = flex_query_parser::parse();
+fn read_flex_report(flex_report_path: Option<String>) -> Vec<CashTransaction> {
+    let content = load_report(flex_report_path);
+    let response = FlexQueryResponse::from(content);
 
     let mut ib_txs = response
         .FlexStatements
@@ -226,7 +227,7 @@ mod tests {
 
     #[rstest::rstest]
     fn read_ib_txs(cash_transactions: Vec<CashTransaction>) {
-        let ib_tx = get_ib_tx();
+        let ib_tx = get_ib_tx(None);
 
         assert!(!ib_tx.is_empty());
     }

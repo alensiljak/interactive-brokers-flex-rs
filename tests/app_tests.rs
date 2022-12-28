@@ -2,7 +2,7 @@
  * Test the app
  */
 
-use std::env;
+use std::{env, error::Error};
 
 use ibflex::download::DownloadParams;
 
@@ -35,7 +35,7 @@ async fn test_download_w_params() {
     // prepare
     env::set_var("token", "123");
 
-    let actual = ibflex::compare::compare();
+    let actual = ibflex::compare::compare(None);
 
-    todo!("complete");
+    assert!(!actual.is_err());
 }

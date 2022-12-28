@@ -4,7 +4,7 @@
 
 use clap::Parser;
 use cli::{Cli, Commands};
-use ibflex::{download::DownloadParams, config::get_config};
+use ibflex::{config::get_config, download::DownloadParams};
 
 /*
  * CLI for operating the library
@@ -24,8 +24,9 @@ async fn main() {
 
             println!("Flex Query saved to {path}");
         }
-        Commands::Compare => {
-            ibflex::compare::compare();
+        Commands::Compare(params) => {
+            ibflex::compare::compare(params.flex_report_path.to_owned())
+                .expect("transactions compared");
         }
         Commands::Cfg => {
             let cfg = get_config(DownloadParams::default());

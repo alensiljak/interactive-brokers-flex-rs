@@ -2,7 +2,7 @@
  * Test parsing the Flex report
  */
 
-use ibflex::{flex_query_def::{FlexQueryResponse, CashTransaction}, flex_query_parser::parse_string};
+use ibflex::{flex_query_def::{FlexQueryResponse, CashTransaction}};
 
 #[test_log::test]
 fn parse_file_test() {
@@ -20,7 +20,8 @@ fn parse_file_test() {
     expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction.push(tx1);
 
     let filename = "tests/report_1.xml".to_string();
-    let actual = ibflex::flex_query_parser::parse_file(&filename);
+    let report = ibflex::flex_query_reader::load_report(Some(filename));
+    let actual = FlexQueryResponse::from(report);
 
     //assert_eq!(expected, actual);
     assert_eq!(expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0],
@@ -46,7 +47,7 @@ fn parse_string_test() {
     </FlexStatements>
 </FlexQueryResponse>
     "#.to_string();
-    let actual = parse_string(&content);
+    let actual = FlexQueryResponse::from(content);
 
     assert_ne!(actual, FlexQueryResponse::default());
     assert_eq!(actual.FlexStatements.count, 1);

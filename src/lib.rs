@@ -8,7 +8,7 @@ pub mod compare;
 pub mod config;
 pub mod download;
 pub mod flex_query_def;
-pub mod flex_query_parser;
+pub mod flex_query_reader;
 pub mod flex_statement;
 pub mod model;
 #[cfg(test)]
