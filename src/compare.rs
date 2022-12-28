@@ -114,9 +114,12 @@ fn get_ib_tx(flex_report_path: Option<String>) -> Vec<LedgerTransaction> {
     // load symbols
     let symbols = load_symbols().unwrap();
 
-
     let ib_txs = read_flex_report(flex_report_path);
 
+    convert_ib_tx(ib_txs)
+}
+
+pub fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<LedgerTransaction> {
     let mut txs: Vec<LedgerTransaction> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
     for tx in ib_txs {
@@ -184,12 +187,8 @@ fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
-    use rstest::fixture;
-
-    use super::{get_ib_tx, load_symbols, run_ledger};
-    use crate::flex_query_def::CashTransaction;
+    use super::{load_symbols, run_ledger};
+    use crate::{flex_query_def::CashTransaction, compare::convert_ib_tx, test_fixtures::cash_transactions};
 
     /// Load symbols through PriceDb.
     #[test]
@@ -209,25 +208,9 @@ mod tests {
         assert_ne!(actual[0], String::default());
     }
 
-    #[fixture]
-    fn cash_transactions() -> Vec<CashTransaction> {
-        let dist = CashTransaction {
-            reportDate: "today".into(),
-            amount: "10".into(),
-            currency: "EUR".into(),
-            dateTime: "2022-12-26".into(),
-            description: "TCBT distribution".into(),
-            r#type: "DIST".into(),
-            listingExchange: "AMS".into(),
-            symbol: "TCBT".into(),
-        };
-
-        vec![dist]
-    }
-
     #[rstest::rstest]
-    fn read_ib_txs(cash_transactions: Vec<CashTransaction>) {
-        let ib_tx = get_ib_tx(None);
+    fn test_convert_ib_txs(cash_transactions: Vec<CashTransaction>) {
+        let ib_tx = convert_ib_tx(cash_transactions);
 
         assert!(!ib_tx.is_empty());
     }

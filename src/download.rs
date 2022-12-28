@@ -4,8 +4,6 @@
  * <https://guides.interactivebrokers.com/reportingreference/reportguide/activity%20flex%20query%20reference.htm>
  */
 
-use std::env;
-
 use chrono::Local;
 
 use crate::config::get_config;

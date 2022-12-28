@@ -2,8 +2,6 @@
  * The configuration file structure
  */
 
-use std::fs;
-
 use serde::{Deserialize, Serialize};
 
 use crate::download::DownloadParams;

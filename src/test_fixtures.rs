@@ -19,5 +19,16 @@ pub fn cash_transactions() -> Vec<CashTransaction> {
         r#type: "Withholding Tax".to_string(),
     };
 
-    vec![tx1]
+    let dist = CashTransaction {
+        reportDate: "today".into(),
+        amount: "10".into(),
+        currency: "EUR".into(),
+        dateTime: "2022-12-26".into(),
+        description: "TCBT distribution".into(),
+        r#type: "DIST".into(),
+        listingExchange: "AMS".into(),
+        symbol: "TCBT".into(),
+    };
+
+    vec![tx1, dist]
 }

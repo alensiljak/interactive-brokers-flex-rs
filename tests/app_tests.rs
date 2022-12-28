@@ -2,7 +2,7 @@
  * Test the app
  */
 
-use std::{env, error::Error};
+use std::env;
 
 use ibflex::download::DownloadParams;
 
