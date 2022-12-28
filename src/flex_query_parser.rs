@@ -6,21 +6,32 @@ use crate::flex_query_def::FlexQueryResponse;
 
 const FILE_SUFFIX: &str = "_cash-tx.xml";
 
+/**
+ * Parse the latest file. The default behaviour.
+ */
 pub fn parse() -> FlexQueryResponse {
     // Load the latest report file.
     let pattern = format!("*{}", FILE_SUFFIX);
-    let filename = get_latest_file(&pattern);
+    let filename = get_latest_filename(&pattern);
 
     parse_file(&filename)
 }
 
+/**
+ * Parse the file with the given filename, in the current directory.
+ */
 pub fn parse_file(filename: &str) -> FlexQueryResponse {
+    println!("Reading {}", filename);
+
     let content = std::fs::read_to_string(filename).expect("xml file read");
     //log::debug!("file content: {:?}", content);
 
     parse_string(&content)
 }
 
+/**
+ * Parse the file contents (xml) into the FlexQueryResponse object.
+ */
 pub fn parse_string(content: &str) -> FlexQueryResponse {
     serde_xml_rs::from_str(content)
         .expect("parsed XML")
@@ -28,7 +39,7 @@ pub fn parse_string(content: &str) -> FlexQueryResponse {
 
 /// Get the latest of the filest matching the given pattern.
 /// Pattern example: *.xml
-fn get_latest_file(file_pattern: &str) -> String {
+fn get_latest_filename(file_pattern: &str) -> String {
     let mut filenames: Vec<String> = glob::glob(file_pattern)
         .expect("directory list")
         .filter_map(|entry| {
@@ -55,12 +66,20 @@ fn get_latest_file(file_pattern: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::get_latest_file;
+    use super::{get_latest_filename};
 
     #[test]
     fn test_dir_list() {
-        let actual = get_latest_file("*.xml");
+        let actual = get_latest_filename("*.xml");
 
         assert!(!actual.is_empty());
     }
+
+    // #[test]
+    // fn test_filename_composition() {
+    //     let file_pattern = format!("*{}", FILE_SUFFIX);
+    //     let actual = get_latest_filename(&file_pattern);
+
+    //     assert_ne!(String::default(), actual);
+    // }
 }

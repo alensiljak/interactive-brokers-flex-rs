@@ -7,8 +7,10 @@ use std::{collections::HashMap, process::Command};
 use anyhow::{Error, Ok};
 use chrono::{Days, Local};
 
-use crate::flex_query_parser::parse_file;
-
+use crate::{
+    flex_query_def::CashTransaction,
+    flex_query_parser::{self, parse_file},
+};
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
 const TRANSACTION_DAYS: u8 = 60;
@@ -16,20 +18,22 @@ const TRANSACTION_DAYS: u8 = 60;
 /**
  * Compares transactions in the downloaded IB Flex report to Ledger.
  */
-pub fn compare() {
+pub fn compare() -> anyhow::Result<()> {
     log::debug!("comparing distributions");
 
     // load symbols
-    let symbols = load_symbols();
+    let symbols = load_symbols()?;
 
     // get_ledger_tx
     let ledger_tx = get_ledger_tx();
 
     // get_ib_report_tx
-    let ib_tx = get_ib_tx();
+    let ib_tx = get_ib_tx(symbols);
 
     // compare
     compare_txs(ib_tx, ledger_tx);
+
+    Ok(())
 }
 
 /// Load symbol mappings from PriceDb
@@ -89,7 +93,8 @@ fn run_ledger(cmd: String) -> Vec<String> {
         // .spawn()
         .expect("ledger command ran");
 
-    let result: Vec<String> = String::from_utf8(output.stdout).unwrap()
+    let result: Vec<String> = String::from_utf8(output.stdout)
+        .unwrap()
         .lines()
         .map(|line| line.trim().to_owned())
         .collect();
@@ -98,14 +103,39 @@ fn run_ledger(cmd: String) -> Vec<String> {
     result
 }
 
-fn get_ib_tx() -> Vec<String> {
-    // todo: get the latest filename
-    let filename = "".to_string();
-    // todo: load
-    // todo: parse
-    let report = parse_file(&filename);
+fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<String> {
+    let response = flex_query_parser::parse();
 
-    todo!("get ib transactions");
+    let mut ib_txs = response
+        .FlexStatements
+        .FlexStatement
+        .CashTransactions
+        .CashTransaction;
+
+    // txs.sort(key=operator.attrgetter("dateTime", "symbol", "type.name"))
+    ib_txs.sort_unstable_by_key(|ct| {
+        (
+            ct.dateTime.to_owned(),
+            ct.symbol.to_owned(),
+            ct.r#type.to_owned(),
+        )
+    });
+
+    let mut txs: Vec<String> = vec![];
+    let skip = ["WHTAX", "DIVIDEND"];
+    for tx in ib_txs {
+        // todo: skip any not
+        if skip.iter().any(|t| *t == tx.r#type) {
+            println!("Skipping...");
+        }
+
+        // todo: rewrite the symbols if found in the symbols collection
+        // i.e. VHYL = VHYL.AS
+        
+        txs.push(format!("{:?}", tx));
+    }
+    
+    txs
 }
 
 fn compare_txs(ib_txs: Vec<String>, ledger_txs: Vec<String>) {
