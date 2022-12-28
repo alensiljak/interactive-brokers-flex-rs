@@ -14,14 +14,14 @@ pub fn parse() -> FlexQueryResponse {
     parse_file(&filename)
 }
 
-pub fn parse_file(filename: &String) -> FlexQueryResponse {
+pub fn parse_file(filename: &str) -> FlexQueryResponse {
     let content = std::fs::read_to_string(filename).expect("xml file read");
     //log::debug!("file content: {:?}", content);
 
     parse_string(&content)
 }
 
-pub fn parse_string(content: &String) -> FlexQueryResponse {
+pub fn parse_string(content: &str) -> FlexQueryResponse {
     serde_xml_rs::from_str(content)
         .expect("parsed XML")
 }
