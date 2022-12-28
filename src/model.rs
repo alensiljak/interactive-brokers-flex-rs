@@ -12,20 +12,20 @@ use crate::flex_query_def::CashTransaction;
  * The ledger transaction record.
  * Used for comparison between IB (translated) and Ledger records.
  */
-#[derive(Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct LedgerTransaction {
-    date: String,
-    report_date: String,
+    pub date: String,
+    pub report_date: String,
     // effective_date: str = None
-    payee: String,
-    account: String,
-    amount: Decimal,
-    currency: String,
-    symbol: String, // required for IB Cash Transactions
-    r#type: String,
+    pub payee: String,
+    pub account: String,
+    pub amount: Decimal,
+    pub currency: String,
+    pub symbol: String, // required for IB Cash Transactions
+    pub r#type: String,
 }
 
-const ISO_DATE_FMT: &str = "%Y-%m-%d";
+// const ISO_DATE_FMT: &str = "%Y-%m-%d";
 
 impl From<&CashTransaction> for LedgerTransaction {
     fn from(value: &CashTransaction) -> Self {
@@ -52,6 +52,7 @@ impl From<&CashTransaction> for LedgerTransaction {
         }
     }
 }
+
 
 #[cfg(test)]
 mod tests {

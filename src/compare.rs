@@ -10,6 +10,7 @@ use chrono::{Days, Local};
 use crate::{
     flex_query_def::CashTransaction,
     flex_query_parser::{self, parse_file},
+    model::LedgerTransaction,
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -59,7 +60,7 @@ fn load_symbols() -> Result<HashMap<String, String>, Error> {
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
-fn get_ledger_tx() -> Vec<String> {
+fn get_ledger_tx() -> Vec<LedgerTransaction> {
     let end_date = Local::now().date_naive();
     let start_date = end_date
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
@@ -78,7 +79,13 @@ fn get_ledger_tx() -> Vec<String> {
     let output = run_ledger(command);
 
     // Parse output.
-    todo!("parse");
+    let txs: Vec<LedgerTransaction> = output.iter().map(|line| parse_ledger_tx(line)).collect();
+
+    txs
+}
+
+fn parse_ledger_tx(line: &String) -> LedgerTransaction {
+    todo!("parse")
 }
 
 /// Runs Ledger with the given command and returns the output in lines.
@@ -107,10 +114,10 @@ fn run_ledger(cmd: String) -> Vec<String> {
  * Returns transactions from the Flex Report, for comparison.
  * symbols is a HashMap of symbol rewrites.
  */
-fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<String> {
+fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<LedgerTransaction> {
     let ib_txs = read_ib_cash_transactions();
-    
-    let mut txs: Vec<String> = vec![];
+
+    let mut txs: Vec<LedgerTransaction> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
     for tx in ib_txs {
         // todo: skip any not
@@ -118,12 +125,11 @@ fn get_ib_tx(symbols: HashMap<String, String>) -> Vec<String> {
             println!("Skipping...");
         }
 
-        // todo: rewrite the symbols if found in the symbols collection
-        // i.e. VHYL = VHYL.AS
+        let ltx: LedgerTransaction = (&tx).into();
 
-        txs.push(format!("{:?}", tx));
+        txs.push(ltx);
     }
-    
+
     txs
 }
 
@@ -152,8 +158,23 @@ fn read_ib_cash_transactions() -> Vec<CashTransaction> {
     ib_txs
 }
 
-fn compare_txs(ib_txs: Vec<String>, ledger_txs: Vec<String>) {
-    todo!("compare");
+fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction>) {
+    for ibtx in ib_txs {
+        let matches: Vec<&LedgerTransaction> = if DATE_MODE == "effective" {
+            todo!("complete");
+        } else {
+            ledger_txs.iter()
+                .filter(|tx| tx.date == ibtx.date && tx.symbol == ibtx.symbol &&
+                    tx.amount == ibtx.amount)
+                    .collect()
+        };
+
+        if matches.is_empty() {
+            //let output = format
+            println!("not found in ledger: {:?}", ibtx);
+        }
+    }
+    println!("Complete.");
 }
 
 // Tests
@@ -164,8 +185,8 @@ mod tests {
 
     use rstest::fixture;
 
+    use super::{get_ib_tx, load_symbols, run_ledger};
     use crate::flex_query_def::CashTransaction;
-    use super::{load_symbols, run_ledger, get_ib_tx};
 
     /// Load symbols through PriceDb.
     #[test]
@@ -195,7 +216,7 @@ mod tests {
             description: "TCBT distribution".into(),
             r#type: "DIST".into(),
             listingExchange: "AMS".into(),
-            symbol: "TCBT".into()
+            symbol: "TCBT".into(),
         };
 
         vec![dist]
@@ -209,6 +230,4 @@ mod tests {
 
         assert!(!ib_tx.is_empty());
     }
-
-
 }
