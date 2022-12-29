@@ -36,11 +36,10 @@ pub fn ledger_init_path(tests_directory_path: String) -> String {
 }
 
 #[fixture]
-pub fn cmp_params(flex_report_path: String) -> CompareParams {
-    let ledger_init_file = None;
+pub fn cmp_params(flex_report_path: String, ledger_init_path: String) -> CompareParams {
     CompareParams {
         flex_report_path: Some(flex_report_path),
-        ledger_init_file,
+        ledger_init_file: Some(ledger_init_path),
     }
 }
 

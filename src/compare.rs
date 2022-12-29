@@ -270,12 +270,8 @@ mod tests {
 
     #[rstest::rstest]
     #[test_log::test]
-    fn test_comparison(flex_report_path: String) {
-        let cmp_param = CompareParams {
-            flex_report_path: Some(flex_report_path),
-            ledger_init_file: None,
-        };
-        let actual = compare(cmp_param);
+    fn test_comparison(cmp_params: CompareParams) {
+        let actual = compare(cmp_params);
 
         assert!(!actual.is_err());
     }
