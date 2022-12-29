@@ -119,7 +119,7 @@ fn get_ib_tx(flex_report_path: Option<String>) -> Vec<LedgerTransaction> {
     convert_ib_tx(ib_txs)
 }
 
-pub fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<LedgerTransaction> {
+fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<LedgerTransaction> {
     let mut txs: Vec<LedgerTransaction> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
     for tx in ib_txs {
