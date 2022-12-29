@@ -66,8 +66,8 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
     let broker_id = "ib";
 
     let mut command = r#"r -b {date_param} \
-        -d \"(account =~ /income/ and account =~ /{broker_id}/) or \
-        (account =~ /{broker_id}/ and account =~ /withh/)\""#
+        -d "(account =~ /income/ and account =~ /{broker_id}/) or \
+        (account =~ /{broker_id}/ and account =~ /withh/)""#
         .to_string();
 
     // broker
@@ -102,11 +102,12 @@ fn parse_ledger_tx(line: &String) -> LedgerTransaction {
 
 /// Runs Ledger with the given command and returns the output in lines.
 fn run_ledger(cmd: &str) -> Vec<String> {
-    let args: Vec<&str> = cmd.split_whitespace().collect();
-    log::debug!("args: {:?}", args);
+    //let args: Vec<&str> = cmd.split_whitespace().collect();
+    //log::debug!("args: {:?}", args);
 
     let output = Command::new("ledger")
-        .args(args)
+        .arg(cmd)
+        //.args(args)
         .output()
         // .spawn()
         .expect("ledger command ran");
