@@ -2,40 +2,35 @@
  * Test the app
  */
 
-use std::env;
+// use std::env;
 
-use ibflex::{compare::CompareParams, download::DownloadParams};
+// use ibflex::{compare::CompareParams, download::DownloadParams};
 
-/**
- * Define a database to use.
- */
-#[rstest::fixture]
-fn database() {}
+// #[tokio::test]
+// async fn test_download_w_params() {
+//     let params = DownloadParams::new(Some(12345_u32), &Some("12345".to_string()));
+//     let actual = ibflex::download::download(params).await;
 
-#[rstest::fixture]
-fn app() {}
+//     // println!("got {:?}", actual);
 
-#[tokio::test]
-async fn test_download_w_params() {
-    let params = DownloadParams::new(Some(12345_u32), &Some("12345".to_string()));
-    let actual = ibflex::download::download(params).await;
+//     assert_ne!(String::default(), actual);
+//     assert!(actual.contains("xml"));
+// }
 
-    // println!("got {:?}", actual);
+// /**
+//  * Tests comparison.
+//  * Requires a .toml configuration file with the token and query id set-up beforehand.
+//  */
+// #[rstest::rstest]
+// fn test_comparison() {
+//     // prepare
+//     //env::set_var("token", "123");
 
-    assert_ne!(String::default(), actual);
-    assert!(actual.contains("xml"));
-}
+//     let params = CompareParams {
+//         flex_report_path: None,
+//         ledger_init_file: None,
+//     };
+//     let actual = ibflex::compare::compare(params);
 
-#[rstest::rstest]
-fn test_comparison() {
-    // prepare
-    env::set_var("token", "123");
-
-    let params = CompareParams {
-        flex_report_path: None,
-        ledger_init_file: None,
-    };
-    let actual = ibflex::compare::compare(params);
-
-    assert!(!actual.is_err());
-}
+//     assert!(!actual.is_err());
+// }

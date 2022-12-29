@@ -237,15 +237,16 @@ mod tests {
     #[rstest::rstest]
     #[test_log::test]
     fn run_ledger_test(ledger_init_path: String) {
-        let init_file_param = "--init-file ".to_string() + &ledger_init_path;
-        let cmd = vec!["b active and cash", init_file_param.as_str()];
-        log::debug!("Query: {:?}", cmd);
+        let mut cmd = "b active and cash --init-file ".to_string();
+        cmd.push_str(&ledger_init_path);
+        let args = cmd.split_whitespace().collect();
+        log::debug!("Query: {:?}", args);
 
-        let actual = run_ledger(cmd);
+        let actual = run_ledger(args);
 
         assert!(!actual.is_empty());
         assert_ne!(actual[0], String::default());
-        assert_eq!("-3.00 EUR  Assets:Active:Cash", actual[0]);
+        assert_eq!("           -3.00 EUR  Assets:Active:Cash", actual[0]);
     }
 
     /// Test fetching the required Ledger transactions.
@@ -268,7 +269,7 @@ mod tests {
 
     #[rstest::rstest]
     #[test_log::test]
-    fn test_comparison(cmp_params: CompareParams) {
+    fn test_compare(cmp_params: CompareParams) {
         let actual = compare(cmp_params);
 
         assert!(!actual.is_err());
