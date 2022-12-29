@@ -146,7 +146,7 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
 
 #[cfg(test)]
 mod tests {
-    use chrono::Datelike;
+    use chrono::{Datelike, NaiveDate};
     use rust_decimal::Decimal;
 
     use crate::model::CommonTransaction;
@@ -158,7 +158,7 @@ mod tests {
      * `l r --init-file tests/init.ledger`
      */
     #[test_log::test]
-    fn parse_header_row() {
+    fn test_parse_header_row() {
         let line = r#"2022-12-01 Supermarket                        Expenses:Food                                      15.00 EUR            15.00 EUR"#;
 
         let header = CommonTransaction::default();
@@ -191,14 +191,39 @@ mod tests {
      * Parse the posting rows (not the top row).
      * `l r --init-file tests/init.ledger`
      */
-    #[test]
-    fn parse_posting_row() {
-        let header = CommonTransaction::default();
+    #[test_log::test]
+    fn parse_posting_row_test() {
+        let header = CommonTransaction {
+            date: NaiveDate::from_ymd_opt(2022, 12, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
+            report_date: String::default(),
+            payee: "Supermarket".to_string(),
+            account: "Expenses:Food".to_string(),
+            amount: Decimal::from(15),
+            currency: "EUR".to_string(),
+            description: String::default(),
+            symbol: String::default(),
+            r#type: String::default(),
+        };
         
         let line = r#"                                              Assets:Bank:Checking                              -15.00 EUR                    0"#;
 
         let actual = get_row_from_register_line(line, &header);
 
+        // Date
+        assert_eq!(actual.date.year(), 2022);
+        // Payee
+        assert!(!actual.payee.is_empty());
+        assert_eq!(actual.payee, "Supermarket");
+        // Account
+        assert!(!actual.account.is_empty());
+        assert_eq!(actual.account, "Assets:Bank:Checking");
+        // Type
+        assert!(!actual.r#type.is_empty());
+        // Amount
         assert!(!actual.amount.is_zero());
+        assert_eq!(actual.amount, Decimal::from(-15));
+        // Currency
+        assert!(!actual.currency.is_empty());
+        assert_eq!(actual.currency, "EUR");
     }
 }
