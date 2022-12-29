@@ -1,0 +1,15 @@
+; Test ledger journal
+
+2022-12-01 Supermarket
+    Expenses:Food  15 EUR
+    Assets:Bank:Checking
+
+2022-12-15 TRET Distribution
+    ; matches the Flex report
+    Income:Investment:IB:TRET                        -38.40 EUR
+    Expenses:Investment:IB:Withholding Tax             5.77 EUR
+    Assets:Investment:IB:Cash
+
+2022-12-16 Maroni
+    Expenses:Food  3 EUR
+    Assets:Active:Cash

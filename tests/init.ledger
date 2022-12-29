@@ -1,0 +1,2 @@
+--date-format %Y-%m-%d
+--file ./tests/journal.ledger

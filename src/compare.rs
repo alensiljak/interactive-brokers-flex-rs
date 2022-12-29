@@ -63,22 +63,28 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
         .expect("calculated start date");
 
-    let command = r#"r -b {date_param} \
-        -d \"(account =~ /income/ and account =~ /ib aus/) or \
-        (account =~ /ib/ and account =~ /withh/)\""#;
+    let broker_id = "ib";
+
+    let mut command = r#"r -b {date_param} \
+        -d \"(account =~ /income/ and account =~ /{broker_id}/) or \
+        (account =~ /{broker_id}/ and account =~ /withh/)\""#
+        .to_string();
+
+    // broker
+    command = command.replace("{broker_id}", broker_id);
 
     let date_param = start_date.format("%Y-%m-%d").to_string();
-    let mut command = command.replace("{date_param}", date_param.as_str());
+    command = command.replace("{date_param}", date_param.as_str());
 
     if DATE_MODE == "effective" {
         command += " --effective"
     }
 
     if let Some(init_file) = ledger_init_file {
-        command += format!("--init-file {}", &init_file).as_str();
+        command += format!(" --init-file {}", &init_file).as_str();
     };
 
-    log::debug!("running {}", command);
+    log::debug!("running: {}", command);
 
     let output = run_ledger(&command);
 
@@ -96,12 +102,11 @@ fn parse_ledger_tx(line: &String) -> LedgerTransaction {
 
 /// Runs Ledger with the given command and returns the output in lines.
 fn run_ledger(cmd: &str) -> Vec<String> {
-    let args: Vec<&str> = cmd.split(' ').collect();
-    // remove the first attribute (ledger)
-    let prog_args = &args[1..];
+    let args: Vec<&str> = cmd.split_whitespace().collect();
+    log::debug!("args: {:?}", args);
 
     let output = Command::new("ledger")
-        .args(prog_args)
+        .args(args)
         .output()
         // .spawn()
         .expect("ledger command ran");
@@ -218,7 +223,7 @@ mod tests {
     use crate::{
         compare::{convert_ib_tx, CompareParams},
         flex_query_def::CashTransaction,
-        test_fixtures::{cash_transactions, flex_report_path},
+        test_fixtures::*,
     };
 
     /// Load symbols through PriceDb.
@@ -230,13 +235,17 @@ mod tests {
     }
 
     /// Confirm that Ledger can be invoked from the current directory.
+    #[rstest::rstest]
     #[test_log::test]
-    fn run_ledger_test() {
-        let cmd = "b active and cash";
-        let actual = run_ledger(cmd);
+    fn run_ledger_test(ledger_init_path: String) {
+        let cmd = format!("b active and cash --init-file {ledger_init_path}");
+        log::debug!("Query: {}", cmd);
+
+        let actual = run_ledger(&cmd);
 
         assert!(!actual.is_empty());
         assert_ne!(actual[0], String::default());
+        assert_eq!("-3.00 EUR  Assets:Active:Cash", actual[0]);
     }
 
     #[rstest::rstest]
@@ -247,9 +256,11 @@ mod tests {
     }
 
     /// Test fetching the required Ledger transactions.
+    #[rstest::rstest]
     #[test_log::test]
-    fn test_get_ledger_tx() {
-        let actual = get_ledger_tx(None);
+    fn test_get_ledger_tx(ledger_init_path: String) {
+        let path_opt = Some(ledger_init_path);
+        let actual = get_ledger_tx(path_opt);
 
         assert!(!actual.is_empty());
     }
@@ -258,7 +269,7 @@ mod tests {
     fn test_comparison(flex_report_path: String) {
         let cmp_param = CompareParams {
             flex_report_path: Some(flex_report_path),
-            ledger_init_file: None
+            ledger_init_file: None,
         };
         let actual = compare(cmp_param);
 

@@ -4,20 +4,32 @@
 
 use rstest::fixture;
 
-use crate::{flex_query_def::CashTransaction, compare::CompareParams};
+use crate::{compare::CompareParams, flex_query_def::CashTransaction};
 
 #[fixture]
-pub fn flex_report_path() -> String {
+pub fn tests_directory_path() -> String {
     let cur_dir = std::env::current_dir().expect("current directory");
-    let path = format!(
-        "{}{}{}{}{}",
+    let tests_path = format!(
+        "{}{}{}{}",
         cur_dir.display(),
         std::path::MAIN_SEPARATOR,
         "tests",
         std::path::MAIN_SEPARATOR,
-        "report_1.xml"
     );
+
+    tests_path
+}
+#[fixture]
+pub fn flex_report_path(tests_directory_path: String) -> String {
+    let path = format!("{tests_directory_path}{}", "report_1.xml");
     // canonicalize(path)
+
+    path
+}
+
+#[fixture]
+pub fn ledger_init_path(tests_directory_path: String) -> String {
+    let path = format!("{tests_directory_path}{}", "init.ledger");
 
     path
 }
