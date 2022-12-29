@@ -10,7 +10,7 @@ use chrono::{Days, Local};
 use crate::{
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
-    model::CommonTransaction, ledger_reg_output_parser::{clean_up_register_output, self},
+    model::CommonTransaction, ledger_reg_output_parser::{self},
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -65,28 +65,28 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
 
     let date_param = start_date.format("%Y-%m-%d").to_string();
 
-    let mut args = vec![
-        "r",
-        "-b", &date_param,
-        "-d", 
-        r#""(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#,
-    ];
+    let mut cmd = "r".to_string();
+    
+    cmd.push_str(" -b");
+    cmd.push_str(&date_param);
+    cmd.push_str(" -d",);
+    cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#);
 
     if DATE_MODE == "effective" {
-        args.push("--effective");
+        cmd.push_str(" --effective");
     }
 
     let mut init_file_param = String::default();
     if let Some(init_file) = ledger_init_file {
-        args.push("--init-file");
+        cmd.push_str(" --init-file ");
 
         init_file_param.push_str(&init_file);
-        args.push(&init_file_param);
+        cmd.push_str(&init_file_param);
     };
 
-    log::debug!("running: {:?}", args);
+    log::debug!("running: {:?}", cmd);
 
-    let mut output = run_ledger(args);
+    let mut output = run_ledger(&cmd);
 
     // cleanup
     output = ledger_reg_output_parser::clean_up_register_output(output);
@@ -98,8 +98,9 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
 }
 
 /// Runs Ledger with the given command and returns the output in lines.
-fn run_ledger(args: Vec<&str>) -> Vec<String> {
-    //let args: Vec<&str> = cmd.split_whitespace().collect();
+/// cmd: The ledger command to execute, without `ledger` at the beginning.
+fn run_ledger(cmd: &str) -> Vec<String> {
+    let args: Vec<&str> = cmd.split_whitespace().collect();
     //log::debug!("args: {:?}", args);
 
     let output = Command::new("ledger")
@@ -239,10 +240,9 @@ mod tests {
     fn run_ledger_test(ledger_init_path: String) {
         let mut cmd = "b active and cash --init-file ".to_string();
         cmd.push_str(&ledger_init_path);
-        let args = cmd.split_whitespace().collect();
-        log::debug!("Query: {:?}", args);
+        log::debug!("Query: {:?}", cmd);
 
-        let actual = run_ledger(args);
+        let actual = run_ledger(&cmd);
 
         assert!(!actual.is_empty());
         assert_ne!(actual[0], String::default());

@@ -10,8 +10,8 @@ There are several components involved:
 - ✅ `ibflex` library exposes the following functionality
   - ✅ downloans the Flex report
   - ✅ parses IB Flex report
-  - [ ] runs Ledger command to retrieve the distribution transactions in the last 60 days (incomplete)
-  - [ ] runs the comparison for the downloaded Cash Transactions Flex .xml report and the last 60 days in Ledger (incomplete)
+  - ✅ runs Ledger command to retrieve the distribution transactions in the last 60 days
+  - ✅ runs the comparison for the downloaded Cash Transactions Flex .xml report and the last 60 days in Ledger
 - ✅ `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually to read from own database.
 
 # Usage
