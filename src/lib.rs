@@ -13,3 +13,5 @@ pub mod flex_statement;
 pub mod model;
 #[cfg(test)]
 mod test_fixtures;
+
+pub const ISO_DATE_FORMAT: &str ="%Y-%m-%d";

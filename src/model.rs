@@ -4,10 +4,10 @@
 
 use std::{fmt::Display, str::FromStr};
 
-use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
+use chrono::{DateTime, Local, NaiveDateTime, TimeZone, NaiveDate};
 use rust_decimal::Decimal;
 
-use crate::flex_query_def::CashTransaction;
+use crate::{flex_query_def::CashTransaction, ISO_DATE_FORMAT};
 
 /**
  * The ledger transaction record.
@@ -31,6 +31,8 @@ pub struct LedgerTransaction {
 
 impl From<&CashTransaction> for LedgerTransaction {
     fn from(value: &CashTransaction) -> Self {
+        log::debug!("converting: {:?}", value);
+
         // prepare symbol
         let mut symbol = value.symbol.to_owned();
         // Eliminate 'd' at the end of the symbol.
@@ -39,8 +41,18 @@ impl From<&CashTransaction> for LedgerTransaction {
         }
 
         LedgerTransaction {
-            date: NaiveDateTime::parse_from_str(value.dateTime.as_str(), "%Y-%m-%d;%H:%M:%S")
-                .expect("valid date/time"),
+            date: match value.dateTime.len() {
+                10 => {
+                    log::debug!("the date is {}", value.dateTime);
+
+                    let tx_date = NaiveDate::parse_from_str(value.dateTime.as_str(), ISO_DATE_FORMAT)
+                    .expect("valid date expected");
+                    NaiveDateTime::from(tx_date.and_hms_opt(0, 0, 0).unwrap())
+                },
+                19 => NaiveDateTime::parse_from_str(value.dateTime.as_str(), "%Y-%m-%d;%H:%M:%S")
+                    .expect("valid date/time expected"),
+                _ => panic!("Invalid date/time"),
+            },
             report_date: value.reportDate.to_owned(),
             payee: String::default(),   // not used
             account: String::default(), // not used
@@ -52,7 +64,7 @@ impl From<&CashTransaction> for LedgerTransaction {
                 "Withholding Tax" => "Tax".to_string(),
                 _ => value.r#type.to_string(),
             },
-            description: value.description.to_owned()
+            description: value.description.to_owned(),
         }
     }
 }

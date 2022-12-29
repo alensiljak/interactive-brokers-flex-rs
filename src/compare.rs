@@ -64,7 +64,6 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
         .expect("calculated start date");
 
     let date_param = start_date.format("%Y-%m-%d").to_string();
-    //let begin_date = "-b ".to_string() + &date_param;
 
     let mut args = vec![
         "r",
@@ -77,11 +76,10 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
         args.push("--effective");
     }
 
-    // let mut init_file_param = "--init-file ".to_string();
     let mut init_file_param = String::default();
     if let Some(init_file) = ledger_init_file {
         args.push("--init-file");
-        // args.push(&init_file_param);
+
         init_file_param.push_str(&init_file);
         args.push(&init_file_param);
     };
@@ -252,13 +250,6 @@ mod tests {
         assert_eq!("-3.00 EUR  Assets:Active:Cash", actual[0]);
     }
 
-    #[rstest::rstest]
-    fn test_convert_ib_txs(cash_transactions: Vec<CashTransaction>) {
-        let ib_tx = convert_ib_tx(cash_transactions);
-
-        assert!(!ib_tx.is_empty());
-    }
-
     /// Test fetching the required Ledger transactions.
     #[rstest::rstest]
     #[test_log::test]
@@ -270,6 +261,15 @@ mod tests {
     }
 
     #[rstest::rstest]
+    #[test_log::test]
+    fn test_convert_ib_txs(cash_transactions: Vec<CashTransaction>) {
+        let ib_tx = convert_ib_tx(cash_transactions);
+
+        assert!(!ib_tx.is_empty());
+    }
+
+    #[rstest::rstest]
+    #[test_log::test]
     fn test_comparison(flex_report_path: String) {
         let cmp_param = CompareParams {
             flex_report_path: Some(flex_report_path),
