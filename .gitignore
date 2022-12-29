@@ -16,5 +16,4 @@ Cargo.lock
 
 # Custom
 .ledgerrc
-ibflex.toml
 report.rest

@@ -16,21 +16,23 @@
 //     assert_ne!(String::default(), actual);
 //     assert!(actual.contains("xml"));
 // }
+    //env::set_var("token", "123");
 
-// /**
-//  * Tests comparison.
-//  * Requires a .toml configuration file with the token and query id set-up beforehand.
-//  */
-// #[rstest::rstest]
-// fn test_comparison() {
-//     // prepare
-//     //env::set_var("token", "123");
+use assert_cmd::Command;
 
-//     let params = CompareParams {
-//         flex_report_path: None,
-//         ledger_init_file: None,
-//     };
-//     let actual = ibflex::compare::compare(params);
+/**
+ * Tests comparison.
+ * Requires a default .toml configuration file.
+ */
+#[rstest::rstest]
+fn test_comparison() {
+    // prepare
 
-//     assert!(!actual.is_err());
-// }
+    let mut cmd = Command::cargo_bin("ibflex").unwrap();
+
+    let assert = cmd.args(vec!["cmp"]).assert();
+    //assert!(!actual.is_err());
+    assert.success();
+    
+    todo!("add assertions");
+}

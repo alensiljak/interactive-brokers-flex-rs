@@ -1,0 +1,5 @@
+flex_query_id = '000000'
+ib_token = '000000000000000000000000'
+flex_report_path = "./tests/report_1.xml"
+flex_reports_dir = "./tests/"
+ledger_init_file = "./tests/init.ledger"
