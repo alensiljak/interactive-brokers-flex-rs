@@ -4,7 +4,7 @@
 
 use std::{fmt::Display, str::FromStr};
 
-use chrono::{DateTime, Local, NaiveDateTime, TimeZone, NaiveDate};
+use chrono::{NaiveDateTime, NaiveDate};
 use rust_decimal::Decimal;
 
 use crate::{flex_query_def::CashTransaction, ISO_DATE_FORMAT};
@@ -14,7 +14,7 @@ use crate::{flex_query_def::CashTransaction, ISO_DATE_FORMAT};
  * Used for comparison between IB (translated) and Ledger records.
  */
 #[derive(Debug, Default, PartialEq, Eq)]
-pub struct LedgerTransaction {
+pub struct CommonTransaction {
     pub date: NaiveDateTime,
     pub report_date: String,
     // effective_date: str = None
@@ -29,7 +29,7 @@ pub struct LedgerTransaction {
 
 // const ISO_DATE_FMT: &str = "%Y-%m-%d";
 
-impl From<&CashTransaction> for LedgerTransaction {
+impl From<&CashTransaction> for CommonTransaction {
     fn from(value: &CashTransaction) -> Self {
         log::debug!("converting: {:?}", value);
 
@@ -40,7 +40,7 @@ impl From<&CashTransaction> for LedgerTransaction {
             symbol = symbol[..symbol.len() - 1].to_string();
         }
 
-        LedgerTransaction {
+        CommonTransaction {
             date: match value.dateTime.len() {
                 10 => {
                     log::debug!("the date is {}", value.dateTime);
@@ -69,7 +69,7 @@ impl From<&CashTransaction> for LedgerTransaction {
     }
 }
 
-impl Display for LedgerTransaction {
+impl Display for CommonTransaction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -91,7 +91,7 @@ mod tests {
     use rust_decimal::Decimal;
     use std::str::FromStr;
 
-    use crate::{flex_query_def::CashTransaction, model::LedgerTransaction};
+    use crate::{flex_query_def::CashTransaction, model::CommonTransaction};
 
     #[fixture]
     fn cash_transactions() -> Vec<CashTransaction> {
@@ -100,7 +100,7 @@ mod tests {
 
     #[rstest]
     fn conversion_test(cash_transactions: Vec<CashTransaction>) {
-        let t1: LedgerTransaction = LedgerTransaction::from(&cash_transactions[0]);
+        let t1 = CommonTransaction::from(&cash_transactions[0]);
 
         // assert
         assert_eq!(String::default(), t1.account);

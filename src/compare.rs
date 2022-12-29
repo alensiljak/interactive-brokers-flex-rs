@@ -10,7 +10,7 @@ use chrono::{Days, Local};
 use crate::{
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
-    model::LedgerTransaction,
+    model::CommonTransaction, ledger_reg_output_parser::clean_up_register_output,
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -57,7 +57,7 @@ fn load_symbols() -> Result<HashMap<String, String>, Error> {
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
-fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
+fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
     let end_date = Local::now().date_naive();
     let start_date = end_date
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
@@ -86,17 +86,19 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
 
     log::debug!("running: {:?}", args);
 
-    let output = run_ledger(args);
+    let mut output = run_ledger(args);
 
-    log::debug!("ledger output: {:?}", output);
+    // cleanup
+    output = clean_up_register_output(output);
 
     // Parse output.
-    let txs: Vec<LedgerTransaction> = output.iter().map(|line| parse_ledger_tx(line)).collect();
+    let txs: Vec<CommonTransaction> = output.iter()
+        .map(|line| parse_ledger_tx(line)).collect();
 
     txs
 }
 
-fn parse_ledger_tx(line: &String) -> LedgerTransaction {
+fn parse_ledger_tx(line: &String) -> CommonTransaction {
     todo!("parse")
 }
 
@@ -127,7 +129,7 @@ fn run_ledger(args: Vec<&str>) -> Vec<String> {
  * Returns transactions from the Flex Report, for comparison.
  * symbols is a HashMap of symbol rewrites.
  */
-fn get_ib_tx(flex_report_path: Option<String>) -> Vec<LedgerTransaction> {
+fn get_ib_tx(flex_report_path: Option<String>) -> Vec<CommonTransaction> {
     // load symbols
     let symbols = load_symbols().unwrap();
 
@@ -136,8 +138,8 @@ fn get_ib_tx(flex_report_path: Option<String>) -> Vec<LedgerTransaction> {
     convert_ib_tx(ib_txs)
 }
 
-fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<LedgerTransaction> {
-    let mut txs: Vec<LedgerTransaction> = vec![];
+fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
+    let mut txs: Vec<CommonTransaction> = vec![];
     let skip = ["WHTAX", "DIVIDEND"];
     for tx in ib_txs {
         // todo: skip any not
@@ -145,7 +147,7 @@ fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<LedgerTransaction> {
             println!("Skipping...");
         }
 
-        let ltx: LedgerTransaction = (&tx).into();
+        let ltx: CommonTransaction = (&tx).into();
 
         txs.push(ltx);
     }
@@ -179,9 +181,9 @@ fn read_flex_report(flex_report_path: Option<String>) -> Vec<CashTransaction> {
     ib_txs
 }
 
-fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction>) {
+fn compare_txs(ib_txs: Vec<CommonTransaction>, ledger_txs: Vec<CommonTransaction>) {
     for ibtx in ib_txs {
-        let matches: Vec<&LedgerTransaction> = if DATE_MODE == "effective" {
+        let matches: Vec<&CommonTransaction> = if DATE_MODE == "effective" {
             todo!("complete");
         } else {
             ledger_txs

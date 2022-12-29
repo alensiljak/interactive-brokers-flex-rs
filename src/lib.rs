@@ -10,6 +10,7 @@ pub mod download;
 pub mod flex_query_def;
 pub mod flex_query_reader;
 pub mod flex_statement;
+pub mod ledger_reg_output_parser;
 pub mod model;
 #[cfg(test)]
 mod test_fixtures;
