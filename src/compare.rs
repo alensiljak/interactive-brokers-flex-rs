@@ -10,7 +10,7 @@ use chrono::{Days, Local};
 use crate::{
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
-    model::CommonTransaction, ledger_reg_output_parser::clean_up_register_output,
+    model::CommonTransaction, ledger_reg_output_parser::{clean_up_register_output, self},
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -89,17 +89,12 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
     let mut output = run_ledger(args);
 
     // cleanup
-    output = clean_up_register_output(output);
+    output = ledger_reg_output_parser::clean_up_register_output(output);
 
     // Parse output.
-    let txs: Vec<CommonTransaction> = output.iter()
-        .map(|line| parse_ledger_tx(line)).collect();
+    let txs = ledger_reg_output_parser::get_rows_from_register(output);
 
     txs
-}
-
-fn parse_ledger_tx(line: &String) -> CommonTransaction {
-    todo!("parse")
 }
 
 /// Runs Ledger with the given command and returns the output in lines.
@@ -117,7 +112,8 @@ fn run_ledger(args: Vec<&str>) -> Vec<String> {
     let result: Vec<String> = String::from_utf8(output.stdout)
         .unwrap()
         .lines()
-        .map(|line| line.trim().to_owned())
+        //.map(|line| line.trim().to_owned())
+        .map(|line| line.to_owned())
         .collect();
 
     log::debug!("output is {:?}", result);

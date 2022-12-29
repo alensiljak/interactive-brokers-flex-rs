@@ -12,9 +12,7 @@ use crate::{model::CommonTransaction, ISO_DATE_FORMAT};
 /**
  * Ledger Register row.
  */
-pub struct RegisterRow {
-
-}
+pub struct RegisterRow {}
 
 /**
  * Clean-up the ledger register report.
@@ -45,17 +43,16 @@ pub fn clean_up_register_output(lines: Vec<String>) -> Vec<String> {
  */
 pub fn get_rows_from_register(ledger_lines: Vec<String>) -> Vec<CommonTransaction> {
     let mut txs: Vec<CommonTransaction> = vec![];
-    // remember the header row, which contains the medatada: date, symbol.
-    let prev_row = CommonTransaction::default();
+    // remember the transaction row, with the medatada: date, symbol...
+    let empty_tx = CommonTransaction::default();
+    let mut prev_row = &empty_tx;
 
     for line in ledger_lines {
-        let tx = get_row_from_register_line(&line, &prev_row);
-
-        // todo:
-        //if tx.date
-        // prev_row = tx
+        let tx = get_row_from_register_line(&line, prev_row);
 
         txs.push(tx);
+
+        prev_row = txs.last().unwrap();
     }
     txs
 }
@@ -86,8 +83,8 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
         // parse
         log::debug!("parsing date: {:?}", date_str);
 
-        let tx_date = NaiveDate::parse_from_str(date_str, ISO_DATE_FORMAT)
-            .expect("valid date expected");
+        let tx_date =
+            NaiveDate::parse_from_str(date_str, ISO_DATE_FORMAT).expect("valid date expected");
         NaiveDateTime::from(tx_date.and_hms_opt(0, 0, 0).unwrap())
     };
 
@@ -194,7 +191,10 @@ mod tests {
     #[test_log::test]
     fn parse_posting_row_test() {
         let header = CommonTransaction {
-            date: NaiveDate::from_ymd_opt(2022, 12, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
+            date: NaiveDate::from_ymd_opt(2022, 12, 1)
+                .unwrap()
+                .and_hms_opt(0, 0, 0)
+                .unwrap(),
             report_date: String::default(),
             payee: "Supermarket".to_string(),
             account: "Expenses:Food".to_string(),
@@ -204,7 +204,7 @@ mod tests {
             symbol: String::default(),
             r#type: String::default(),
         };
-        
+
         let line = r#"                                              Assets:Bank:Checking                              -15.00 EUR                    0"#;
 
         let actual = get_row_from_register_line(line, &header);
