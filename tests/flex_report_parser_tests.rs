@@ -2,10 +2,13 @@
  * Test parsing the Flex report
  */
 
-use ibflex::{flex_query_def::{FlexQueryResponse, CashTransaction}, compare::CompareParams};
+use ibflex::{
+    compare::CompareParams,
+    flex_query_def::{CashTransaction, FlexQueryResponse},
+};
 
-    #[rstest::rstest]
-    #[test_log::test]
+#[rstest::rstest]
+#[test_log::test]
 fn parse_file_test() {
     let mut expected = FlexQueryResponse::default();
     let tx1 = CashTransaction {
@@ -18,15 +21,34 @@ fn parse_file_test() {
         symbol: "TCBT".to_string(),
         r#type: "Withholding Tax".to_string(),
     };
-    expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction.push(tx1);
+    expected
+        .FlexStatements
+        .FlexStatement
+        .CashTransactions
+        .CashTransaction
+        .push(tx1);
 
-    let cmp_params = CompareParams::new(Some("tests/report_1.xml".to_string()), None, None);
+    let cmp_params = CompareParams {
+        flex_report_path: Some("tests/report_1.xml".to_string()),
+        flex_reports_dir: None,
+        ledger_init_file: None,
+    };
     let report = ibflex::flex_query_reader::load_report(&cmp_params);
     let actual = FlexQueryResponse::from(report);
 
     //assert_eq!(expected, actual);
-    assert_eq!(expected.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0],
-        actual.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0]);
+    assert_eq!(
+        expected
+            .FlexStatements
+            .FlexStatement
+            .CashTransactions
+            .CashTransaction[0],
+        actual
+            .FlexStatements
+            .FlexStatement
+            .CashTransactions
+            .CashTransaction[0]
+    );
 }
 
 #[test]
@@ -60,9 +82,21 @@ fn parse_string_test() {
     assert_eq!("Last30CalendarDays", stmt.period);
     assert_eq!("2022-12-25;14:53:12", stmt.whenGenerated);
     // cash transactions
-    assert_eq!(7, actual.FlexStatements.FlexStatement.CashTransactions.CashTransaction.len());
+    assert_eq!(
+        7,
+        actual
+            .FlexStatements
+            .FlexStatement
+            .CashTransactions
+            .CashTransaction
+            .len()
+    );
     // cash transaction
-    let tx1 = &actual.FlexStatements.FlexStatement.CashTransactions.CashTransaction[0];
+    let tx1 = &actual
+        .FlexStatements
+        .FlexStatement
+        .CashTransactions
+        .CashTransaction[0];
     assert_eq!("2022-12-14", tx1.reportDate);
     assert_eq!("2022-12-15;12:20:00", tx1.dateTime);
     assert_eq!("TCBT", tx1.symbol);
@@ -70,5 +104,8 @@ fn parse_string_test() {
     assert_eq!("Withholding Tax", tx1.r#type);
     assert_eq!("-0.91", tx1.amount);
     assert_eq!("EUR", tx1.currency);
-    assert_eq!("TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX", tx1.description);
+    assert_eq!(
+        "TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX",
+        tx1.description
+    );
 }

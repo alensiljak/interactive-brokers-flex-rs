@@ -15,8 +15,9 @@ pub struct Config {
     pub flex_query_id: String,
     pub ib_token: String,
     // Comparison
-    pub flex_report_path: String,
-    pub ledger_init_file: String,
+    pub flex_report_path: Option<String>,
+    pub flex_reports_dir: Option<String>,
+    pub ledger_init_file: Option<String>,
 }
 
 /**

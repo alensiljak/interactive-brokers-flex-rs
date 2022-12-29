@@ -208,20 +208,6 @@ pub struct CompareParams {
     pub ledger_init_file: Option<String>,
 }
 
-impl CompareParams {
-    pub fn new(
-        flex_report_path: Option<String>,
-        flex_reports_dir: Option<String>,
-        ledger_init_file: Option<String>,
-    ) -> Self {
-        Self {
-            flex_report_path,
-            flex_reports_dir,
-            ledger_init_file,
-        }
-    }
-}
-
 // Tests
 
 #[cfg(test)]
