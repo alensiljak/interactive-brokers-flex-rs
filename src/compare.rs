@@ -9,7 +9,8 @@ use chrono::{Days, Local};
 
 use crate::{
     flex_query_def::{CashTransaction, FlexQueryResponse},
-    model::LedgerTransaction, flex_query_reader::load_report,
+    flex_query_reader::load_report,
+    model::LedgerTransaction,
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -18,14 +19,14 @@ const TRANSACTION_DAYS: u8 = 60;
 /**
  * Compares transactions in the downloaded IB Flex report to Ledger.
  */
-pub fn compare(flex_report_path: Option<String>) -> anyhow::Result<()> {
+pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     log::debug!("comparing distributions");
 
     // get_ib_report_tx
-    let ib_tx = get_ib_tx(flex_report_path);
+    let ib_tx = get_ib_tx(params.flex_report_path);
 
     // get_ledger_tx
-    let ledger_tx = get_ledger_tx();
+    let ledger_tx = get_ledger_tx(params.ledger_init_file);
 
     // compare
     compare_txs(ib_tx, ledger_tx);
@@ -56,23 +57,32 @@ fn load_symbols() -> Result<HashMap<String, String>, Error> {
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
-fn get_ledger_tx() -> Vec<LedgerTransaction> {
+fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
     let end_date = Local::now().date_naive();
     let start_date = end_date
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
         .expect("calculated start date");
 
-    let date_param = start_date.format("%Y-%m-%d").to_string();
-    let command = r#"ledger r -b {date_param}
-        -d \"(account =~ /income/ and account =~ /ib aus/) or
+    let command = r#"r -b {date_param} \
+        -d \"(account =~ /income/ and account =~ /ib aus/) or \
         (account =~ /ib/ and account =~ /withh/)\""#;
+
+    let date_param = start_date.format("%Y-%m-%d").to_string();
     let mut command = command.replace("{date_param}", date_param.as_str());
 
     if DATE_MODE == "effective" {
         command += " --effective"
     }
 
-    let output = run_ledger(command);
+    if let Some(init_file) = ledger_init_file {
+        command += format!("--init-file {}", &init_file).as_str();
+    };
+
+    log::debug!("running {}", command);
+
+    let output = run_ledger(&command);
+
+    log::debug!("ledger output: {:?}", output);
 
     // Parse output.
     let txs: Vec<LedgerTransaction> = output.iter().map(|line| parse_ledger_tx(line)).collect();
@@ -85,7 +95,7 @@ fn parse_ledger_tx(line: &String) -> LedgerTransaction {
 }
 
 /// Runs Ledger with the given command and returns the output in lines.
-fn run_ledger(cmd: String) -> Vec<String> {
+fn run_ledger(cmd: &str) -> Vec<String> {
     let args: Vec<&str> = cmd.split(' ').collect();
     // remove the first attribute (ledger)
     let prog_args = &args[1..];
@@ -101,6 +111,7 @@ fn run_ledger(cmd: String) -> Vec<String> {
         .lines()
         .map(|line| line.trim().to_owned())
         .collect();
+
     log::debug!("output is {:?}", result);
 
     result
@@ -176,19 +187,39 @@ fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction
         };
 
         if matches.is_empty() {
-            //let output = format
             println!("New: {}", ibtx);
         }
     }
     println!("Complete.");
 }
 
+/**
+ * Parameters for comparing the IB Flex report and Ledger report.
+ */
+pub struct CompareParams {
+    pub flex_report_path: Option<String>,
+    pub ledger_init_file: Option<String>,
+}
+
+impl CompareParams {
+    pub fn new(flex_report_path: Option<String>, ledger_init_file: Option<String>) -> Self {
+        Self {
+            flex_report_path,
+            ledger_init_file,
+        }
+    }
+}
+
 // Tests
 
 #[cfg(test)]
 mod tests {
-    use super::{load_symbols, run_ledger, compare};
-    use crate::{flex_query_def::CashTransaction, compare::convert_ib_tx, test_fixtures::{cash_transactions, flex_report_path}};
+    use super::{compare, get_ledger_tx, load_symbols, run_ledger};
+    use crate::{
+        compare::{convert_ib_tx, CompareParams},
+        flex_query_def::CashTransaction,
+        test_fixtures::{cash_transactions, flex_report_path},
+    };
 
     /// Load symbols through PriceDb.
     #[test]
@@ -200,8 +231,8 @@ mod tests {
 
     /// Confirm that Ledger can be invoked from the current directory.
     #[test_log::test]
-    fn ledger_run_test() {
-        let cmd = "ledger b active and cash".to_owned();
+    fn run_ledger_test() {
+        let cmd = "b active and cash";
         let actual = run_ledger(cmd);
 
         assert!(!actual.is_empty());
@@ -215,9 +246,21 @@ mod tests {
         assert!(!ib_tx.is_empty());
     }
 
+    /// Test fetching the required Ledger transactions.
+    #[test_log::test]
+    fn test_get_ledger_tx() {
+        let actual = get_ledger_tx(None);
+
+        assert!(!actual.is_empty());
+    }
+
     #[rstest::rstest]
     fn test_comparison(flex_report_path: String) {
-        let actual = compare(Some(flex_report_path));
+        let cmp_param = CompareParams {
+            flex_report_path: Some(flex_report_path),
+            ledger_init_file: None
+        };
+        let actual = compare(cmp_param);
 
         assert!(!actual.is_err());
     }

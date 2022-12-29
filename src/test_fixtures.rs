@@ -4,7 +4,7 @@
 
 use rstest::fixture;
 
-use crate::flex_query_def::CashTransaction;
+use crate::{flex_query_def::CashTransaction, compare::CompareParams};
 
 #[fixture]
 pub fn flex_report_path() -> String {
@@ -20,6 +20,15 @@ pub fn flex_report_path() -> String {
     // canonicalize(path)
 
     path
+}
+
+#[fixture]
+pub fn cmp_params(flex_report_path: String) -> CompareParams {
+    let ledger_init_file = None;
+    CompareParams {
+        flex_report_path: Some(flex_report_path),
+        ledger_init_file,
+    }
 }
 
 #[fixture]

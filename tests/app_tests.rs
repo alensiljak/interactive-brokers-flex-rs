@@ -4,38 +4,38 @@
 
 use std::env;
 
-use ibflex::download::DownloadParams;
+use ibflex::{compare::CompareParams, download::DownloadParams};
 
- /**
-  * Define a database to use.
-  */
+/**
+ * Define a database to use.
+ */
 #[rstest::fixture]
-fn database() {
-
-}
+fn database() {}
 
 #[rstest::fixture]
-fn app() {
-    
-}
+fn app() {}
 
 #[tokio::test]
 async fn test_download_w_params() {
-  let params = DownloadParams::new(Some(12345_u32), &Some("12345".to_string()));
-  let actual = ibflex::download::download(params).await;
+    let params = DownloadParams::new(Some(12345_u32), &Some("12345".to_string()));
+    let actual = ibflex::download::download(params).await;
 
-  // println!("got {:?}", actual);
+    // println!("got {:?}", actual);
 
-  assert_ne!(String::default(), actual);
-  assert!(actual.contains("xml"));
+    assert_ne!(String::default(), actual);
+    assert!(actual.contains("xml"));
 }
 
 #[rstest::rstest]
- fn test_comparison() {
+fn test_comparison() {
     // prepare
     env::set_var("token", "123");
 
-    let actual = ibflex::compare::compare(None);
+    let params = CompareParams {
+        flex_report_path: None,
+        ledger_init_file: None,
+    };
+    let actual = ibflex::compare::compare(params);
 
     assert!(!actual.is_err());
 }

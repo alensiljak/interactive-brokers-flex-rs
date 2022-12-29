@@ -17,7 +17,7 @@ pub enum Commands {
     #[command(about = "downloads the IB Flex Cash Tx report")]
     Dl(DlParams),
     #[command(about = "compares IB Flex Cash Tx report and Ledger")]
-    Cmp(CompareParams)
+    Cmp(CmpParams)
 }
 
 #[derive(Debug, clap::Args)]
@@ -29,7 +29,8 @@ pub struct DlParams {
 }
 
 #[derive(Debug, clap::Args)]
-pub struct CompareParams {
+pub struct CmpParams {
     #[arg(short, long)]
-    pub flex_report_path: Option<String>
+    pub flex_report_path: Option<String>,
+    pub ledger_init_file: Option<String>,
 }
