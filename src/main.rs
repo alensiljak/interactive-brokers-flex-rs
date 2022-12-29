@@ -24,7 +24,7 @@ async fn main() {
 
             println!("Flex Query saved to {path}");
         }
-        Commands::Compare(params) => {
+        Commands::Cmp(params) => {
             ibflex::compare::compare(params.flex_report_path.to_owned())
                 .expect("transactions compared");
         }

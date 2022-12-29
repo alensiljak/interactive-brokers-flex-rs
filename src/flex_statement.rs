@@ -18,6 +18,7 @@ pub struct FlexStatementResponse {
 }
 
 pub fn parse_response_text(text: &str) -> FlexStatementResponse {
-    let statement: FlexStatementResponse = serde_xml_rs::from_str(text).expect("parsed statement");
+    let statement: FlexStatementResponse = serde_xml_rs::from_str(text)
+        .expect("parsed statement");
     statement
 }

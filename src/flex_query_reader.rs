@@ -51,7 +51,7 @@ fn get_latest_filename(file_pattern: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::{flex_query_def::FlexQueryResponse, flex_query_reader::load_report};
+    use crate::{flex_query_def::FlexQueryResponse, flex_query_reader::load_report, test_fixtures::flex_report_path};
 
     use super::get_latest_filename;
 
@@ -62,20 +62,9 @@ mod tests {
         assert!(!actual.is_empty());
     }
 
-    #[test]
-    fn test_parse_file() -> anyhow::Result<()> {
-        let cur_dir = std::env::current_dir()?;
-        let filename = format!(
-            "{}{}{}{}{}",
-            cur_dir.display(),
-            std::path::MAIN_SEPARATOR,
-            "tests",
-            std::path::MAIN_SEPARATOR,
-            "report_1.xml"
-        );
-        // canonicalize(path)
-
-        let report = load_report(Some(filename));
+    #[rstest::rstest]
+    fn test_parse_file(flex_report_path: String) -> anyhow::Result<()> {
+        let report = load_report(Some(flex_report_path));
         let actual = FlexQueryResponse::from(report);
 
         assert_ne!(

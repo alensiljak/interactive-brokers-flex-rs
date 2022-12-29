@@ -7,6 +7,22 @@ use rstest::fixture;
 use crate::flex_query_def::CashTransaction;
 
 #[fixture]
+pub fn flex_report_path() -> String {
+    let cur_dir = std::env::current_dir().expect("current directory");
+    let path = format!(
+        "{}{}{}{}{}",
+        cur_dir.display(),
+        std::path::MAIN_SEPARATOR,
+        "tests",
+        std::path::MAIN_SEPARATOR,
+        "report_1.xml"
+    );
+    // canonicalize(path)
+
+    path
+}
+
+#[fixture]
 pub fn cash_transactions() -> Vec<CashTransaction> {
     let tx1 = CashTransaction {
         reportDate: "2022-12-14".to_string(),

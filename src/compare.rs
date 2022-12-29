@@ -177,7 +177,7 @@ fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction
 
         if matches.is_empty() {
             //let output = format
-            println!("not found in ledger: {:?}", ibtx);
+            println!("New: {}", ibtx);
         }
     }
     println!("Complete.");
@@ -187,8 +187,8 @@ fn compare_txs(ib_txs: Vec<LedgerTransaction>, ledger_txs: Vec<LedgerTransaction
 
 #[cfg(test)]
 mod tests {
-    use super::{load_symbols, run_ledger};
-    use crate::{flex_query_def::CashTransaction, compare::convert_ib_tx, test_fixtures::cash_transactions};
+    use super::{load_symbols, run_ledger, compare};
+    use crate::{flex_query_def::CashTransaction, compare::convert_ib_tx, test_fixtures::{cash_transactions, flex_report_path}};
 
     /// Load symbols through PriceDb.
     #[test]
@@ -213,5 +213,12 @@ mod tests {
         let ib_tx = convert_ib_tx(cash_transactions);
 
         assert!(!ib_tx.is_empty());
+    }
+
+    #[rstest::rstest]
+    fn test_comparison(flex_report_path: String) {
+        let actual = compare(Some(flex_report_path));
+
+        assert!(!actual.is_err());
     }
 }

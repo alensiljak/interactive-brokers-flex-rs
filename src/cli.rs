@@ -17,7 +17,7 @@ pub enum Commands {
     #[command(about = "downloads the IB Flex Cash Tx report")]
     Dl(DlParams),
     #[command(about = "compares IB Flex Cash Tx report and Ledger")]
-    Compare(CompareParams)
+    Cmp(CompareParams)
 }
 
 #[derive(Debug, clap::Args)]

@@ -2,8 +2,9 @@
  * The domain model.
  */
 
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
+use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 use rust_decimal::Decimal;
 
 use crate::flex_query_def::CashTransaction;
@@ -14,7 +15,7 @@ use crate::flex_query_def::CashTransaction;
  */
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct LedgerTransaction {
-    pub date: String,
+    pub date: NaiveDateTime,
     pub report_date: String,
     // effective_date: str = None
     pub payee: String,
@@ -23,6 +24,7 @@ pub struct LedgerTransaction {
     pub currency: String,
     pub symbol: String, // required for IB Cash Transactions
     pub r#type: String,
+    pub description: String,
 }
 
 // const ISO_DATE_FMT: &str = "%Y-%m-%d";
@@ -37,22 +39,39 @@ impl From<&CashTransaction> for LedgerTransaction {
         }
 
         LedgerTransaction {
-            date: value.dateTime.to_owned(),
+            date: NaiveDateTime::parse_from_str(value.dateTime.as_str(), "%Y-%m-%d;%H:%M:%S")
+                .expect("valid date/time"),
             report_date: value.reportDate.to_owned(),
             payee: String::default(),   // not used
             account: String::default(), // not used
             amount: Decimal::from_str(value.amount.as_str()).unwrap(),
-            currency: String::default(), // not used
+            currency: value.currency.to_owned(),
             symbol,
             r#type: match value.r#type.as_str() {
-                "DIVIDEND" => "Div".to_string(),
-                "WHTAX" => "Tax".to_string(),
+                "Dividends" => "Div".to_string(),
+                "Withholding Tax" => "Tax".to_string(),
                 _ => value.r#type.to_string(),
             },
+            description: value.description.to_owned()
         }
     }
 }
 
+impl Display for LedgerTransaction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}/{} {:7} {} {:>7} {}, {}",
+            self.report_date,
+            self.date.date(),
+            self.symbol,
+            self.r#type,
+            self.amount,
+            self.currency,
+            self.description
+        )
+    }
+}
 
 #[cfg(test)]
 mod tests {
