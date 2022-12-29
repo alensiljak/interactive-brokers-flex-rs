@@ -13,6 +13,8 @@ mod cli;
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+    
     let cli = Cli::parse();
 
     match &cli.command {

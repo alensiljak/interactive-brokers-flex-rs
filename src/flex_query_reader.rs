@@ -41,6 +41,8 @@ pub fn get_latest_report_path(report_dir: Option<String>) -> String {
 /// Get the latest of the filest matching the given pattern.
 /// Pattern example: *.xml
 fn get_latest_filename(file_pattern: &str) -> String {
+    log::debug!("file pattern: {:?}", file_pattern);
+    
     let mut filenames: Vec<String> = glob::glob(file_pattern)
         .expect("directory list")
         .filter_map(|entry| {
