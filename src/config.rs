@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::download::DownloadParams;
+use crate::{download::DownloadParams, compare::CompareParams};
 
 /**
  * Configuration structure for ibflex
@@ -42,6 +42,22 @@ pub fn get_dl_config(params: DownloadParams) -> Config {
     } else if let Ok(env_tkn) = std::env::var("IBFLEX_TOKEN") {
         cfg.ib_token = env_tkn;
     };
+
+    cfg
+}
+
+pub fn get_cmp_config(params: &CompareParams) -> Config {
+    let mut cfg = read_config_file();
+
+    if let Some(flex_report_path) = &params.flex_report_path {
+        cfg.flex_report_path = Some(flex_report_path.to_owned());
+    }
+    if let Some(flex_reports_dir) = &params.flex_reports_dir {
+        cfg.flex_reports_dir = Some(flex_reports_dir.to_owned());
+    }
+    if let Some(ledger_init_file) = &params.ledger_init_file {
+        cfg.ledger_init_file = Some(ledger_init_file.to_owned());
+    }
 
     cfg
 }

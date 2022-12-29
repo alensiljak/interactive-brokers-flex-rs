@@ -3,7 +3,7 @@
  * The logic for choosing a file.
  */
 
-use crate::compare::CompareParams;
+use crate::config::Config;
 
 const FILE_SUFFIX: &str = "_cash-tx.xml";
 
@@ -14,12 +14,12 @@ const FILE_SUFFIX: &str = "_cash-tx.xml";
  * If the path to the directory is given, the latest report from that directory
  * will be loaded.
  */
-pub fn load_report(params: &CompareParams) -> String {
-    log::debug!("load_report with: {:?}", params);
-    
-    let report_path = match &params.flex_report_path {
+pub fn load_report(cfg: &Config) -> String {
+    log::debug!("load_report with: {:?}", cfg);
+
+    let report_path = match &cfg.flex_report_path {
         Some(file_path) => file_path.to_owned(),
-        None => get_latest_report_path(params.flex_reports_dir.to_owned()),
+        None => get_latest_report_path(cfg.flex_reports_dir.to_owned()),
     };
 
     std::fs::read_to_string(report_path).expect("xml file read")
@@ -73,7 +73,7 @@ fn get_latest_filename(file_pattern: &str) -> String {
 #[cfg(test)]
 mod tests {
     use crate::{flex_query_def::FlexQueryResponse, flex_query_reader::load_report, 
-        test_fixtures::*, compare::CompareParams};
+        test_fixtures::*, config::Config};
 
     use super::get_latest_filename;
 
@@ -85,8 +85,8 @@ mod tests {
     }
 
     #[rstest::rstest]
-    fn test_parse_file(cmp_params: CompareParams) -> anyhow::Result<()> {
-        let report = load_report(&cmp_params);
+    fn test_parse_file(cmp_config: Config) -> anyhow::Result<()> {
+        let report = load_report(&cmp_config);
         let actual = FlexQueryResponse::from(report);
 
         assert_ne!(

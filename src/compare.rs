@@ -11,7 +11,7 @@ use crate::{
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
     ledger_reg_output_parser::{self},
-    model::CommonTransaction,
+    model::CommonTransaction, config::{get_cmp_config, Config},
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -22,12 +22,13 @@ const TRANSACTION_DAYS: u8 = 60;
  */
 pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     log::debug!("comparing distributions, params: {:?}", params);
+    let cfg = get_cmp_config(&params);
 
     // get_ib_report_tx
-    let ib_tx = get_ib_tx(&params);
+    let ib_tx = get_ib_tx(&cfg);
 
     // get_ledger_tx
-    let ledger_tx = get_ledger_tx(params.ledger_init_file);
+    let ledger_tx = get_ledger_tx(cfg.ledger_init_file);
 
     // compare
     compare_txs(ib_tx, ledger_tx);
@@ -127,11 +128,11 @@ fn run_ledger(cmd: &str) -> Vec<String> {
  * Returns transactions from the Flex Report, for comparison.
  * symbols is a HashMap of symbol rewrites.
  */
-fn get_ib_tx(params: &CompareParams) -> Vec<CommonTransaction> {
+fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
     // load symbols
     let symbols = load_symbols().unwrap();
 
-    let ib_txs = read_flex_report(params);
+    let ib_txs = read_flex_report(cfg);
 
     convert_ib_tx(ib_txs)
 }
@@ -157,8 +158,8 @@ fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
  * Reads the Cash Transaction records from the Flex Report.
  * Sorts by date/time, symbol, type.
  */
-fn read_flex_report(params: &CompareParams) -> Vec<CashTransaction> {
-    let content = load_report(params);
+fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
+    let content = load_report(cfg);
     let response = FlexQueryResponse::from(content);
 
     let mut ib_txs = response

@@ -5,7 +5,7 @@
 use chrono::Local;
 use rstest::fixture;
 
-use crate::{compare::CompareParams, flex_query_def::CashTransaction, ISO_DATE_FORMAT};
+use crate::{compare::CompareParams, flex_query_def::CashTransaction, ISO_DATE_FORMAT, config::{Config, get_cmp_config}};
 
 #[fixture]
 pub fn tests_directory_path() -> String {
@@ -42,6 +42,11 @@ pub fn cmp_params(flex_report_path: String, ledger_init_path: String) -> Compare
         flex_reports_dir: None,
         ledger_init_file: Some(ledger_init_path),
     }
+}
+
+#[fixture]
+pub fn cmp_config(cmp_params: CompareParams) -> Config {
+    get_cmp_config(&cmp_params)
 }
 
 #[fixture]
