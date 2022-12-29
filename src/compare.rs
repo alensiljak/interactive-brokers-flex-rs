@@ -21,7 +21,7 @@ const TRANSACTION_DAYS: u8 = 60;
  * Compares transactions in the downloaded IB Flex report to Ledger.
  */
 pub fn compare(params: CompareParams) -> anyhow::Result<()> {
-    log::debug!("comparing distributions");
+    log::debug!("comparing distributions, params: {:?}", params);
 
     // get_ib_report_tx
     let ib_tx = get_ib_tx(&params);
@@ -202,7 +202,8 @@ fn compare_txs(ib_txs: Vec<CommonTransaction>, ledger_txs: Vec<CommonTransaction
 /**
  * Parameters for comparing the IB Flex report and Ledger report.
  */
-pub struct CompareParams {
+#[derive(Debug)]
+ pub struct CompareParams {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,

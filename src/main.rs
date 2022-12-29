@@ -4,7 +4,7 @@
 
 use clap::Parser;
 use cli::{Cli, Commands};
-use ibflex::{compare::CompareParams, config::get_config, download::DownloadParams};
+use ibflex::{compare::CompareParams, config::get_dl_config, download::DownloadParams};
 
 /*
  * CLI for operating the library
@@ -14,7 +14,7 @@ mod cli;
 #[tokio::main]
 async fn main() {
     env_logger::init();
-    
+
     let cli = Cli::parse();
 
     match &cli.command {
@@ -26,6 +26,7 @@ async fn main() {
 
             println!("Flex Query saved to {path}");
         }
+
         Commands::Cmp(params) => {
             let cmp_params = CompareParams {
                 flex_report_path: params.flex_report_path.to_owned(),
@@ -34,8 +35,9 @@ async fn main() {
             };
             ibflex::compare::compare(cmp_params).expect("transactions compared");
         }
+
         Commands::Cfg => {
-            let cfg = get_config(DownloadParams::default());
+            let cfg = get_dl_config(DownloadParams::default());
             println!("{:?}", cfg);
         }
     }

@@ -6,7 +6,7 @@
 
 use chrono::Local;
 
-use crate::config::get_config;
+use crate::config::get_dl_config;
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
 const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
@@ -35,7 +35,7 @@ impl DownloadParams {
  */
 pub async fn download(params: DownloadParams) -> String {
     // get the configuration
-    let cfg = get_config(params);
+    let cfg = get_dl_config(params);
 
     // download the report
     let report = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
@@ -123,7 +123,7 @@ mod tests {
      */
     #[tokio::test]
     async fn request_report_test() {
-        let cfg = crate::config::get_config(DownloadParams::default());
+        let cfg = crate::config::get_dl_config(DownloadParams::default());
         let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
 
         assert_ne!(String::default(), actual);
@@ -137,7 +137,7 @@ mod tests {
      */
     #[tokio::test]
     async fn report_download_test() {
-        let cfg = crate::config::get_config(DownloadParams::default());
+        let cfg = crate::config::get_dl_config(DownloadParams::default());
         let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
 
         assert!(result.contains("FlexQueryResponse"));

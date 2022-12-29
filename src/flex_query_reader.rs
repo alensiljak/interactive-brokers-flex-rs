@@ -15,6 +15,8 @@ const FILE_SUFFIX: &str = "_cash-tx.xml";
  * will be loaded.
  */
 pub fn load_report(params: &CompareParams) -> String {
+    log::debug!("load_report with: {:?}", params);
+    
     let report_path = match &params.flex_report_path {
         Some(file_path) => file_path.to_owned(),
         None => get_latest_report_path(params.flex_reports_dir.to_owned()),
@@ -42,7 +44,7 @@ pub fn get_latest_report_path(report_dir: Option<String>) -> String {
 /// Pattern example: *.xml
 fn get_latest_filename(file_pattern: &str) -> String {
     log::debug!("file pattern: {:?}", file_pattern);
-    
+
     let mut filenames: Vec<String> = glob::glob(file_pattern)
         .expect("directory list")
         .filter_map(|entry| {

@@ -26,7 +26,7 @@ pub struct Config {
  * 2.) environment variables,
  * 3.) config file in the current directory
  */
-pub fn get_config(params: DownloadParams) -> Config {
+pub fn get_dl_config(params: DownloadParams) -> Config {
     let mut cfg = read_config_file();
 
     // overwrite the file values if provided by other means
