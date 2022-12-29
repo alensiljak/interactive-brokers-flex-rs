@@ -10,7 +10,8 @@ use chrono::{Days, Local};
 use crate::{
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
-    model::CommonTransaction, ledger_reg_output_parser::{self},
+    ledger_reg_output_parser::{self},
+    model::CommonTransaction,
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -23,7 +24,7 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     log::debug!("comparing distributions");
 
     // get_ib_report_tx
-    let ib_tx = get_ib_tx(params.flex_report_path);
+    let ib_tx = get_ib_tx(&params);
 
     // get_ledger_tx
     let ledger_tx = get_ledger_tx(params.ledger_init_file);
@@ -66,10 +67,10 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
     let date_param = start_date.format("%Y-%m-%d").to_string();
 
     let mut cmd = "r".to_string();
-    
+
     cmd.push_str(" -b");
     cmd.push_str(&date_param);
-    cmd.push_str(" -d",);
+    cmd.push_str(" -d");
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#);
 
     if DATE_MODE == "effective" {
@@ -126,11 +127,11 @@ fn run_ledger(cmd: &str) -> Vec<String> {
  * Returns transactions from the Flex Report, for comparison.
  * symbols is a HashMap of symbol rewrites.
  */
-fn get_ib_tx(flex_report_path: Option<String>) -> Vec<CommonTransaction> {
+fn get_ib_tx(params: &CompareParams) -> Vec<CommonTransaction> {
     // load symbols
     let symbols = load_symbols().unwrap();
 
-    let ib_txs = read_flex_report(flex_report_path);
+    let ib_txs = read_flex_report(params);
 
     convert_ib_tx(ib_txs)
 }
@@ -156,8 +157,8 @@ fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
  * Reads the Cash Transaction records from the Flex Report.
  * Sorts by date/time, symbol, type.
  */
-fn read_flex_report(flex_report_path: Option<String>) -> Vec<CashTransaction> {
-    let content = load_report(flex_report_path);
+fn read_flex_report(params: &CompareParams) -> Vec<CashTransaction> {
+    let content = load_report(params);
     let response = FlexQueryResponse::from(content);
 
     let mut ib_txs = response
@@ -203,13 +204,19 @@ fn compare_txs(ib_txs: Vec<CommonTransaction>, ledger_txs: Vec<CommonTransaction
  */
 pub struct CompareParams {
     pub flex_report_path: Option<String>,
+    pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
 }
 
 impl CompareParams {
-    pub fn new(flex_report_path: Option<String>, ledger_init_file: Option<String>) -> Self {
+    pub fn new(
+        flex_report_path: Option<String>,
+        flex_reports_dir: Option<String>,
+        ledger_init_file: Option<String>,
+    ) -> Self {
         Self {
             flex_report_path,
+            flex_reports_dir,
             ledger_init_file,
         }
     }

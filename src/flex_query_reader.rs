@@ -3,20 +3,37 @@
  * The logic for choosing a file.
  */
 
+use crate::compare::CompareParams;
+
 const FILE_SUFFIX: &str = "_cash-tx.xml";
 
-pub fn load_report(path: Option<String>) -> String {
-    let report_path = match path {
-        Some(file_path) => file_path,
-        None => get_latest_report_path(),
+/**
+ * Loads the Flex report.
+ * If the direct path to the report is given, then the report is loaded. This
+ * parameter takes precedence over path.
+ * If the path to the directory is given, the latest report from that directory
+ * will be loaded.
+ */
+pub fn load_report(params: &CompareParams) -> String {
+    let report_path = match &params.flex_report_path {
+        Some(file_path) => file_path.to_owned(),
+        None => get_latest_report_path(params.flex_reports_dir.to_owned()),
     };
 
     std::fs::read_to_string(report_path).expect("xml file read")
 }
 
-pub fn get_latest_report_path() -> String {
+/**
+ * Gets the path to the latest report file in the given directory or the 
+ * current directory, if None received.
+ */
+pub fn get_latest_report_path(report_dir: Option<String>) -> String {
     // Load the latest report file.
-    let pattern = format!("*{}", FILE_SUFFIX);
+    let mut pattern = format!("*{}", FILE_SUFFIX);
+
+    if let Some(dir_path) = report_dir {
+        pattern = dir_path + pattern.as_str();
+    }
 
     get_latest_filename(&pattern)
 }
@@ -51,7 +68,8 @@ fn get_latest_filename(file_pattern: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::{flex_query_def::FlexQueryResponse, flex_query_reader::load_report, test_fixtures::flex_report_path};
+    use crate::{flex_query_def::FlexQueryResponse, flex_query_reader::load_report, 
+        test_fixtures::*, compare::CompareParams};
 
     use super::get_latest_filename;
 
@@ -63,8 +81,8 @@ mod tests {
     }
 
     #[rstest::rstest]
-    fn test_parse_file(flex_report_path: String) -> anyhow::Result<()> {
-        let report = load_report(Some(flex_report_path));
+    fn test_parse_file(cmp_params: CompareParams) -> anyhow::Result<()> {
+        let report = load_report(&cmp_params);
         let actual = FlexQueryResponse::from(report);
 
         assert_ne!(

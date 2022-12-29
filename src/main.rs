@@ -25,8 +25,11 @@ async fn main() {
             println!("Flex Query saved to {path}");
         }
         Commands::Cmp(params) => {
-            let cmp_params =
-                CompareParams::new(params.flex_report_path.to_owned(), params.ledger_init_file.to_owned());
+            let cmp_params = CompareParams::new(
+                params.flex_report_path.to_owned(),
+                params.flex_reports_dir.to_owned(),
+                params.ledger_init_file.to_owned(),
+            );
             ibflex::compare::compare(cmp_params).expect("transactions compared");
         }
         Commands::Cfg => {

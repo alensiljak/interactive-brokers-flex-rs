@@ -30,7 +30,10 @@ pub struct DlParams {
 
 #[derive(Debug, clap::Args)]
 pub struct CmpParams {
-    #[arg(short, long)]
+    #[arg(short, long, help="The report .xml to use for comparison")]
     pub flex_report_path: Option<String>,
+    #[arg(short='d', long, help="Directory that contains the Flex .xml reports")]
+    pub flex_reports_dir: Option<String>,
+    #[arg(short, long, help="Ledger init file (.ledgerrc)")]
     pub ledger_init_file: Option<String>,
 }

@@ -39,6 +39,7 @@ pub fn ledger_init_path(tests_directory_path: String) -> String {
 pub fn cmp_params(flex_report_path: String, ledger_init_path: String) -> CompareParams {
     CompareParams {
         flex_report_path: Some(flex_report_path),
+        flex_reports_dir: None,
         ledger_init_file: Some(ledger_init_path),
     }
 }
