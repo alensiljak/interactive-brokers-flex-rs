@@ -63,30 +63,32 @@ fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<LedgerTransaction> {
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
         .expect("calculated start date");
 
-    let broker_id = "ib";
-
-    let mut command = r#"r -b {date_param} \
-        -d "(account =~ /income/ and account =~ /{broker_id}/) or \
-        (account =~ /{broker_id}/ and account =~ /withh/)""#
-        .to_string();
-
-    // broker
-    command = command.replace("{broker_id}", broker_id);
-
     let date_param = start_date.format("%Y-%m-%d").to_string();
-    command = command.replace("{date_param}", date_param.as_str());
+    //let begin_date = "-b ".to_string() + &date_param;
+
+    let mut args = vec![
+        "r",
+        "-b", &date_param,
+        "-d", 
+        r#""(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#,
+    ];
 
     if DATE_MODE == "effective" {
-        command += " --effective"
+        args.push("--effective");
     }
 
+    // let mut init_file_param = "--init-file ".to_string();
+    let mut init_file_param = String::default();
     if let Some(init_file) = ledger_init_file {
-        command += format!(" --init-file {}", &init_file).as_str();
+        args.push("--init-file");
+        // args.push(&init_file_param);
+        init_file_param.push_str(&init_file);
+        args.push(&init_file_param);
     };
 
-    log::debug!("running: {}", command);
+    log::debug!("running: {:?}", args);
 
-    let output = run_ledger(&command);
+    let output = run_ledger(args);
 
     log::debug!("ledger output: {:?}", output);
 
@@ -101,13 +103,13 @@ fn parse_ledger_tx(line: &String) -> LedgerTransaction {
 }
 
 /// Runs Ledger with the given command and returns the output in lines.
-fn run_ledger(cmd: &str) -> Vec<String> {
+fn run_ledger(args: Vec<&str>) -> Vec<String> {
     //let args: Vec<&str> = cmd.split_whitespace().collect();
     //log::debug!("args: {:?}", args);
 
     let output = Command::new("ledger")
-        .arg(cmd)
-        //.args(args)
+        //.arg(cmd)
+        .args(args)
         .output()
         // .spawn()
         .expect("ledger command ran");
@@ -239,10 +241,11 @@ mod tests {
     #[rstest::rstest]
     #[test_log::test]
     fn run_ledger_test(ledger_init_path: String) {
-        let cmd = format!("b active and cash --init-file {ledger_init_path}");
-        log::debug!("Query: {}", cmd);
+        let init_file_param = "--init-file ".to_string() + &ledger_init_path;
+        let cmd = vec!["b active and cash", init_file_param.as_str()];
+        log::debug!("Query: {:?}", cmd);
 
-        let actual = run_ledger(&cmd);
+        let actual = run_ledger(cmd);
 
         assert!(!actual.is_empty());
         assert_ne!(actual[0], String::default());
