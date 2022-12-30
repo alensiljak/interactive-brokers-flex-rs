@@ -8,10 +8,11 @@ use anyhow::{Error, Ok};
 use chrono::{Days, Local};
 
 use crate::{
+    config::{get_cmp_config, Config},
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
     ledger_reg_output_parser::{self},
-    model::CommonTransaction, config::{get_cmp_config, Config},
+    model::CommonTransaction,
 };
 
 const DATE_MODE: &str = "book"; // "book" / "effective"
@@ -129,24 +130,30 @@ fn run_ledger(cmd: &str) -> Vec<String> {
  * symbols is a HashMap of symbol rewrites.
  */
 fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
-    // load symbols
-    let symbols = load_symbols().unwrap();
-
     let ib_txs = read_flex_report(cfg);
 
     convert_ib_tx(ib_txs)
 }
 
 fn convert_ib_tx(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
+    // load symbols
+    let symbols = load_symbols().unwrap();
     let mut txs: Vec<CommonTransaction> = vec![];
+
     let skip = ["WHTAX", "DIVIDEND"];
     for tx in ib_txs {
-        // todo: skip any not
+        // skip any not matching the expected types.
         if skip.iter().any(|t| *t == tx.r#type) {
             println!("Skipping...");
         }
 
-        let ltx: CommonTransaction = (&tx).into();
+        let mut ltx: CommonTransaction = (&tx).into();
+
+        // use adjusted symbols
+        if symbols.contains_key(&ltx.symbol) {
+            // log::debug!("adjusted symbol: {} -> {}", ltx.symbol, symbols[&ltx.symbol]);
+            ltx.symbol = symbols[&ltx.symbol].to_owned();
+        }
 
         txs.push(ltx);
     }
@@ -204,7 +211,7 @@ fn compare_txs(ib_txs: Vec<CommonTransaction>, ledger_txs: Vec<CommonTransaction
  * Parameters for comparing the IB Flex report and Ledger report.
  */
 #[derive(Debug)]
- pub struct CompareParams {
+pub struct CompareParams {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,

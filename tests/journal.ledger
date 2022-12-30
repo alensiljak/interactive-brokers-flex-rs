@@ -6,7 +6,7 @@
 
 2022-12-15 TRET Distribution
     ; matches the Flex report
-    Income:Investment:IB:TRET                        -38.40 EUR
+    Income:Investment:IB:TRET_AS                     -38.40 EUR
     Expenses:Investment:IB:Withholding Tax             5.77 EUR
     Assets:Investment:IB:Cash
 
