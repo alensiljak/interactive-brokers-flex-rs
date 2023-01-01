@@ -16,7 +16,7 @@
 //     assert_ne!(String::default(), actual);
 //     assert!(actual.contains("xml"));
 // }
-    //env::set_var("token", "123");
+//env::set_var("token", "123");
 
 use assert_cmd::Command;
 
@@ -40,10 +40,13 @@ New: 2022-11-30/2022-11-30         Deposits/Withdrawals    1500 EUR, CASH RECEIP
 New: 2022-12-05/2022-12-05         Broker Interest Received    2.77 AUD, AUD CREDIT INT FOR NOV-2022
 New: 2022-12-14/2022-12-15 TCBT_AS Div    6.05 EUR, TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE (Ordinary Dividend)
 New: 2022-12-14/2022-12-15 TCBT_AS Tax   -0.91 EUR, TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX
-New: 2022-12-15/2022-12-15 TRET_AS Div    38.4 EUR, TRET(NL0009690239) CASH DIVIDEND EUR 0.30 PER SHARE (Ordinary Dividend)
-New: 2022-12-15/2022-12-15 TRET_AS Tax   -5.77 EUR, TRET(NL0009690239) CASH DIVIDEND EUR 0.30 PER SHARE - NL TAX
 Complete.
 "#;
-    assert.success()
-        .stdout(expected);
+
+    /* These should be recognized from the ledger:
+    New: 2022-12-15/2022-12-15 TRET_AS Div    38.4 EUR, TRET(NL0009690239) CASH DIVIDEND EUR 0.30 PER SHARE (Ordinary Dividend)
+    New: 2022-12-15/2022-12-15 TRET_AS Tax   -5.77 EUR, TRET(NL0009690239) CASH DIVIDEND EUR 0.30 PER SHARE - NL TAX
+     */
+    
+    assert.success().stdout(expected);
 }

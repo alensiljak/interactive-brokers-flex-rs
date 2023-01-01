@@ -12,6 +12,9 @@ const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/
 const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
 const STMT_ENDPOINT: &str = "FlexStatementService.GetStatement";
 
+/**
+ * Parameters for the download.
+ */
 #[derive(Debug, Default)]
 pub struct DownloadParams {
     pub query_id: Option<u32>,
