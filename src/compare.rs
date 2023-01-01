@@ -320,7 +320,7 @@ mod tests {
         let actual = get_ledger_tx(path_opt);
 
         assert!(!actual.is_empty());
-        assert_eq!(2, actual.len());
+        assert_eq!(7, actual.len());
     }
 
     #[rstest::rstest]
