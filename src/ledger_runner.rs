@@ -4,43 +4,43 @@
 
 use std::process::{Command, Output};
 
-use chrono::{Local, Days};
+use chrono::{Days, Local};
 use cmd_lib::run_fun;
 
-use crate::{model::CommonTransaction, ledger_reg_output_parser, compare::TRANSACTION_DAYS};
+use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction};
 
- #[allow(unused)]
- fn run_ledger_cmd(cmd: &str) -> Output {
-     log::debug!("ledger cmd: {:?}", cmd);
- 
-     let output = Command::new("ledger")
-         .arg(cmd)
-         // .args(args)
-         .output()
-         // .spawn()
-         .expect("ledger command ran");
- 
-     // let output = command!(r"ledger {cmd}")
-     //     .expect("executed ledger")
-     //     .output()
-     //     .expect("ledger output");
- 
-     output
- }
- 
- #[allow(unused)]
- fn run_ledger_args(args: Vec<String>) -> Output {
-     log::debug!("ledger args: {:?}", args);
- 
-     let output = Command::new("ledger")
-     .args(args)
-     .output()
-     .expect("ledger command ran");
- 
-     output
- }
+#[allow(unused)]
+fn run_ledger_cmd(cmd: &str) -> Output {
+    log::debug!("ledger cmd: {:?}", cmd);
 
- #[allow(unused)]
+    let output = Command::new("ledger")
+        .arg(cmd)
+        // .args(args)
+        .output()
+        // .spawn()
+        .expect("ledger command ran");
+
+    // let output = command!(r"ledger {cmd}")
+    //     .expect("executed ledger")
+    //     .output()
+    //     .expect("ledger output");
+
+    output
+}
+
+#[allow(unused)]
+fn run_ledger_args(args: Vec<String>) -> Output {
+    log::debug!("ledger args: {:?}", args);
+
+    let output = Command::new("ledger")
+        .args(args)
+        .output()
+        .expect("ledger command ran");
+
+    output
+}
+
+#[allow(unused)]
 fn get_ledger_args(date_param: &str, ledger_init_file: Option<String>) -> Vec<String> {
     let mut args: Vec<String> = vec!["r".to_owned()];
     args.push("-b".to_owned());
@@ -152,57 +152,78 @@ mod tests {
     use cmd_lib::run_cmd;
     use cmd_lib::run_fun;
 
-    use crate::test_fixtures::*;
-    use super::run_ledger;
     use super::get_ledger_tx;
+    use super::run_ledger;
+    use crate::test_fixtures::*;
 
-        /// Confirm that Ledger can be invoked from the current directory.
-        #[rstest::rstest]
-        #[test_log::test]
-        fn run_ledger_test(ledger_init_path: String) {
-            let mut cmd = "b active and cash --init-file ".to_string();
-            cmd.push_str(&ledger_init_path);
-            // let actual = run_ledger(&cmd);
-    
-            // let mut args = vec!["b".to_owned()];
-            // args.push("active".to_owned());
-            // args.push("and".to_owned());
-            // args.push("cash".to_owned());
-            // args.push("--init-file".to_owned());
-            // args.push(ledger_init_path);
-            let args = cmd.split_whitespace().into_iter()
-                .map(|item| item.to_owned()).collect();
-            let actual = run_ledger(args);
-    
-            assert!(!actual.is_empty());
-            assert_ne!(actual[0], String::default());
-            assert_eq!("           -3.00 EUR  Assets:Active:Cash", actual[0]);
-        }
-    
-        /// Test fetching the required Ledger transactions.
-        #[rstest::rstest]
-        #[test_log::test]
-        fn test_get_ledger_tx(ledger_init_path: String) {
-            let path_opt = Some(ledger_init_path);
-            let actual = get_ledger_tx(path_opt);
-    
-            assert!(!actual.is_empty());
-            assert_eq!(7, actual.len());
-        }
+    /// Confirm that Ledger can be invoked from the current directory.
+    #[rstest::rstest]
+    #[test_log::test]
+    fn run_ledger_test(ledger_init_path: String) {
+        let mut cmd = "b active and cash --init-file ".to_string();
+        cmd.push_str(&ledger_init_path);
+        // let actual = run_ledger(&cmd);
 
-        /// See if a command can be run with cmd_lib.
-        #[test_log::test]
-        fn test_cmd_lib() {
-            let success = run_cmd!(dir);
-            assert!(success.is_ok());
+        // let mut args = vec!["b".to_owned()];
+        // args.push("active".to_owned());
+        // args.push("and".to_owned());
+        // args.push("cash".to_owned());
+        // args.push("--init-file".to_owned());
+        // args.push(ledger_init_path);
+        let args = cmd
+            .split_whitespace()
+            .into_iter()
+            .map(|item| item.to_owned())
+            .collect();
+        let actual = run_ledger(args);
 
-            let actual = run_fun!(dir).unwrap();
-            log::debug!("actual is: {}", actual);
-            assert_ne!(String::default(), actual);
-        }
+        assert!(!actual.is_empty());
+        assert_ne!(actual[0], String::default());
+        assert_eq!("           -3.00 EUR  Assets:Active:Cash", actual[0]);
+    }
 
-        #[test_log::test]
-        fn test_complex_command_w_cmdlib() {
+    /// Test fetching the required Ledger transactions.
+    #[rstest::rstest]
+    #[test_log::test]
+    fn test_get_ledger_tx(ledger_init_path: String) {
+        let path_opt = Some(ledger_init_path);
+        let actual = get_ledger_tx(path_opt);
 
-        }
+        assert!(!actual.is_empty());
+        assert_eq!(7, actual.len());
+    }
+
+    /// See if a command can be run with cmd_lib.
+    #[test_log::test]
+    fn test_cmd_lib() {
+        let success = run_cmd!(dir);
+        assert!(success.is_ok());
+
+        let actual = run_fun!(dir).unwrap();
+        log::debug!("actual is: {}", actual);
+        assert_ne!(String::default(), actual);
+    }
+
+    /// Proof of concept of running the full command line with ledger parameters.
+    #[test_log::test]
+    fn test_complex_cmdlib() {
+        let result = run_fun!(
+            ledger r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger
+        );
+        let actual = match result {
+            Ok(output) => output,
+            Err(e) => panic!("error: {e}")
+        };
+
+        log::debug!("result: {}", actual);
+
+        // Asserts
+
+        assert_ne!(String::default(), actual);
+
+        let mut expected = String::default();
+        expected += "2022-12-15 TRET Distribution                  Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR\r\n";
+        expected += "                                              Expenses:Investment:IB:Withholding Tax              5.77 EUR           -32.63 EUR\r";
+        assert_eq!(expected, actual);
+    }
 }

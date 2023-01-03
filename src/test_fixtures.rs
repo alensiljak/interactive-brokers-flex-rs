@@ -2,8 +2,6 @@
  * Test fixtures
  */
 
-use std::fs::canonicalize;
-
 use chrono::Local;
 use rstest::fixture;
 
