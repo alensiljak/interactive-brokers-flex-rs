@@ -2,6 +2,8 @@
  * Test fixtures
  */
 
+use std::fs::canonicalize;
+
 use chrono::Local;
 use rstest::fixture;
 
@@ -17,6 +19,10 @@ pub fn tests_directory_path() -> String {
         "tests",
         std::path::MAIN_SEPARATOR,
     );
+
+    // canonicalize("./tests/").expect("valid path")
+    //     .as_os_str().to_str().expect("string ref")
+    //     .to_owned()
 
     tests_path
 }

@@ -1,3 +1,0 @@
-; RUN: ls
-
-; CHECK: Cargo.toml

@@ -18,7 +18,7 @@ pub struct RegisterRow {}
  * Clean-up the ledger register report.
  * The report variable is a list of lines.
  */
-pub fn clean_up_register_output(lines: Vec<String>) -> Vec<String> {
+pub fn clean_up_register_output(lines: Vec<&str>) -> Vec<String> {
     let mut new_vec = vec![];
 
     // eliminate useless lines
@@ -32,7 +32,7 @@ pub fn clean_up_register_output(lines: Vec<String>) -> Vec<String> {
             continue;
         }
 
-        new_vec.push(line);
+        new_vec.push(line.to_owned());
     }
 
     new_vec

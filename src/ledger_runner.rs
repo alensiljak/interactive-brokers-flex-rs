@@ -5,6 +5,7 @@
 use std::process::{Command, Output};
 
 use chrono::{Local, Days};
+use cmd_lib::run_fun;
 
 use crate::{model::CommonTransaction, ledger_reg_output_parser, compare::TRANSACTION_DAYS};
 
@@ -61,11 +62,11 @@ fn get_ledger_args(date_param: &str, ledger_init_file: Option<String>) -> Vec<St
 
 #[allow(unused)]
 fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>) -> String {
-    let mut cmd = "r".to_string();
+    let mut cmd = "ledger r".to_string();
 
     cmd.push_str(" -b ");
     cmd.push_str(date_param);
-    cmd.push_str(" -d");
+    cmd.push_str(" -d ");
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#);
 
     if crate::compare::DATE_MODE == "effective" {
@@ -82,6 +83,7 @@ fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>) -> String 
 
 /// Runs Ledger with the given command and returns the output in lines.
 /// cmd: The ledger command to execute, without `ledger` at the beginning.
+#[allow(unused)]
 fn run_ledger(args: Vec<String>) -> Vec<String> {
     // cmd: &str
 
@@ -112,20 +114,33 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
 
     let date_param = start_date.format("%Y-%m-%d").to_string();
 
-    // let cmd = get_ledger_cmd(&date_param, ledger_init_file);
-    let args = get_ledger_args(&date_param, ledger_init_file);
+    let cmd = get_ledger_cmd(&date_param, ledger_init_file);
+    // let args = get_ledger_args(&date_param, ledger_init_file);
 
-    // log::debug!("running: {:?}", cmd);
+    log::debug!("running: {}", cmd);
 
-    let mut output = run_ledger(args);
+    // let mut output = run_ledger(args);
+    let output = get_ledger_tx_cmdlib(&cmd);
+
+    let lines: Vec<&str> = output.lines().collect();
 
     // cleanup
-    output = ledger_reg_output_parser::clean_up_register_output(output);
+    let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
 
     // Parse output.
-    let txs = ledger_reg_output_parser::get_rows_from_register(output);
+    let txs = ledger_reg_output_parser::get_rows_from_register(clean_lines);
 
     txs
+}
+
+fn get_ledger_tx_cmdlib(cmd: &str) -> String {
+    // run_fun!(
+    //     ledger r -b ${start_date} -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file ${init_file}
+    // ).unwrap()
+
+    // append the command at the beginning?
+
+    run_fun!($cmd).unwrap()
 }
 
 ////
@@ -134,6 +149,9 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
 
 #[cfg(test)]
 mod tests {
+    use cmd_lib::run_cmd;
+    use cmd_lib::run_fun;
+
     use crate::test_fixtures::*;
     use super::run_ledger;
     use super::get_ledger_tx;
@@ -172,11 +190,19 @@ mod tests {
             assert_eq!(7, actual.len());
         }
 
-        #[test]
-        fn lit_test(){ 
-            lit::run::tests(lit::event_handler::Default::default(), |config| {
-                config.add_search_path("tests/");
-                config.add_extension("lit");
-            }).unwrap()
+        /// See if a command can be run with cmd_lib.
+        #[test_log::test]
+        fn test_cmd_lib() {
+            let success = run_cmd!(dir);
+            assert!(success.is_ok());
+
+            let actual = run_fun!(dir).unwrap();
+            log::debug!("actual is: {}", actual);
+            assert_ne!(String::default(), actual);
+        }
+
+        #[test_log::test]
+        fn test_complex_command_w_cmdlib() {
+
         }
 }
