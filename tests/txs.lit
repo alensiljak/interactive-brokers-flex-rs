@@ -1,0 +1,6 @@
+# Get the ledger transactions.
+
+; RUN: ledger r -b 2022 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger
+
+; CHECK:2022-12-15 TRET Distribution                  Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR
+; CHECK:                                              Expenses:Investment:IB:Withholding Tax              5.77 EUR           -32.63 EUR
