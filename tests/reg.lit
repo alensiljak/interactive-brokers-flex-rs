@@ -1,0 +1,11 @@
+# Get the register report
+
+; RUN: ledger r --init-file tests/init.ledger
+
+; CHECK:2022-12-01 Supermarket                        Expenses:Food                                      15.00 EUR            15.00 EUR
+; CHECK:                                              Assets:Bank:Checking                              -15.00 EUR                    0
+; CHECK:2022-12-15 TRET Distribution                  Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR
+; CHECK:                                              Expenses:Investment:IB:Withholding Tax              5.77 EUR           -32.63 EUR
+; CHECK:                                              Assets:Investment:IB:Cash                          32.63 EUR                    0
+; CHECK:2022-12-16 Maroni                             Expenses:Food                                       3.00 EUR             3.00 EUR
+; CHECK:                                              Assets:Active:Cash                                 -3.00 EUR                    0

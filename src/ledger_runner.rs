@@ -171,4 +171,12 @@ mod tests {
             assert!(!actual.is_empty());
             assert_eq!(7, actual.len());
         }
+
+        #[test]
+        fn lit_test(){ 
+            lit::run::tests(lit::event_handler::Default::default(), |config| {
+                config.add_search_path("tests/");
+                config.add_extension("lit");
+            }).unwrap()
+        }
 }
