@@ -22,6 +22,8 @@ pub fn load_report(cfg: &Config) -> String {
         None => get_latest_report_path(cfg.flex_reports_dir.to_owned()),
     };
 
+    println!("Using {}", report_path);
+
     std::fs::read_to_string(report_path).expect("xml file read")
 }
 

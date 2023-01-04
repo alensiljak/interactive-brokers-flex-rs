@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Display the path to the IB Flex report .xml file used for comparison.
+
 ## [0.4.0] - 2023-01-04
 
 The first acceptable version.
