@@ -6,25 +6,44 @@ use std::process::{Command, Output};
 
 use chrono::{Days, Local};
 
-use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction};
+use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction, cli_runner};
 
-#[allow(unused)]
-fn run_ledger_cmd(cmd: &str) -> Output {
-    log::debug!("ledger cmd: {:?}", cmd);
+/// Get ledger transactions
+/// Ledger must be callable from the current directory.
+pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
+    let end_date = Local::now().date_naive();
+    let start_date = end_date
+        .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
+        .expect("calculated start date");
 
-    let output = Command::new("ledger")
-        .arg(cmd)
-        // .args(args)
-        .output()
-        // .spawn()
-        .expect("ledger command ran");
+    let date_param = start_date.format("%Y-%m-%d").to_string();
 
-    // let output = command!(r"ledger {cmd}")
-    //     .expect("executed ledger")
-    //     .output()
-    //     .expect("ledger output");
+    let cmd = get_ledger_cmd(&date_param, ledger_init_file);
+    // let args = get_ledger_args(&date_param, ledger_init_file);
+    // let args = shell_words::split(&cmd).expect("command args");
 
-    output
+    log::debug!("running: {}", cmd);
+
+    // let output = run_ledger(args);
+    let output = cli_runner::run(&cmd);
+    let out = cli_runner::get_stdout(&output);
+
+    let err = cli_runner::get_stderr(&output);
+    log::debug!("error: {:?}", err);
+    assert!(err.is_empty());
+
+    log::debug!("ledger output: {:?}", out);
+
+    let lines: Vec<&str> = out.lines().collect();
+    // let lines = output.iter().map(|item| item.as_str()).collect();
+
+    // cleanup
+    let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
+
+    // Parse output.
+    let txs = ledger_reg_output_parser::get_rows_from_register(clean_lines);
+
+    txs
 }
 
 #[allow(unused)]
@@ -59,9 +78,8 @@ fn get_ledger_args(date_param: &str, ledger_init_file: Option<String>) -> Vec<St
     args
 }
 
-#[allow(unused)]
 fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>) -> String {
-    let mut cmd = format!("ledger r -b {date_param} -d ");
+    let mut cmd = format!("ledger r -b {date_param} -d");
 
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#);
 
@@ -101,69 +119,6 @@ fn run_ledger(args: Vec<String>) -> Vec<String> {
     result
 }
 
-/// Get ledger transactions
-/// Ledger must be callable from the current directory.
-pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
-    let end_date = Local::now().date_naive();
-    let start_date = end_date
-        .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
-        .expect("calculated start date");
-
-    let date_param = start_date.format("%Y-%m-%d").to_string();
-
-    let cmd = get_ledger_cmd(&date_param, ledger_init_file);
-    // let args = get_ledger_args(&date_param, ledger_init_file);
-    let args = shell_words::split(&cmd).expect("command args");
-
-    log::debug!("running: {}", cmd);
-
-    let output = run_ledger(args);
-
-    //let lines: Vec<&str> = output.lines().collect();
-    let lines = output.iter().map(|item| item.as_str()).collect();
-
-    // cleanup
-    let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
-
-    // Parse output.
-    let txs = ledger_reg_output_parser::get_rows_from_register(clean_lines);
-
-    txs
-}
-
-// fn get_ledger_tx_cmdlib(cmd: &str) -> String {
-//     // run_fun!(
-//     //     ledger r -b ${start_date} -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file ${init_file}
-//     // ).unwrap()
-//     // run_fun!($cmd).unwrap()
-//     run_fun!(${cmd}).unwrap()
-// }
-
-/// Runs Ledger in a shell.
-/// Should handle the command-as-string well.
-#[allow(unused)]
-fn run_ledger_in_shell(cmd: &str) -> Output {
-    log::debug!("running in shell: {}", cmd);
-
-    let output = if cfg!(target_os = "windows") {
-        Command::new("cmd")
-            .args(["/C", cmd])
-            // .arg("/C")
-            // .arg(cmd)
-            .output()
-            .expect("failed to execute process")
-    } else {
-        Command::new("sh")
-            .arg("-c")
-            // .arg("echo hello")
-            .arg(cmd)
-            .output()
-            .expect("failed to execute process")
-    };
-
-    output
-}
-
 ////
 // Tests
 ////
@@ -172,7 +127,6 @@ fn run_ledger_in_shell(cmd: &str) -> Output {
 mod tests {
     use super::get_ledger_tx;
     use super::run_ledger;
-    use crate::ledger_runner::run_ledger_in_shell;
     use crate::test_fixtures::*;
 
     /// Confirm that Ledger can be invoked from the current directory.
@@ -208,26 +162,12 @@ mod tests {
         let path_opt = Some(ledger_init_path);
         let actual = get_ledger_tx(path_opt);
 
+        log::debug!("txs: {:?}", actual);
+
         assert!(!actual.is_empty());
         assert_eq!(7, actual.len());
-    }
 
-    /// The same problem as with cmdlib.
-    /// This can't be used to parse a command containing double quotes.
-    #[test_log::test]
-    fn test_shell() {
-        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
-        // let cmd = "ledger r -b 2022-03-01 -d  \"(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)\" --init-file tests/init.ledger";
-        let output = run_ledger_in_shell(cmd);
-
-        let hello = String::from_utf8(output.stdout).unwrap();
-        log::debug!("stdout: {}", hello);
-
-        let error = String::from_utf8(output.stderr).unwrap();
-        log::debug!("error: {}", error);
-
-        // Effectively, we expect an error here, because the command parsing is bad.
-        assert!(!error.is_empty());
+        assert!(false)
     }
 
     /// Run the complex query on Ledger, using shell-words.

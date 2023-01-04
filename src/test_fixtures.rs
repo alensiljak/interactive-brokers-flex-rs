@@ -9,20 +9,7 @@ use crate::{compare::CompareParams, flex_query_def::CashTransaction, ISO_DATE_FO
 
 #[fixture]
 pub fn tests_directory_path() -> String {
-    let cur_dir = std::env::current_dir().expect("current directory");
-    let tests_path = format!(
-        "{}{}{}{}",
-        cur_dir.display(),
-        std::path::MAIN_SEPARATOR,
-        "tests",
-        std::path::MAIN_SEPARATOR,
-    );
-
-    // canonicalize("./tests/").expect("valid path")
-    //     .as_os_str().to_str().expect("string ref")
-    //     .to_owned()
-
-    tests_path
+    "tests/".to_string()
 }
 #[fixture]
 pub fn flex_report_path(tests_directory_path: String) -> String {

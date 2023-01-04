@@ -69,12 +69,13 @@ mod tests {
         assert!(stderr.is_empty());
     }
 
-    #[test]
+    #[test_log::test]
     fn test_output_conversion() {
         let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
         let output = super::run(cmd);
 
         let so = get_stdout(&output);
+        log::debug!("so: {:?}", so);
         assert!(!so.is_empty());
 
         let se = get_stderr(&output);
