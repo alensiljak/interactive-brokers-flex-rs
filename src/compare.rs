@@ -131,8 +131,15 @@ fn compare_txs(
             ledger_txs
                 .iter()
                 .filter(|tx| {
-                    tx.date == ibtx.date && tx.symbol == ibtx.symbol && 
-                    tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE)
+                    // Compare:
+                    // - date
+                    // - symbol
+                    // - amount
+                    // - type
+                    tx.date == ibtx.date && 
+                    tx.symbol == ibtx.symbol && 
+                    tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE) &&
+                    tx.r#type == ibtx.r#type
                 })
                 .collect()
         };

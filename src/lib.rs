@@ -13,6 +13,7 @@ pub mod flex_statement;
 pub mod ledger_reg_output_parser;
 pub mod ledger_runner;
 pub mod model;
+mod flex_maps;
 #[cfg(test)]
 mod test_fixtures;
 

@@ -7,7 +7,7 @@ use std::{fmt::Display, str::FromStr};
 use chrono::{NaiveDateTime, NaiveDate};
 use rust_decimal::Decimal;
 
-use crate::{flex_query_def::CashTransaction, ISO_DATE_FORMAT};
+use crate::{flex_query_def::CashTransaction, ISO_DATE_FORMAT, flex_maps};
 
 /**
  * The ledger transaction record.
@@ -59,11 +59,7 @@ impl From<&CashTransaction> for CommonTransaction {
             amount: Decimal::from_str(value.amount.as_str()).unwrap(),
             currency: value.currency.to_owned(),
             symbol,
-            r#type: match value.r#type.as_str() {
-                "Dividends" => "Div".to_string(),
-                "Withholding Tax" => "Tax".to_string(),
-                _ => value.r#type.to_string(),
-            },
+            r#type: flex_maps::cash_action(value.r#type.as_str()).to_owned(),
             description: value.description.to_owned(),
         }
     }

@@ -113,7 +113,7 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
 
     // Type
     // Get just the first 2 characters.
-    let account = &account_str[0..3];
+    let account = &account_str[0..2];
     tx.r#type = if account == "In" {
         "Dividend".to_string()
     } else if account == "Ex" {
