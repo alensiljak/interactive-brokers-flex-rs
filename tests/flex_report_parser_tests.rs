@@ -35,7 +35,7 @@ fn parse_file_test() {
     };
     let cmp_config = get_cmp_config(&cmp_params);
 
-    let report = ibflex::flex_query_reader::load_report(&cmp_config);
+    let report = ibflex::flex_reader::load_report(&cmp_config);
     let actual = FlexQueryResponse::from(report);
 
     //assert_eq!(expected, actual);

@@ -23,11 +23,14 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
     log::debug!("running: {}", cmd);
 
     let output = cli_runner::run(&cmd);
-    let out = cli_runner::get_stdout(&output);
 
-    let err = cli_runner::get_stderr(&output);
-    log::debug!("error: {:?}", err);
-    assert!(err.is_empty());
+    if !output.status.success() {
+        let err = cli_runner::get_stderr(&output);
+        panic!("Error running Ledger command: {}", err);
+        // log::debug!("error: {:?}", err);
+        // assert!(err.is_empty());
+    }
+    let out = cli_runner::get_stdout(&output);
 
     log::debug!("ledger output: {:?}", out);
 

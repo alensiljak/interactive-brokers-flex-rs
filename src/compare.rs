@@ -10,7 +10,7 @@ use rust_decimal::Decimal;
 use crate::{
     config::{get_cmp_config, Config},
     flex_query_def::{CashTransaction, FlexQueryResponse},
-    flex_query_reader::load_report,
+    flex_reader::load_report,
     ledger_runner,
     model::CommonTransaction,
 };
