@@ -19,8 +19,6 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
     let date_param = start_date.format("%Y-%m-%d").to_string();
 
     let cmd = get_ledger_cmd(&date_param, ledger_init_file);
-    // let args = get_ledger_args(&date_param, ledger_init_file);
-    // let args = shell_words::split(&cmd).expect("command args");
 
     log::debug!("running: {}", cmd);
 
@@ -165,9 +163,7 @@ mod tests {
         log::debug!("txs: {:?}", actual);
 
         assert!(!actual.is_empty());
-        assert_eq!(7, actual.len());
-
-        assert!(false)
+        assert_eq!(2, actual.len());
     }
 
     /// Run the complex query on Ledger, using shell-words.

@@ -116,6 +116,8 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
     } else if account == "Ex" {
         "Tax".to_string()
     } else {
+        log::warn!("Could not parse type {:?}", account);
+
         "Error!".to_string()
     };
 
