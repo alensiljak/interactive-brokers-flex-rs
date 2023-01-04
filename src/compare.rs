@@ -201,7 +201,7 @@ mod tests {
         let actual = compare_txs(ib_txs, ledger_txs);
 
         assert!(actual.is_ok());
-        assert!(false)
+        // assert!(false)
     }
 
     #[rstest::rstest]

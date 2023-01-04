@@ -115,9 +115,9 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
     // Get just the first 2 characters.
     let account = &account_str[0..2];
     tx.r#type = if account == "In" {
-        CashAction::DIVIDEND.to_string()
+        CashAction::Dividend.to_string()
     } else if account == "Ex" {
-        CashAction::WHTAX.to_string()
+        CashAction::WhTax.to_string()
     } else {
         log::warn!("Could not parse type {:?}", account);
 

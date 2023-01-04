@@ -9,16 +9,16 @@ use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum CashAction {
-    DEPOSITWITHDRAW,
-    BROKERINTPAID,
-    BROKERINTRCVD,
-    WHTAX,
-    BONDINTRCVD,
-    BONDINTPAID,
-    FEES,
-    DIVIDEND,
-    PAYMENTINLIEU,
-    COMMADJ
+    DepositWithdraw,
+    BrokerIntPaid,
+    BrokerIntRcvd,
+    WhTax,
+    BondIntRcvd,
+    BondIntPaid,
+    Fees,
+    Dividend,
+    PaymentInLieu,
+    CommAdj
 }
 
 impl Display for CashAction {
@@ -27,19 +27,22 @@ impl Display for CashAction {
     }
 }
 
+/// Translates the IB Flex cash action name into the CashAction enum variant.
+/// Example:
+/// let type = cash_action("Deposits/Withdrawals");
 pub fn cash_action(action: &str) -> String {
     match action {
         // "Deposits & Withdrawals" => "DEPOSITWITHDRAW",
-        "Deposits/Withdrawals" => CashAction::DEPOSITWITHDRAW.to_string(),
-        "Broker Interest Paid" => CashAction::BROKERINTPAID.to_string(),
-        "Broker Interest Received" => CashAction::BROKERINTRCVD.to_string(),
-        "Withholding Tax" => CashAction::WHTAX.to_string(),
-        "Bond Interest Received" => CashAction::BONDINTRCVD.to_string(),
-        "Bond Interest Paid" => CashAction::BONDINTPAID.to_string(),
-        "Other Fees" => CashAction::FEES.to_string(),
-        "Dividends" => CashAction::DIVIDEND.to_string(),
-        "Payment In Lieu Of Dividends" => CashAction::PAYMENTINLIEU.to_string(),
-        "Commission Adjustments" => CashAction::COMMADJ.to_string(),
+        "Deposits/Withdrawals" => CashAction::DepositWithdraw.to_string(),
+        "Broker Interest Paid" => CashAction::BrokerIntPaid.to_string(),
+        "Broker Interest Received" => CashAction::BrokerIntRcvd.to_string(),
+        "Withholding Tax" => CashAction::WhTax.to_string(),
+        "Bond Interest Received" => CashAction::BondIntRcvd.to_string(),
+        "Bond Interest Paid" => CashAction::BondIntPaid.to_string(),
+        "Other Fees" => CashAction::Fees.to_string(),
+        "Dividends" => CashAction::Dividend.to_string(),
+        "Payment In Lieu Of Dividends" => CashAction::PaymentInLieu.to_string(),
+        "Commission Adjustments" => CashAction::CommAdj.to_string(),
         _ => panic!("Unrecognized cash action type: {}", action)
     }
 }
