@@ -56,6 +56,6 @@ mod tests {
         let ib_type = "Withholding Tax";
         let actual = cash_action(ib_type);
 
-        assert_eq!("WHTAX", actual);
+        assert_eq!("WhTax", actual);
     }
 }

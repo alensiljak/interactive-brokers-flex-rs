@@ -104,11 +104,7 @@ async fn download_statement_text(ref_code: &String, token: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        download::{request_statement, FLEX_URL, REQUEST_ENDPOINT, DownloadParams}
-    };
-
-    use super::download_report;
+    use crate::download::{FLEX_URL, REQUEST_ENDPOINT};
 
     #[test]
     /// Test concatenating constants.
@@ -119,30 +115,28 @@ mod tests {
         actual);
     }
 
-    /**
-     * Test sending the Flex request. This is step 1 of the 2-step process.
-     *
-     * To run the test, create ibflex.toml config and populate with valid parameters.
-     */
-    #[tokio::test]
-    async fn request_report_test() {
-        let cfg = crate::config::get_dl_config(DownloadParams::default());
-        let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
+    // /**
+    //  * Test sending the Flex request. This is step 1 of the 2-step process.
+    //  *
+    //  * To run the test, create ibflex.toml config and populate with valid parameters.
+    //  */
+    // #[tokio::test]
+    // async fn request_report_test() {
+    //     let cfg = crate::config::get_dl_config(DownloadParams::default());
+    //     let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
+    //     assert_ne!(String::default(), actual);
+    //     assert!(!actual.contains("ERROR"));
+    // }
 
-        assert_ne!(String::default(), actual);
-        assert!(!actual.contains("ERROR"));
-    }
-
-    /**
-     * Request the full Flex report, using 2-step process.
-     *
-     * To run the test, create ibflex.toml config and populate with valid parameters.
-     */
-    #[tokio::test]
-    async fn report_download_test() {
-        let cfg = crate::config::get_dl_config(DownloadParams::default());
-        let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
-
-        assert!(result.contains("FlexQueryResponse"));
-    }
+    // /**
+    //  * Request the full Flex report, using 2-step process.
+    //  *
+    //  * To run the test, create ibflex.toml config and populate with valid parameters.
+    //  */
+    // #[tokio::test]
+    // async fn report_download_test() {
+    //     let cfg = crate::config::get_dl_config(DownloadParams::default());
+    //     let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
+    //     assert!(result.contains("FlexQueryResponse"));
+    // }
 }

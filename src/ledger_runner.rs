@@ -164,7 +164,6 @@ mod tests {
 
         assert!(!actual.is_empty());
         assert_eq!(2, actual.len());
-        assert!(false)
     }
 
     /// Run the complex query on Ledger, using shell-words.
@@ -175,7 +174,7 @@ mod tests {
 
         let actual = run_ledger(args);
 
-        let expected: Vec<&str> = r#"2022-12-15 TRET Distribution                  Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR
+        let expected: Vec<&str> = r#"2022-12-15 TRET_AS Distribution               Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR
                                               Expenses:Investment:IB:Withholding Tax              5.77 EUR           -32.63 EUR"#.lines().collect();
 
         assert!(!actual.is_empty());

@@ -59,7 +59,7 @@ pub fn cash_transactions() -> Vec<CashTransaction> {
         amount: "10".into(),
         currency: "EUR".into(),
         description: "TCBT distribution".into(),
-        r#type: "DIST".into(),
+        r#type: "Dividends".into(),
         listingExchange: "AMS".into(),
         symbol: "TCBT".into(),
     };
