@@ -58,6 +58,10 @@ ifblex dl
 
 This will save the report in the current directory. The filename will contain today's date.
 
+# Changelog
+
+See [Changelog](CHANGELOG.md)
+
 # Credits
 
 - [ibflex](https://github.com/csingley/ibflex) Python library
