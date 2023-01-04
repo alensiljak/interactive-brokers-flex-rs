@@ -12,7 +12,7 @@ use crate::{model::CommonTransaction, ISO_DATE_FORMAT};
 /**
  * Ledger Register row.
  */
-pub struct RegisterRow {}
+// pub struct RegisterRow {}
 
 /**
  * Clean-up the ledger register report.
@@ -88,6 +88,9 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
         NaiveDateTime::from(tx_date.and_hms_opt(0, 0, 0).unwrap())
     };
 
+    // Report Date
+    tx.report_date = tx.date.format(ISO_DATE_FORMAT).to_string();
+
     // Payee
     tx.payee = if payee_str.is_empty() {
         header.payee.to_owned()
@@ -98,11 +101,11 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
     // Symbol
     tx.symbol = if has_symbol {
         let parts: Vec<&str> = payee_str.split_whitespace().collect();
-        let mut symbol = parts[0];
-        if symbol.contains('.') {
-            let index = symbol.find('.').unwrap();
-            symbol = &symbol[0..index];
-        }
+        let symbol = parts[0];
+        // if symbol.contains('.') {
+        //     let index = symbol.find('.').unwrap();
+        //     symbol = &symbol[0..index];
+        // }
         symbol.to_string()
     } else {
         header.symbol.to_string()
@@ -148,7 +151,7 @@ mod tests {
     use chrono::{Datelike, NaiveDate};
     use rust_decimal::Decimal;
 
-    use crate::model::CommonTransaction;
+    use crate::{model::CommonTransaction, ledger_reg_output_parser::{get_rows_from_register, clean_up_register_output}};
 
     use super::get_row_from_register_line;
 
@@ -170,12 +173,16 @@ mod tests {
 
         // Date
         assert_eq!(actual.date.year(), 2022);
+        // Report Date
+        assert!(!actual.report_date.is_empty());
         // Payee
         assert!(!actual.payee.is_empty());
         assert_eq!(actual.payee, "Supermarket");
         // Account
         assert!(!actual.account.is_empty());
         assert_eq!(actual.account, "Expenses:Food");
+        // Symbol
+        //assert!(!actual.symbol.is_empty());
         // Type
         assert!(!actual.r#type.is_empty());
         // Amount
@@ -186,18 +193,45 @@ mod tests {
         assert_eq!(actual.currency, "EUR");
     }
 
+    #[test_log::test]
+    fn parse_distribution_report() {
+        let ledger_output = r#"2022-12-15 TRET_AS Distribution                  Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR
+                                              Expenses:Investment:IB:Withholding Tax              5.77 EUR           -32.63 EUR"#;
+        let lines = ledger_output.lines().collect();
+        log::debug!("lines: {:?}", lines);
+
+        let clean_lines = clean_up_register_output(lines);
+        let rows = get_rows_from_register(clean_lines);
+
+        log::debug!("rows: {:?}", rows);
+
+        // Assertions
+
+        assert_eq!(2, rows.len());
+
+        // Symbol
+        assert_eq!("TRET_AS", rows[0].symbol);
+
+        // 2nd row
+
+        assert_eq!(Decimal::from_str_exact("5.77").unwrap(), rows[1].amount);
+
+        // todo: assert other fields
+    }
+
     /**
      * Parse the posting rows (not the top row).
      * `l r --init-file tests/init.ledger`
      */
     #[test_log::test]
     fn parse_posting_row_test() {
+        let date = NaiveDate::from_ymd_opt(2022, 12, 1)
+            .unwrap()
+            .and_hms_opt(0, 0, 0)
+            .unwrap();
         let header = CommonTransaction {
-            date: NaiveDate::from_ymd_opt(2022, 12, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
-            report_date: String::default(),
+            date: date,
+            report_date: date.to_string(),
             payee: "Supermarket".to_string(),
             account: "Expenses:Food".to_string(),
             amount: Decimal::from(15),
@@ -213,6 +247,8 @@ mod tests {
 
         // Date
         assert_eq!(actual.date.year(), 2022);
+        // Report Date
+        assert!(!actual.report_date.is_empty());
         // Payee
         assert!(!actual.payee.is_empty());
         assert_eq!(actual.payee, "Supermarket");

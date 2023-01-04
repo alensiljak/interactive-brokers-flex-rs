@@ -31,7 +31,6 @@ fn test_comparison() {
     let mut cmd = Command::cargo_bin("ibflex").unwrap();
 
     let assert = cmd.arg("cmp").assert();
-    // .args(vec!["cmp"])
     //assert!(!actual.is_err());
 
     // Assertions

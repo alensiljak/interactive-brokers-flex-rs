@@ -4,7 +4,7 @@
     Expenses:Food  15 EUR
     Assets:Bank:Checking
 
-2022-12-15 TRET Distribution
+2022-12-15 TRET_AS Distribution
     ; matches the Flex report
     Income:Investment:IB:TRET_AS                     -38.40 EUR
     Expenses:Investment:IB:Withholding Tax             5.77 EUR

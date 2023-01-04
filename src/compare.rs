@@ -2,15 +2,17 @@
  * Compares the downloaded Flex report with Ledger
  */
 
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Mul};
 
 use anyhow::{Error, Ok};
+use rust_decimal::Decimal;
 
 use crate::{
     config::{get_cmp_config, Config},
     flex_query_def::{CashTransaction, FlexQueryResponse},
     flex_query_reader::load_report,
-    model::CommonTransaction, ledger_runner,
+    ledger_runner,
+    model::CommonTransaction,
 };
 
 pub const TRANSACTION_DAYS: u8 = 60;
@@ -24,13 +26,13 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     let cfg = get_cmp_config(&params);
 
     // get_ib_report_tx
-    let ib_tx = get_ib_tx(&cfg);
+    let ib_txs = get_ib_tx(&cfg);
 
     // get_ledger_tx
-    let ledger_tx = ledger_runner::get_ledger_tx(cfg.ledger_init_file);
+    let ledger_txs = ledger_runner::get_ledger_tx(cfg.ledger_init_file);
 
     // compare
-    compare_txs(ib_tx, ledger_tx);
+    compare_txs(ib_txs, ledger_txs)?;
 
     Ok(())
 }
@@ -118,7 +120,10 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
     ib_txs
 }
 
-fn compare_txs(ib_txs: Vec<CommonTransaction>, ledger_txs: Vec<CommonTransaction>) {
+fn compare_txs(
+    ib_txs: Vec<CommonTransaction>,
+    ledger_txs: Vec<CommonTransaction>,
+) -> anyhow::Result<()> {
     for ibtx in ib_txs {
         let matches: Vec<&CommonTransaction> = if DATE_MODE == "effective" {
             todo!("complete");
@@ -126,16 +131,21 @@ fn compare_txs(ib_txs: Vec<CommonTransaction>, ledger_txs: Vec<CommonTransaction
             ledger_txs
                 .iter()
                 .filter(|tx| {
-                    tx.date == ibtx.date && tx.symbol == ibtx.symbol && tx.amount == ibtx.amount
+                    tx.date == ibtx.date && tx.symbol == ibtx.symbol && 
+                    tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE)
                 })
                 .collect()
         };
+
+        log::debug!("matches: {:?}", matches);
 
         if matches.is_empty() {
             println!("New: {}", ibtx);
         }
     }
     println!("Complete.");
+
+    Ok(())
 }
 
 /**
@@ -152,10 +162,12 @@ pub struct CompareParams {
 
 #[cfg(test)]
 mod tests {
-    use super::{compare, load_symbols};
+    use super::{compare, compare_txs, load_symbols};
     use crate::{
-        compare::{CompareParams, convert_ib_txs},
-        test_fixtures::*, flex_query_def::CashTransaction,
+        compare::{convert_ib_txs, get_ib_tx, CompareParams},
+        config::Config,
+        flex_query_def::CashTransaction,
+        test_fixtures::*, ledger_runner::get_ledger_tx,
     };
 
     /// Load symbols through PriceDb.
@@ -176,7 +188,23 @@ mod tests {
 
     #[rstest::rstest]
     #[test_log::test]
+    fn test_compare_tx(cmp_config: Config) {
+        let ib_txs = get_ib_tx(&cmp_config);
+        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file);
+
+        log::debug!("comparing {:?} *** and *** {:?}", ib_txs, ledger_txs);
+
+        let actual = compare_txs(ib_txs, ledger_txs);
+
+        assert!(actual.is_ok());
+        assert!(false)
+    }
+
+    #[rstest::rstest]
+    #[test_log::test]
     fn test_compare(cmp_params: CompareParams) {
+        println!("comparing using: {:?}", cmp_params);
+
         let actual = compare(cmp_params);
 
         assert!(!actual.is_err());

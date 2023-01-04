@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{download::DownloadParams, compare::CompareParams};
 
 /**
- * Configuration structure for ibflex
+    Configuration structure for ibflex
  */
 #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Config {

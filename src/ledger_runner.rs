@@ -22,7 +22,6 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
 
     log::debug!("running: {}", cmd);
 
-    // let output = run_ledger(args);
     let output = cli_runner::run(&cmd);
     let out = cli_runner::get_stdout(&output);
 
@@ -33,7 +32,6 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
     log::debug!("ledger output: {:?}", out);
 
     let lines: Vec<&str> = out.lines().collect();
-    // let lines = output.iter().map(|item| item.as_str()).collect();
 
     // cleanup
     let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
@@ -157,13 +155,16 @@ mod tests {
     #[rstest::rstest]
     #[test_log::test]
     fn test_get_ledger_tx(ledger_init_path: String) {
+        println!("ledger_init_path: {:?}", ledger_init_path);
+
         let path_opt = Some(ledger_init_path);
         let actual = get_ledger_tx(path_opt);
 
-        log::debug!("txs: {:?}", actual);
+        println!("txs: {:?}", actual);
 
         assert!(!actual.is_empty());
         assert_eq!(2, actual.len());
+        assert!(false)
     }
 
     /// Run the complex query on Ledger, using shell-words.
