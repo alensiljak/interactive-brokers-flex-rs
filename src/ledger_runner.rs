@@ -120,9 +120,7 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
     let output = run_ledger(args);
 
     //let lines: Vec<&str> = output.lines().collect();
-    let lines = output
-        .iter().map(|item| item.as_str())
-        .collect();
+    let lines = output.iter().map(|item| item.as_str()).collect();
 
     // cleanup
     let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
@@ -214,68 +212,8 @@ mod tests {
         assert_eq!(7, actual.len());
     }
 
-    // /// See if a command can be run with cmd_lib.
-    // #[test_log::test]
-    // fn test_cmd_lib() {
-    //     let success = run_cmd!(dir);
-    //     assert!(success.is_ok());
-    //     let actual = run_fun!(dir).unwrap();
-    //     log::debug!("actual is: {}", actual);
-    //     assert_ne!(String::default(), actual);
-    // }
-
-    // /// Proof of concept of running the full command line with ledger parameters.
-    // /// This works as expected.
-    // #[test_log::test]
-    // fn test_complex_cmdlib() {
-    //     let result = run_fun!(
-    //         ledger r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger
-    //     );
-    //     let actual = match result {
-    //         Ok(output) => output,
-    //         Err(e) => panic!("error: {e}"),
-    //     };
-    //     log::debug!("result: {}", actual);
-    //     // Asserts
-    //     assert_ne!(String::default(), actual);
-    //     let mut expected = String::default();
-    //     expected += "2022-12-15 TRET Distribution                  Income:Investment:IB:TRET_AS                      -38.40 EUR           -38.40 EUR\r\n";
-    //     expected += "                                              Expenses:Investment:IB:Withholding Tax              5.77 EUR           -32.63 EUR\r";
-    //     assert_eq!(expected, actual);
-    // }
-
-    // /// This does not work so well.
-    // #[test_log::test]
-    // fn test_sending_string_cmdlib() {
-    //     let cmd = r#"ledger r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
-    //     let actual = super::get_ledger_tx_cmdlib(cmd);
-    //     log::debug!("result: {}", actual);
-    //     assert!(false);
-    // }
-
-    // /// Does not work due to string. Effectively the same as run_fun.
-    // #[test_log::test]
-    // fn test_cmdlib_spawn() {
-    //     let cmd = r#"ledger r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
-    //     let mut process = spawn_with_output!(${cmd}).unwrap();
-    //     let output = process.wait_with_output().unwrap();
-    //     log::debug!("output: {:}", output);
-    //     assert!(false);
-    // }
-
-    // commandspec interprets the string command wrong.
-    // #[test_log::test]
-    // fn test_commandspec_string() {
-    //     let cmd = r#"ledger r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
-    //     let output = command!("{cmd}").unwrap().output().unwrap();
-    //     let result = output.stdout;
-    //     let actual = String::from_utf8(result).unwrap();
-    //     let error = String::from_utf8(output.stderr).unwrap();
-    //     log::debug!("actual: {}, error: {:?}", actual, error);
-    //     assert!(false);
-    // }
-
     /// The same problem as with cmdlib.
+    /// This can't be used to parse a command containing double quotes.
     #[test_log::test]
     fn test_shell() {
         let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
@@ -288,8 +226,8 @@ mod tests {
         let error = String::from_utf8(output.stderr).unwrap();
         log::debug!("error: {}", error);
 
-        assert!(error.is_empty());
-        assert!(false);
+        // Effectively, we expect an error here, because the command parsing is bad.
+        assert!(!error.is_empty());
     }
 
     #[test_log::test]

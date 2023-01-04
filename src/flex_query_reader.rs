@@ -72,16 +72,24 @@ fn get_latest_filename(file_pattern: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::path::MAIN_SEPARATOR;
+
     use crate::{flex_query_def::FlexQueryResponse, flex_query_reader::load_report, 
         test_fixtures::*, config::Config};
 
     use super::get_latest_filename;
 
-    #[test]
+    #[test_log::test]
     fn test_dir_list() {
-        let actual = get_latest_filename("*.xml");
+        let actual = get_latest_filename("tests/*.xml");
 
         assert!(!actual.is_empty());
+        //let path = canonicalize("tests/report_1.xml").unwrap();
+        //let expected = path.as_os_str().to_str().unwrap();
+        let mut expected = "tests".to_string();
+        expected.push(MAIN_SEPARATOR);
+        expected.push_str("report_1.xml");
+        assert_eq!(expected, actual);
     }
 
     #[rstest::rstest]
