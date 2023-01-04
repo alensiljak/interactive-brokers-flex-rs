@@ -4,6 +4,7 @@
  * Project documentation: <https://github.com/alensiljak/interactive-brokers-flex-rs>
  */
 
+pub mod cli_runner;
 pub mod compare;
 pub mod config;
 pub mod download;

@@ -230,17 +230,6 @@ mod tests {
         assert!(!error.is_empty());
     }
 
-    #[test_log::test]
-    fn test_shellwords() {
-        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
-        let actual = shell_words::split(cmd).unwrap();
-
-        log::debug!("result: {:?}", actual);
-
-        assert!(!actual.is_empty());
-        assert_eq!(8, actual.len());
-    }
-
     /// Run the complex query on Ledger, using shell-words.
     #[test_log::test]
     fn test_ledger_words() {
