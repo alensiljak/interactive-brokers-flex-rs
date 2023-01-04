@@ -6,7 +6,7 @@ use std::process::{Command, Output};
 
 use chrono::{Days, Local};
 
-use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction, cli_runner};
+use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction};
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
@@ -183,5 +183,42 @@ mod tests {
 
         assert!(!actual.is_empty());
         assert_eq!(expected, actual);
+    }
+
+    #[test_log::test]
+    fn test_shellwords() {
+        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
+        let actual = shell_words::split(cmd).unwrap();
+
+        log::debug!("result: {:?}", actual);
+
+        assert!(!actual.is_empty());
+        assert_eq!(8, actual.len());
+    }
+
+    #[test_log::test]
+    fn test_cli_runner() {
+        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
+
+        let actual = cli_runner::run(cmd);
+
+        let stderr: String = String::from_utf8(actual.stderr).expect("stdout string");
+        let stdout: String = String::from_utf8(actual.stdout).expect("stdout string");
+
+        assert!(!stdout.is_empty());
+        assert!(stderr.is_empty());
+    }
+
+    #[test_log::test]
+    fn test_output_conversion() {
+        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
+        let output = cli_runner::run(cmd);
+
+        let so = cli_runner::get_stdout(&output);
+        log::debug!("so: {:?}", so);
+        assert!(!so.is_empty());
+
+        let se = cli_runner::get_stderr(&output);
+        assert!(se.is_empty());
     }
 }
