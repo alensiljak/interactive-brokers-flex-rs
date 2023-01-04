@@ -132,13 +132,10 @@ fn compare_txs(
                 .iter()
                 .filter(|tx| {
                     // Compare:
-                    // - date
-                    // - symbol
-                    // - amount
-                    // - type
-                    tx.date == ibtx.date && 
+                    tx.date.date() == ibtx.date.date() && 
                     tx.symbol == ibtx.symbol && 
                     tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE) &&
+                    tx.currency == ibtx.currency &&
                     tx.r#type == ibtx.r#type
                 })
                 .collect()

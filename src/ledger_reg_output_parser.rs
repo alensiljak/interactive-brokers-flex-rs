@@ -7,7 +7,7 @@ use std::str::FromStr;
 use chrono::{NaiveDate, NaiveDateTime};
 use rust_decimal::Decimal;
 
-use crate::{model::CommonTransaction, ISO_DATE_FORMAT};
+use crate::{model::CommonTransaction, ISO_DATE_FORMAT, flex_enums::CashAction};
 
 /**
  * Ledger Register row.
@@ -115,9 +115,9 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
     // Get just the first 2 characters.
     let account = &account_str[0..2];
     tx.r#type = if account == "In" {
-        "Dividend".to_string()
+        CashAction::DIVIDEND.to_string()
     } else if account == "Ex" {
-        "Tax".to_string()
+        CashAction::WHTAX.to_string()
     } else {
         log::warn!("Could not parse type {:?}", account);
 
@@ -231,7 +231,7 @@ mod tests {
             .unwrap();
         let header = CommonTransaction {
             date: date,
-            report_date: date.to_string(),
+            report_date: String::default(), // The report date comes from the Flex report.
             payee: "Supermarket".to_string(),
             account: "Expenses:Food".to_string(),
             amount: Decimal::from(15),
