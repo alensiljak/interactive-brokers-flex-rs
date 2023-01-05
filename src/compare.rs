@@ -9,10 +9,10 @@ use rust_decimal::Decimal;
 
 use crate::{
     config::{get_cmp_config, Config},
-    flex_query_def::{CashTransaction, FlexQueryResponse},
+    flex_query::{CashTransaction, FlexQueryResponse},
     flex_reader::load_report,
     ledger_runner,
-    model::CommonTransaction,
+    model::CommonTransaction, ISO_DATE_FORMAT,
 };
 
 pub const TRANSACTION_DAYS: u8 = 60;
@@ -27,9 +27,11 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
 
     // get_ib_report_tx
     let ib_txs = get_ib_tx(&cfg);
+    log::debug!("Found {} IB transactions", ib_txs.len());
 
     // get_ledger_tx
     let ledger_txs = ledger_runner::get_ledger_tx(cfg.ledger_init_file);
+    log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
     compare_txs(ib_txs, ledger_txs)?;
@@ -132,7 +134,7 @@ fn compare_txs(
                 .iter()
                 .filter(|tx| {
                     // Compare:
-                    tx.date.date() == ibtx.date.date() && 
+                    tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date && 
                     tx.symbol == ibtx.symbol && 
                     tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE) &&
                     tx.currency == ibtx.currency &&
@@ -170,7 +172,7 @@ mod tests {
     use crate::{
         compare::{convert_ib_txs, get_ib_tx, CompareParams},
         config::Config,
-        flex_query_def::CashTransaction,
+        flex_query::CashTransaction,
         test_fixtures::*, ledger_runner::get_ledger_tx,
     };
 

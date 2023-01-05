@@ -54,7 +54,9 @@ pub struct CashTransactions {
 #[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct CashTransaction {
+    /// .report_date is the real date, when the transaction appears in the IB report.
     pub reportDate: String,
+    /// .dateTime is the transaction effective date.
     pub dateTime: String,
     pub symbol: String,
     pub listingExchange: String,

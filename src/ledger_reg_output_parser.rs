@@ -81,7 +81,7 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
         header.date
     } else {
         // parse
-        log::debug!("parsing date: {:?}", date_str);
+        // log::debug!("parsing date: {:?}", date_str);
 
         let tx_date =
             NaiveDate::parse_from_str(date_str, ISO_DATE_FORMAT).expect("valid date expected");

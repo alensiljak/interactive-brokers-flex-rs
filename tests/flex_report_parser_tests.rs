@@ -4,7 +4,7 @@
 
 use ibflex::{
     compare::CompareParams,
-    flex_query_def::{CashTransaction, FlexQueryResponse}, config::get_cmp_config,
+    flex_query::{CashTransaction, FlexQueryResponse}, config::get_cmp_config,
 };
 
 #[rstest::rstest]

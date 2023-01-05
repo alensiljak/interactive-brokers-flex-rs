@@ -61,7 +61,7 @@ fn get_latest_filename(file_pattern: &str) -> String {
         .collect();
 
     if filenames.is_empty() {
-        panic!("No XML files found in the current directory. Aborting.");
+        panic!("Aborting. No XML files found for pattern {}.", file_pattern);
     }
 
     filenames.sort();
@@ -76,7 +76,7 @@ fn get_latest_filename(file_pattern: &str) -> String {
 mod tests {
     use std::path::MAIN_SEPARATOR;
 
-    use crate::{flex_query_def::FlexQueryResponse, flex_reader::load_report, 
+    use crate::{flex_query::FlexQueryResponse, flex_reader::load_report, 
         test_fixtures::*, config::Config};
 
     use super::get_latest_filename;

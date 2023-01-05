@@ -5,7 +5,7 @@
 use chrono::Local;
 use rstest::fixture;
 
-use crate::{compare::CompareParams, flex_query_def::CashTransaction, ISO_DATE_FORMAT, config::{Config, get_cmp_config}};
+use crate::{compare::CompareParams, flex_query::CashTransaction, ISO_DATE_FORMAT, config::{Config, get_cmp_config}};
 
 #[fixture]
 pub fn tests_directory_path() -> String {

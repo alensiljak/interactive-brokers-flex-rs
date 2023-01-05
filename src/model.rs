@@ -7,7 +7,7 @@ use std::{fmt::Display, str::FromStr};
 use chrono::{NaiveDateTime, NaiveDate};
 use rust_decimal::Decimal;
 
-use crate::{flex_query_def::CashTransaction, ISO_DATE_FORMAT, flex_enums};
+use crate::{flex_query::CashTransaction, ISO_DATE_FORMAT, flex_enums};
 
 /**
  * The ledger transaction record.
@@ -87,7 +87,7 @@ mod tests {
     use rust_decimal::Decimal;
     use std::str::FromStr;
 
-    use crate::{flex_query_def::CashTransaction, model::CommonTransaction};
+    use crate::{flex_query::CashTransaction, model::CommonTransaction};
 
     #[fixture]
     fn cash_transactions() -> Vec<CashTransaction> {
