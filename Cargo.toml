@@ -28,7 +28,7 @@ rust_decimal = "1.27.0"
 serde = { version = "1.0.151", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 shell-words = "1.1.0"
-tokio = "1.23.0"
+tokio = "1.23.1"
 
 [dev-dependencies]
 rstest = "0.16.0"
