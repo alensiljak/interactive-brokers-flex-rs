@@ -1,18 +1,34 @@
 # interactive-brokers-flex-rs
-Tools to assist with IB Flex reports and Ledger
+Tools to assist with IB Flex reports and Ledger-cli comparison
 
-The crate is incomplete but there are funcioning parts. These can be seen in Tests.
+This crate contains a CLI application and is also a library which assists working with Flex Reports from Interactive Brokers. It simplifies the Flex Query download and compares the downloaded transactions (distributions and tax) to the records in Ledger, identifying missing ones.
 
-This crate contains a CLI and a library which assist with Flex Reports from Interactive Brokers.
-There are several components involved:
+There are several components in the package:
 
 - The command-line application (CLI) `ibflex`, provides all the features of the `ibflex` library
-- `ibflex` library exposes the following functionality
-  - downloans the Flex report
-  - parses IB Flex report
-  - runs Ledger command to retrieve the distribution transactions in the last 60 days
-  - runs the comparison for the downloaded Cash Transactions Flex .xml report and the last 60 days in Ledger
-- `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually to read from own database.
+- `ibflex` library exposes the following functionality:
+  - downloads the IB Flex Query report
+  - parses IB Flex Query report
+  - runs Ledger-cli to retrieve the transactions in the last 60 days
+  - compares the Cash Transactions from the downloaded Flex Query .xml report to the Ledger transactions
+- `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually to read from its own database.
+
+# Configuration
+
+To view the current configuration, run
+
+```
+ibflex cfg
+```
+
+The config file will be created automatically if it does not exist.
+
+To edit the values, use any text editor.
+
+## PriceDb Configuration
+
+See [pricedb](crates.io/crates/pricedb) crate for instructions on how to set up Price Database.
+At the moment this is required for the symbol mapping. The symbols in IB (i.e. VHYL) may be mapped to a different symbol in Ledger (i.e. VHYL_AS).
 
 # Usage
 
@@ -28,21 +44,6 @@ Downloading the Flex Query report requires Query Id and the Token. These can be 
 
 3) in the configuration file: The application will read the configuration file `ibflex.toml`, which is located in the current directory. See the section below.
 
-## Configuration
-
-The config file will be created automatically when the application is run. 
-To view the current configuration, run
-
-```
-ibflex cfg
-```
-
-This will display the current parameters. 
-
-If the file does not exist, it will be automatically created by this command.
-
-To edit the values, use any text editor.
-
 ## Download
 
 The required parameters for downloading the Flex report are:
@@ -57,6 +58,16 @@ ifblex dl
 ```
 
 This will save the report in the current directory. The filename will contain today's date.
+
+## Comparison
+
+To compare the transactions, run
+
+```
+ibflex cmp
+```
+
+This will compare the downloaded IB transactions to the transactions in Ledger. The new Dividend and Tax transactions will be reported as New. The other transactions will be reported as Skipped.
 
 # Changelog
 

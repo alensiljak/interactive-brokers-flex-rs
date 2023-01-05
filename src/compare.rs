@@ -12,7 +12,7 @@ use crate::{
     flex_query::{CashTransaction, FlexQueryResponse},
     flex_reader::load_report,
     ledger_runner,
-    model::CommonTransaction, ISO_DATE_FORMAT,
+    model::CommonTransaction, ISO_DATE_FORMAT, flex_enums::CashAction,
 };
 
 pub const TRANSACTION_DAYS: u8 = 60;
@@ -70,12 +70,13 @@ fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
     convert_ib_txs(ib_txs)
 }
 
+/// Converts IB CashTransaction XML record into a Common Transaction.
 fn convert_ib_txs(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
     // load symbols
     let symbols = load_symbols().unwrap();
     let mut txs: Vec<CommonTransaction> = vec![];
 
-    let skip = ["WHTAX", "DIVIDEND"];
+    let skip = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
     for tx in ib_txs {
         // skip any not matching the expected types.
         if skip.iter().any(|t| *t == tx.r#type) {
