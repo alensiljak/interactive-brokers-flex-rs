@@ -81,6 +81,7 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
         // skip any not matching the expected types.
         if skip.iter().any(|t| *t == tx.r#type) {
             println!("Skipping...");
+            continue;
         }
 
         let mut ltx: CommonTransaction = (&tx).into();

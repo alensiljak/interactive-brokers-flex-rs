@@ -5,6 +5,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2023-01-11
+
+### Fixed
+
+- Skipping transaction other than dividends and withholding tax.
+
+### Security
+
+- updated dependencies
+
 ## [0.4.2] - 2023-01-05
 
 ### Added
@@ -36,4 +46,3 @@ The first acceptable version.
 ### Changed
 
 - Comparison tests pass
-
