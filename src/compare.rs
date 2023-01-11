@@ -12,7 +12,7 @@ use crate::{
     flex_query::{CashTransaction, FlexQueryResponse},
     flex_reader::load_report,
     ledger_runner,
-    model::CommonTransaction, ISO_DATE_FORMAT, flex_enums::CashAction,
+    model::CommonTransaction, ISO_DATE_FORMAT, flex_enums::{CashAction, cash_action},
 };
 
 pub const TRANSACTION_DAYS: u8 = 60;
@@ -28,6 +28,10 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     // get_ib_report_tx
     let ib_txs = get_ib_tx(&cfg);
     log::debug!("Found {} IB transactions", ib_txs.len());
+    if (ib_txs.len() == 0) {
+        println!("No new IB transactions found. Exiting...");
+        return Ok(());
+    }
 
     // get_ledger_tx
     let ledger_txs = ledger_runner::get_ledger_tx(cfg.ledger_init_file);
@@ -76,11 +80,18 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
     let symbols = load_symbols().unwrap();
     let mut txs: Vec<CommonTransaction> = vec![];
 
-    let skip = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
+    let to_skip = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
+    log::debug!("to skip: {:?}", to_skip);
+
     for tx in ib_txs {
+        log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
+
         // skip any not matching the expected types.
-        if skip.iter().any(|t| *t == tx.r#type) {
-            println!("Skipping...");
+        if to_skip.contains(&tx.r#type) {
+            println!("skip contains {:?}", tx.symbol);
+        }
+        if to_skip.iter().any(|t| *t != cash_action(&tx.r#type)) {
+            println!("Skip: {}", tx);
             continue;
         }
 

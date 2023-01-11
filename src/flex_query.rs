@@ -2,6 +2,8 @@
  * Definitions for Flex Query report
  */
 
+use std::fmt::Display;
+
 use serde::Deserialize;
 
 /**
@@ -64,6 +66,24 @@ pub struct CashTransaction {
     pub amount: String,
     pub currency: String,
     pub description: String,
+}
+
+impl Display for CashTransaction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}/{} {:7} {} {} {:>7} {}, {}",
+            self.reportDate,
+            &self.dateTime[..10],
+            self.symbol,
+            self.listingExchange,
+            self.r#type,
+            self.amount,
+            self.currency,
+            self.description
+        )
+
+    }
 }
 
 // pub enum TxType {
