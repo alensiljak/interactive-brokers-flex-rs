@@ -28,7 +28,7 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     // get_ib_report_tx
     let ib_txs = get_ib_tx(&cfg);
     log::debug!("Found {} IB transactions", ib_txs.len());
-    if (ib_txs.len() == 0) {
+    if ib_txs.len() == 0 {
         println!("No new IB transactions found. Exiting...");
         return Ok(());
     }
@@ -80,20 +80,20 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
     let symbols = load_symbols().unwrap();
     let mut txs: Vec<CommonTransaction> = vec![];
 
-    let to_skip = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
-    log::debug!("to skip: {:?}", to_skip);
+    let to_include = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
+    // log::debug!("to include: {:?}", to_include);
 
     for tx in ib_txs {
-        log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
+        // log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
 
         // skip any not matching the expected types.
-        if to_skip.contains(&tx.r#type) {
-            println!("skip contains {:?}", tx.symbol);
-        }
-        if to_skip.iter().any(|t| *t != cash_action(&tx.r#type)) {
+        if !to_include.contains(&cash_action(&tx.r#type)) {
+            // println!("include contains {:?}", tx.symbol);
             println!("Skip: {}", tx);
             continue;
         }
+        // if to_include.iter().any(|t| *t != cash_action(&tx.r#type)) {
+        // }
 
         let mut ltx: CommonTransaction = (&tx).into();
 
@@ -147,8 +147,8 @@ fn compare_txs(
                 .iter()
                 .filter(|tx| {
                     // Compare:
-                    tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date && 
-                    tx.symbol == ibtx.symbol && 
+                    tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date &&
+                    tx.symbol == ibtx.symbol &&
                     tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE) &&
                     tx.currency == ibtx.currency &&
                     tx.r#type == ibtx.r#type

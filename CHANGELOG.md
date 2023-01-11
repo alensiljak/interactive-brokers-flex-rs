@@ -5,6 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4] - 2023-01-11
+
+### Fixed
+
+- skipping transaction other than dividends and withholding tax
+
 ### Changed
 
 - exiting comparison if no new IB transactions found
