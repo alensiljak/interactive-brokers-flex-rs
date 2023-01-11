@@ -81,19 +81,16 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
     let mut txs: Vec<CommonTransaction> = vec![];
 
     let to_include = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
-    // log::debug!("to include: {:?}", to_include);
+    log::debug!("to include: {:?}", to_include);
 
     for tx in ib_txs {
         // log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
 
         // skip any not matching the expected types.
         if !to_include.contains(&cash_action(&tx.r#type)) {
-            // println!("include contains {:?}", tx.symbol);
             println!("Skip: {}", tx);
             continue;
         }
-        // if to_include.iter().any(|t| *t != cash_action(&tx.r#type)) {
-        // }
 
         let mut ltx: CommonTransaction = (&tx).into();
 
