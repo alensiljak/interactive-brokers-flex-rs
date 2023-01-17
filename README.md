@@ -13,6 +13,8 @@ There are several components in the package:
   - compares the Cash Transactions from the downloaded Flex Query .xml report to the Ledger transactions
 - `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually to read from its own database.
 
+The project started as a rewrite of my Python scripts and is intended to be expanded as needed, to parse Flex Queries.
+
 # Configuration
 
 To view the current configuration, run
