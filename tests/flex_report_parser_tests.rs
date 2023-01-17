@@ -12,20 +12,20 @@ use ibflex::{
 fn parse_file_test() {
     let mut expected = FlexQueryResponse::default();
     let tx1 = CashTransaction {
-        reportDate: "2022-12-14".to_string(),
+        report_date: "2022-12-14".to_string(),
         amount: "-0.91".to_string(),
         currency: "EUR".to_string(),
-        dateTime: "2022-12-15;12:20:00".to_string(),
+        date_time: "2022-12-15;12:20:00".to_string(),
         description: "TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX".to_string(),
-        listingExchange: "AEB".to_string(),
+        listing_exchange: "AEB".to_string(),
         symbol: "TCBT".to_string(),
         r#type: "Withholding Tax".to_string(),
     };
     expected
-        .FlexStatements
-        .FlexStatement
-        .CashTransactions
-        .CashTransaction
+        .flex_statements
+        .flex_statement
+        .cash_transactions
+        .cash_transaction
         .push(tx1);
 
     let cmp_params = CompareParams {
@@ -41,15 +41,15 @@ fn parse_file_test() {
     //assert_eq!(expected, actual);
     assert_eq!(
         expected
-            .FlexStatements
-            .FlexStatement
-            .CashTransactions
-            .CashTransaction[0],
+            .flex_statements
+            .flex_statement
+            .cash_transactions
+            .cash_transaction[0],
         actual
-            .FlexStatements
-            .FlexStatement
-            .CashTransactions
-            .CashTransaction[0]
+            .flex_statements
+            .flex_statement
+            .cash_transactions
+            .cash_transaction[0]
     );
 }
 
@@ -75,34 +75,34 @@ fn parse_string_test() {
     let actual = FlexQueryResponse::from(content);
 
     assert_ne!(actual, FlexQueryResponse::default());
-    assert_eq!(actual.FlexStatements.count, 1);
+    assert_eq!(actual.flex_statements.count, 1);
     // statement
-    let stmt = &actual.FlexStatements.FlexStatement;
-    assert_eq!("U3550519".to_string(), stmt.accountId);
-    assert_eq!("2022-11-24", stmt.fromDate);
-    assert_eq!("2022-12-23", stmt.toDate);
+    let stmt = &actual.flex_statements.flex_statement;
+    assert_eq!("U3550519".to_string(), stmt.account_id);
+    assert_eq!("2022-11-24", stmt.from_date);
+    assert_eq!("2022-12-23", stmt.to_date);
     assert_eq!("Last30CalendarDays", stmt.period);
-    assert_eq!("2022-12-25;14:53:12", stmt.whenGenerated);
+    assert_eq!("2022-12-25;14:53:12", stmt.when_generated);
     // cash transactions
     assert_eq!(
         7,
         actual
-            .FlexStatements
-            .FlexStatement
-            .CashTransactions
-            .CashTransaction
+            .flex_statements
+            .flex_statement
+            .cash_transactions
+            .cash_transaction
             .len()
     );
     // cash transaction
     let tx1 = &actual
-        .FlexStatements
-        .FlexStatement
-        .CashTransactions
-        .CashTransaction[0];
-    assert_eq!("2022-12-14", tx1.reportDate);
-    assert_eq!("2022-12-15;12:20:00", tx1.dateTime);
+        .flex_statements
+        .flex_statement
+        .cash_transactions
+        .cash_transaction[0];
+    assert_eq!("2022-12-14", tx1.report_date);
+    assert_eq!("2022-12-15;12:20:00", tx1.date_time);
     assert_eq!("TCBT", tx1.symbol);
-    assert_eq!("AEB", tx1.listingExchange);
+    assert_eq!("AEB", tx1.listing_exchange);
     assert_eq!("Withholding Tax", tx1.r#type);
     assert_eq!("-0.91", tx1.amount);
     assert_eq!("EUR", tx1.currency);

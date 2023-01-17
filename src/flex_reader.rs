@@ -102,10 +102,10 @@ mod tests {
         assert_ne!(
             0,
             actual
-                .FlexStatements
-                .FlexStatement
-                .CashTransactions
-                .CashTransaction
+                .flex_statements
+                .flex_statement
+                .cash_transactions
+                .cash_transaction
                 .len()
         );
 

@@ -41,19 +41,19 @@ impl From<&CashTransaction> for CommonTransaction {
         }
 
         CommonTransaction {
-            date: match value.dateTime.len() {
+            date: match value.date_time.len() {
                 10 => {
-                    log::debug!("the date is {}", value.dateTime);
+                    log::debug!("the date is {}", value.date_time);
 
-                    let tx_date = NaiveDate::parse_from_str(value.dateTime.as_str(), ISO_DATE_FORMAT)
+                    let tx_date = NaiveDate::parse_from_str(&value.date_time.as_str(), ISO_DATE_FORMAT)
                     .expect("valid date expected");
                     NaiveDateTime::from(tx_date.and_hms_opt(0, 0, 0).unwrap())
                 },
-                19 => NaiveDateTime::parse_from_str(value.dateTime.as_str(), "%Y-%m-%d;%H:%M:%S")
+                19 => NaiveDateTime::parse_from_str(&value.date_time.as_str(), "%Y-%m-%d;%H:%M:%S")
                     .expect("valid date/time expected"),
                 _ => panic!("Invalid date/time"),
             },
-            report_date: value.reportDate.to_owned(),
+            report_date: value.report_date.to_owned(),
             payee: String::default(),   // not used
             account: String::default(), // not used
             amount: Decimal::from_str(value.amount.as_str()).unwrap(),

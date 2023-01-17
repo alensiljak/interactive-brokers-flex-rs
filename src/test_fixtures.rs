@@ -43,24 +43,24 @@ pub fn cmp_config(cmp_params: CompareParams) -> Config {
 #[fixture]
 pub fn cash_transactions() -> Vec<CashTransaction> {
     let tx1 = CashTransaction {
-        reportDate: "2022-12-14".to_string(),
-        dateTime: "2022-12-15;12:20:00".to_string(),
+        report_date: "2022-12-14".to_string(),
+        date_time: "2022-12-15;12:20:00".to_string(),
         amount: "-0.91".to_string(),
         currency: "EUR".to_string(),
         description: "TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX".to_string(),
-        listingExchange: "AEB".to_string(),
+        listing_exchange: "AEB".to_string(),
         symbol: "TCBT".to_string(),
         r#type: "Withholding Tax".to_string(),
     };
 
     let dist = CashTransaction {
-        reportDate: Local::now().format(ISO_DATE_FORMAT).to_string(),
-        dateTime: "2022-12-26".into(),
+        report_date: Local::now().format(ISO_DATE_FORMAT).to_string(),
+        date_time: "2022-12-26".into(),
         amount: "10".into(),
         currency: "EUR".into(),
         description: "TCBT distribution".into(),
         r#type: "Dividends".into(),
-        listingExchange: "AMS".into(),
+        listing_exchange: "AMS".into(),
         symbol: "TCBT".into(),
     };
 

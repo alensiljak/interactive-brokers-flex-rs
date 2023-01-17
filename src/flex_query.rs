@@ -9,10 +9,10 @@ use serde::Deserialize;
 /**
  * The structure of the IB Flex report.
  */
-#[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct FlexQueryResponse {
-    pub FlexStatements: FlexStatements,
+    #[serde(rename = "FlexStatements")]
+    pub flex_statements: FlexStatements,
 }
 
 impl From<String> for FlexQueryResponse {
@@ -24,44 +24,51 @@ impl From<String> for FlexQueryResponse {
     }
 }
 
-#[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct FlexStatements {
     pub count: i32,
-    pub FlexStatement: FlexStatement,
+
+    #[serde(rename = "FlexStatement")]
+    pub flex_statement: FlexStatement,
 }
 
-#[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct FlexStatement {
-    pub accountId: String,
-    pub fromDate: String,
-    pub toDate: String,
+    #[serde(rename = "accountId")]
+    pub account_id: String,
+    #[serde(rename = "fromDate")]
+    pub from_date: String,
+    #[serde(rename = "toDate")]
+    pub to_date: String,
     pub period: String,
-    pub whenGenerated: String,
+    #[serde(rename = "whenGenerated")]
+    pub when_generated: String,
 
-    pub CashTransactions: CashTransactions,
+    #[serde(rename = "CashTransactions")]
+    pub cash_transactions: CashTransactions,
 }
 
-#[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct CashTransactions {
-    pub CashTransaction: Vec<CashTransaction>,
+    #[serde(rename = "CashTransaction")]
+    pub cash_transaction: Vec<CashTransaction>,
 }
 
 /**
  * .report_date is the real date, when the transaction appears in the IB report.
  * .date is the transaction effective date.
  */
-#[allow(non_snake_case)]
 #[derive(Debug, Default, Deserialize, PartialEq, Eq)]
 pub struct CashTransaction {
     /// .report_date is the real date, when the transaction appears in the IB report.
-    pub reportDate: String,
+    #[serde(rename = "reportDate")]
+    pub report_date: String,
     /// .dateTime is the transaction effective date.
-    pub dateTime: String,
+    #[serde(rename = "dateTime")]
+    pub date_time: String,
     pub symbol: String,
-    pub listingExchange: String,
+    #[serde(rename = "listingExchange")]
+    pub listing_exchange: String,
     pub r#type: String,
     pub amount: String,
     pub currency: String,
@@ -73,10 +80,10 @@ impl Display for CashTransaction {
         write!(
             f,
             "{}/{} {:7} {} {} {:>7} {}, {}",
-            self.reportDate,
-            &self.dateTime[..10],
+            self.report_date,
+            &self.date_time[..10],
             self.symbol,
-            self.listingExchange,
+            self.listing_exchange,
             self.r#type,
             self.amount,
             self.currency,

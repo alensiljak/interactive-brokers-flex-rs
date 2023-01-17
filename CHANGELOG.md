@@ -5,6 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2023-01-17
+
+### Changed
+
+- The member names in FlexQueryResponse are now Rust's standard snake_case.
+
 ## [0.5] - 2023-01-17
 
 ### Changed

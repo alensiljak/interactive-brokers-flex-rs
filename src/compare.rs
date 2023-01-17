@@ -115,15 +115,15 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
     let response = FlexQueryResponse::from(content);
 
     let mut ib_txs = response
-        .FlexStatements
-        .FlexStatement
-        .CashTransactions
-        .CashTransaction;
+        .flex_statements
+        .flex_statement
+        .cash_transactions
+        .cash_transaction;
 
     // txs.sort(key=operator.attrgetter("dateTime", "symbol", "type.name"))
     ib_txs.sort_unstable_by_key(|ct| {
         (
-            ct.dateTime.to_owned(),
+            ct.date_time.to_owned(),
             ct.symbol.to_owned(),
             ct.r#type.to_owned(),
         )

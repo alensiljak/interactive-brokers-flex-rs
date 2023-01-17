@@ -13,7 +13,6 @@ Part of the Statement request protocol.
 The tag names in the XML response are PascalCase. They are rewritten using serde rename attributes.
 See tests.
  */
-// #[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FlexStatementResponse {
