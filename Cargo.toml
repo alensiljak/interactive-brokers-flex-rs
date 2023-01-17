@@ -16,13 +16,13 @@ keywords = ["interactivebrokers", "finance", "cli", "flex", "reports"]
 anyhow = "1.0.68"
 assert_cmd = "2.0.8"
 chrono = "0.4.23"
-clap = { version = "4.0.32", features = ["derive"] }
+clap = { version = "4.1.1", features = ["derive"] }
 cli_runner = "0.2.1"
 confy = "0.5.1"
 env_logger = "0.10.0"
 glob = "0.3.1"
 log = "0.4.17"
-pricedb = "1.4.0"
+pricedb = "1.4.1"
 reqwest = { version = "0.11.13", features = ["json"] }
 rust_decimal = "1.27.0"
 serde = { version = "1.0.151", features = ["derive"] }
