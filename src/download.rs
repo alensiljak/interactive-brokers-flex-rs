@@ -6,7 +6,7 @@
 
 use chrono::Local;
 
-use crate::config::get_dl_config;
+use crate::{config::get_dl_config, flex_statement};
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
 const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
@@ -61,10 +61,10 @@ pub async fn download(params: DownloadParams) -> String {
 async fn download_report(query_id: &str, token: &str) -> String {
     let resp = request_statement(query_id, token).await;
     // parse
-    let stmt_resp = crate::flex_statement::parse_response_text(&resp);
+    let stmt_resp = flex_statement::parse_response_text(&resp);
 
     // Now request the actual report.
-    let stmt_text = download_statement_text(&stmt_resp.ReferenceCode, token).await;
+    let stmt_text = download_statement_text(&stmt_resp.reference_code, token).await;
 
     stmt_text
 }
@@ -104,7 +104,7 @@ async fn download_statement_text(ref_code: &String, token: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::download::{FLEX_URL, REQUEST_ENDPOINT};
+    use crate::{download::{FLEX_URL, REQUEST_ENDPOINT, request_statement, DownloadParams}};
 
     #[test]
     /// Test concatenating constants.
@@ -115,18 +115,25 @@ mod tests {
         actual);
     }
 
-    // /**
-    //  * Test sending the Flex request. This is step 1 of the 2-step process.
-    //  *
-    //  * To run the test, create ibflex.toml config and populate with valid parameters.
-    //  */
+    /**
+     * Test sending the Flex request. This is step 1 of the 2-step process.
+     *
+     * To run the test, create ibflex.toml config and populate with valid parameters.
+     * Uncomment the [tokio::test] line below.
+     */
     // #[tokio::test]
-    // async fn request_report_test() {
-    //     let cfg = crate::config::get_dl_config(DownloadParams::default());
-    //     let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
-    //     assert_ne!(String::default(), actual);
-    //     assert!(!actual.contains("ERROR"));
-    // }
+    #[allow(unused)]
+    async fn request_report_test() {
+        let cfg = crate::config::get_dl_config(DownloadParams::default());
+        let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
+        
+        println!("received: {:?}", actual);
+
+        assert_ne!(String::default(), actual);
+        assert!(!actual.contains("ERROR"));
+
+        assert!(false);
+    }
 
     // /**
     //  * Request the full Flex report, using 2-step process.
