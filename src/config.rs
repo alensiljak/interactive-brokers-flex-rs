@@ -18,6 +18,7 @@ pub struct Config {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
+    pub symbols_path: String
 }
 
 /**

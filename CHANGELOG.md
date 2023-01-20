@@ -5,6 +5,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- the path to the symbols file must be added as a parameter to `compare`
+
+### Changed
+
+- using `as-symbols` instead of `pricedb`. The symbols are stored in a CSV file.
+
+### Security
+
+- updated dependencies
+
 ## [0.5.1] - 2023-01-17
 
 ### Changed

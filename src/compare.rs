@@ -2,7 +2,7 @@
  * Compares the downloaded Flex report with Ledger
  */
 
-use std::{collections::HashMap, ops::Mul};
+use std::{collections::HashMap, ops::Mul, path::{PathBuf}};
 
 use anyhow::{Error, Ok};
 use rust_decimal::Decimal;
@@ -44,23 +44,32 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
 }
 
 /// Load symbol mappings from PriceDb
-fn load_symbols() -> Result<HashMap<String, String>, Error> {
+/// The resulting hashmap is <symbol, ledger symbol>.
+fn load_symbols(path: &PathBuf) -> Result<HashMap<String, String>, Error> {
     log::debug!("loading symbols");
 
     // read symbols from pricedb
-    let cfg = pricedb::load_config();
-    let pdb = pricedb::App::new(cfg);
-    // get all the securities that have a different symbol in ledger.
-    let securities: HashMap<String, String> = pdb
-        .get_dal()
-        .get_securities(None)
-        .into_iter()
-        .filter_map(|sec| match sec.ledger_symbol {
-            Some(ledger_symbol) => Some((sec.symbol, ledger_symbol)),
-            None => None,
-        })
-        .collect();
+    // let cfg = pricedb::load_config();
+    // let pdb = pricedb::App::new(cfg);
+    // // get all the securities that have a different symbol in ledger.
+    // let securities: HashMap<String, String> = pdb
+    //     .get_dal()
+    //     .get_securities(None)
+    //     .into_iter()
+    //     .filter_map(|sec| match sec.ledger_symbol {
+    //         Some(ledger_symbol) => Some((sec.symbol, ledger_symbol)),
+    //         None => None,
+    //     })
+    //     .collect();
 
+    let securities = as_symbols::read_symbols(path)
+        .expect("Parsed symbols")
+        .iter()
+        .map(|sym| (sym.symbol.to_owned(), match &sym.ledger_symbol {
+            Some(ldg_sym) => ldg_sym.to_owned(),
+            None => sym.symbol.to_owned(),
+        }))
+        .collect();
     Ok(securities)
 }
 
@@ -71,13 +80,18 @@ fn load_symbols() -> Result<HashMap<String, String>, Error> {
 fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
     let ib_txs = read_flex_report(cfg);
 
-    convert_ib_txs(ib_txs)
+    convert_ib_txs(ib_txs, &cfg.symbols_path)
 }
 
 /// Converts IB CashTransaction XML record into a Common Transaction.
-fn convert_ib_txs(ib_txs: Vec<CashTransaction>) -> Vec<CommonTransaction> {
+fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<CommonTransaction> {
+    let symbols_path = PathBuf::from(symbols_path_str);
+    log::debug!("loading symbols from {:?}", symbols_path);
+
     // load symbols
-    let symbols = load_symbols().unwrap();
+    let symbols = load_symbols(&symbols_path).unwrap();
+    log::debug!("symbols loaded: {:?}", symbols);
+
     let mut txs: Vec<CommonTransaction> = vec![];
 
     let to_include = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
@@ -172,12 +186,15 @@ pub struct CompareParams {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
+    pub symbols_path: String
 }
 
 // Tests
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use super::{compare, compare_txs, load_symbols};
     use crate::{
         compare::{convert_ib_txs, get_ib_tx, CompareParams},
@@ -189,7 +206,9 @@ mod tests {
     /// Load symbols through PriceDb.
     #[test]
     fn symbols_load_test() {
-        let symbols = load_symbols().expect("symbols loaded");
+        let symbol_path = PathBuf::from("tests/symbols.csv");
+
+        let symbols = load_symbols(&symbol_path).expect("symbols loaded");
 
         assert!(!symbols.is_empty());
     }
@@ -197,7 +216,9 @@ mod tests {
     #[rstest::rstest]
     #[test_log::test]
     fn test_convert_ib_txs(cash_transactions: Vec<CashTransaction>) {
-        let ib_tx = convert_ib_txs(cash_transactions);
+        let symbols_path = "tests/symbols.csv";
+
+        let ib_tx = convert_ib_txs(cash_transactions, symbols_path);
 
         assert!(!ib_tx.is_empty());
     }

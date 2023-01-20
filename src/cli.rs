@@ -36,4 +36,6 @@ pub struct CmpParams {
     pub flex_reports_dir: Option<String>,
     #[arg(short, long, help="Ledger init file (.ledgerrc)")]
     pub ledger_init_file: Option<String>,
+    #[arg(short, long, help="The symbols data file")]
+    pub symbols_path: String
 }

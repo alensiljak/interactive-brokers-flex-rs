@@ -32,6 +32,7 @@ async fn main() {
                 flex_report_path: params.flex_report_path.to_owned(),
                 flex_reports_dir: params.flex_reports_dir.to_owned(),
                 ledger_init_file: params.ledger_init_file.to_owned(),
+                symbols_path: params.symbols_path.to_owned()
             };
             ibflex::compare::compare(cmp_params).expect("transactions compared");
         }

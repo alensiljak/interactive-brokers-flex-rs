@@ -32,6 +32,7 @@ pub fn cmp_params(flex_report_path: String, ledger_init_path: String) -> Compare
         flex_report_path: Some(flex_report_path),
         flex_reports_dir: None,
         ledger_init_file: Some(ledger_init_path),
+        symbols_path: "tests/symbols.csv".to_owned()
     }
 }
 
