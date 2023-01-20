@@ -2,17 +2,20 @@
  * Compares the downloaded Flex report with Ledger
  */
 
-use std::{collections::HashMap, ops::Mul, path::{PathBuf}};
+use std::{collections::HashMap, ops::Mul, path::PathBuf};
 
 use anyhow::{Error, Ok};
+use as_symbols::SymbolMetadata;
 use rust_decimal::Decimal;
 
 use crate::{
     config::{get_cmp_config, Config},
+    flex_enums::{cash_action, CashAction},
     flex_query::{CashTransaction, FlexQueryResponse},
     flex_reader::load_report,
     ledger_runner,
-    model::CommonTransaction, ISO_DATE_FORMAT, flex_enums::{CashAction, cash_action},
+    model::CommonTransaction,
+    ISO_DATE_FORMAT,
 };
 
 pub const TRANSACTION_DAYS: u8 = 60;
@@ -43,34 +46,31 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Load symbol mappings from PriceDb
+/// Load the symbol mappings.
 /// The resulting hashmap is <symbol, ledger symbol>.
 fn load_symbols(path: &PathBuf) -> Result<HashMap<String, String>, Error> {
     log::debug!("loading symbols");
 
-    // read symbols from pricedb
-    // let cfg = pricedb::load_config();
-    // let pdb = pricedb::App::new(cfg);
-    // // get all the securities that have a different symbol in ledger.
-    // let securities: HashMap<String, String> = pdb
-    //     .get_dal()
-    //     .get_securities(None)
-    //     .into_iter()
-    //     .filter_map(|sec| match sec.ledger_symbol {
-    //         Some(ledger_symbol) => Some((sec.symbol, ledger_symbol)),
-    //         None => None,
-    //     })
-    //     .collect();
-
     let securities = as_symbols::read_symbols(path)
         .expect("Parsed symbols")
         .iter()
-        .map(|sym| (sym.symbol.to_owned(), match &sym.ledger_symbol {
-            Some(ldg_sym) => ldg_sym.to_owned(),
-            None => sym.symbol.to_owned(),
-        }))
+        .map(|sym| map_symbols(sym))
         .collect();
     Ok(securities)
+}
+
+/// Maps the SymbolMetadata into a hashmap of (ib_symbol, ledger_symbol) records.
+fn map_symbols(symbol: &SymbolMetadata) -> (String, String) {
+    (
+        match &symbol.ib_symbol {
+            Some(ib_sym) => ib_sym.to_owned(),
+            None => symbol.symbol.to_owned(),
+        },
+        match &symbol.ledger_symbol {
+            Some(ldg_sym) => ldg_sym.to_owned(),
+            None => symbol.symbol.to_owned(),
+        },
+    )
 }
 
 /**
@@ -94,7 +94,10 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
 
     let mut txs: Vec<CommonTransaction> = vec![];
 
-    let to_include = [CashAction::WhTax.to_string(), CashAction::Dividend.to_string()];
+    let to_include = [
+        CashAction::WhTax.to_string(),
+        CashAction::Dividend.to_string(),
+    ];
     log::debug!("to include: {:?}", to_include);
 
     for tx in ib_txs {
@@ -158,11 +161,11 @@ fn compare_txs(
                 .iter()
                 .filter(|tx| {
                     // Compare:
-                    tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date &&
-                    tx.symbol == ibtx.symbol &&
-                    tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE) &&
-                    tx.currency == ibtx.currency &&
-                    tx.r#type == ibtx.r#type
+                    tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date
+                        && tx.symbol == ibtx.symbol
+                        && tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE)
+                        && tx.currency == ibtx.currency
+                        && tx.r#type == ibtx.r#type
                 })
                 .collect()
         };
@@ -200,7 +203,8 @@ mod tests {
         compare::{convert_ib_txs, get_ib_tx, CompareParams},
         config::Config,
         flex_query::CashTransaction,
-        test_fixtures::*, ledger_runner::get_ledger_tx,
+        ledger_runner::get_ledger_tx,
+        test_fixtures::*,
     };
 
     /// Load symbols through PriceDb.
