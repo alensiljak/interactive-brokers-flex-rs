@@ -11,7 +11,7 @@ There are several components in the package:
   - parses IB Flex Query report
   - runs Ledger-cli to retrieve the transactions in the last 60 days
   - compares the Cash Transactions from the downloaded Flex Query .xml report to the Ledger transactions
-- `pricedb` crate ([repo](https://github.com/alensiljak/pricedb-rust)) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger. The package is a dependency of `ibflex` but must be configured manually to read from its own database.
+- `as-symbols` [crate](https://crates.io/crates/as-symbols) provides the Symbol mapping between IB Flex report and Ledger. I.e. symbol `VHYL` in the report is `VHYL_AS` in Ledger.
 
 The project started as a rewrite of my Python scripts and is intended to be expanded as needed, to parse Flex Queries.
 
@@ -27,9 +27,9 @@ The config file will be created automatically if it does not exist.
 
 To edit the values, use any text editor.
 
-## PriceDb Configuration
+## Symbols Configuration
 
-See [pricedb](crates.io/crates/pricedb) crate for instructions on how to set up Price Database.
+See `as-symbols` [crate](https://crates.io/crates/as-symbols) for instructions on how to set up the symbols data file.
 At the moment this is required for the symbol mapping. The symbols in IB (i.e. VHYL) may be mapped to a different symbol in Ledger (i.e. VHYL_AS).
 
 # Usage
