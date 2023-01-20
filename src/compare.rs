@@ -186,7 +186,7 @@ pub struct CompareParams {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
-    pub symbols_path: String
+    pub symbols_path: Option<String>,
 }
 
 // Tests

@@ -2,6 +2,8 @@
  * Test fixtures
  */
 
+use std::path::PathBuf;
+
 use chrono::Local;
 use rstest::fixture;
 
@@ -20,6 +22,12 @@ pub fn flex_report_path(tests_directory_path: String) -> String {
 }
 
 #[fixture]
+pub fn symbols_path(tests_directory_path: String) -> PathBuf {
+    let path = tests_directory_path + "/symbols.csv"; 
+    PathBuf::from(path)
+}
+
+#[fixture]
 pub fn ledger_init_path(tests_directory_path: String) -> String {
     let path = format!("{tests_directory_path}{}", "init.ledger");
 
@@ -27,12 +35,13 @@ pub fn ledger_init_path(tests_directory_path: String) -> String {
 }
 
 #[fixture]
-pub fn cmp_params(flex_report_path: String, ledger_init_path: String) -> CompareParams {
+pub fn cmp_params(flex_report_path: String, ledger_init_path: String,
+    symbols_path: PathBuf) -> CompareParams {
     CompareParams {
         flex_report_path: Some(flex_report_path),
         flex_reports_dir: None,
         ledger_init_file: Some(ledger_init_path),
-        symbols_path: "tests/symbols.csv".to_owned()
+        symbols_path: Some(symbols_path.as_path().to_str().unwrap().to_owned())
     }
 }
 

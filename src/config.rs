@@ -18,6 +18,7 @@ pub struct Config {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
+    /// The symbols path is mandatory.
     pub symbols_path: String
 }
 
@@ -50,6 +51,8 @@ pub fn get_dl_config(params: DownloadParams) -> Config {
 pub fn get_cmp_config(params: &CompareParams) -> Config {
     let mut cfg = read_config_file();
 
+    // mix CLI parameters with those in the config file.
+
     if let Some(flex_report_path) = &params.flex_report_path {
         cfg.flex_report_path = Some(flex_report_path.to_owned());
     }
@@ -58,6 +61,10 @@ pub fn get_cmp_config(params: &CompareParams) -> Config {
     }
     if let Some(ledger_init_file) = &params.ledger_init_file {
         cfg.ledger_init_file = Some(ledger_init_file.to_owned());
+    }
+
+    if let Some(symbols_path) = &params.symbols_path {
+        cfg.symbols_path = symbols_path.to_string();
     }
 
     cfg

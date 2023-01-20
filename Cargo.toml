@@ -14,7 +14,7 @@ keywords = ["interactivebrokers", "finance", "cli", "flex", "reports"]
 
 [dependencies]
 anyhow = "1.0.68"
-as-symbols = "0.1.1"
+as-symbols = "0.2.0"
 assert_cmd = "2.0.8"
 chrono = "0.4.23"
 clap = { version = "4.1.1", features = ["derive"] }

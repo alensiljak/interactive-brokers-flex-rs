@@ -32,7 +32,7 @@ fn parse_file_test() {
         flex_report_path: Some("tests/report_1.xml".to_string()),
         flex_reports_dir: None,
         ledger_init_file: None,
-        symbols_path: "tests/symbols.csv".to_owned()
+        symbols_path: Some("tests/symbols.csv".to_owned())
     };
     let cmp_config = get_cmp_config(&cmp_params);
 

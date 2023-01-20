@@ -37,5 +37,5 @@ pub struct CmpParams {
     #[arg(short, long, help="Ledger init file (.ledgerrc)")]
     pub ledger_init_file: Option<String>,
     #[arg(short, long, help="The symbols data file")]
-    pub symbols_path: String
+    pub symbols_path: Option<String>
 }
