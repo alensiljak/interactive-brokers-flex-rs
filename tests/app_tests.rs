@@ -50,3 +50,15 @@ Complete.
     
     assert.success().stdout(expected);
 }
+
+#[test]
+fn test_comparison_w_effective_dates() {
+    let mut cmd = Command::cargo_bin("ibflex").unwrap();
+    let assert = cmd.args(vec!["cmp", "--effective",
+        "--flex-report-path", "tests/tax_adj_report.xml"
+        ]).assert();
+
+    let expected = "expected";
+
+    assert.success().stdout(expected);
+}
