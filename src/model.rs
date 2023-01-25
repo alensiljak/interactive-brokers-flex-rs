@@ -31,7 +31,7 @@ pub struct CommonTransaction {
 
 impl From<&CashTransaction> for CommonTransaction {
     fn from(value: &CashTransaction) -> Self {
-        log::debug!("converting: {:?}", value);
+        log::debug!("converting ib tx: {:?}", value);
 
         // prepare symbol
         let mut symbol = value.symbol.to_owned();

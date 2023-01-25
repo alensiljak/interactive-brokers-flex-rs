@@ -61,7 +61,7 @@ fn compare_txs(
             // actual date
             ibtx.report_date.to_owned()
         };
-        log::debug!("ib date: {:?}", ib_comparison_date);
+        log::debug!("ib date for comparison: {:?}", ib_comparison_date);
 
         let matches: Vec<&CommonTransaction> = ledger_txs
             .iter()
@@ -75,7 +75,7 @@ fn compare_txs(
             })
             .collect();
 
-        log::debug!("matches: {:?}", matches);
+        log::debug!("matching ledger txs: {:?}", matches);
 
         if matches.is_empty() {
             let output = format!("New: {}\n", ibtx);
@@ -91,7 +91,7 @@ fn compare_txs(
 /// Load the symbol mappings.
 /// The resulting hashmap is <symbol, ledger symbol>.
 fn load_symbols(path: &PathBuf) -> Result<HashMap<String, String>, Error> {
-    log::debug!("loading symbols");
+    log::debug!("loading symbols from {:?}", path);
 
     let securities = as_symbols::read_symbols(path)
         .expect("Parsed symbols")
@@ -129,7 +129,6 @@ fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
 fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<CommonTransaction> {
     // load symbols. Need a mapping to the ledger symbols for comparison.
     let symbols_path = PathBuf::from(symbols_path_str);
-    log::debug!("loading symbols from {:?}", symbols_path);
     let symbols = load_symbols(&symbols_path).unwrap();
     log::debug!("symbols loaded: {:?}", symbols);
 
@@ -142,11 +141,12 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
     log::debug!("to include: {:?}", to_include);
 
     for tx in ib_txs {
-        log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
+        log::debug!("Converting ib tx: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
 
         // skip any not matching the expected types.
         if !to_include.contains(&cash_action(&tx.r#type)) {
-            println!("N/A: {}", tx);
+            log::debug!("Skipping. Wrong type ({:?})", &tx.r#type);
+            println!("Skipped: {}", tx);
             continue;
         }
 
@@ -265,7 +265,9 @@ mod tests {
     /// tax adjustments come on one day and match several records in the past year.
     /// The report date needs to be matched to the effective date in this case,
     /// in addition to the transaction date/transaction date.
-    #[test]
+    /// 
+    /// `ledger r --init-file tests/tax_adj.ledgerrc`
+    #[test_log::test]
     fn test_compare_w_multiple_matches() {
         let cmp_params = CompareParams {
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
@@ -278,11 +280,29 @@ mod tests {
 
         println!("result: {:?}", actual);
 
+        let expected = "";
+
+        assert_eq!(expected, actual);
+    }
+
+    /// Same test but using effective dates.
+    #[test_log::test]
+    fn test_compare_w_multiple_matches_effective_dates() {
+        let cmp_params = CompareParams {
+            flex_report_path: Some("tests/tax_adj_report.xml".into()),
+            flex_reports_dir: None,
+            ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
+            symbols_path: Some("tests/symbols.csv".into()),
+            effective_dates: true,
+        };
+        let actual = compare(cmp_params).unwrap();
+
+        println!("result: {:?}", actual);
+
         let expected = r#"New: 2023-01-24/2022-04-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-30 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
-New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
-Complete."#;
+New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX"#;
 
         /* These are in the ledger file:
         New: 2023-01-24/2022-03-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
@@ -290,7 +310,5 @@ Complete."#;
          */
 
         assert_eq!(expected, actual);
-
-        assert!(false);
     }
 }
