@@ -1,5 +1,5 @@
 /*!
- * Test the app
+ * Test the Compare method.
  */
 
 // use std::env;
@@ -19,18 +19,21 @@
 //env::set_var("token", "123");
 
 use assert_cmd::Command;
+use rstest::fixture;
+
+#[fixture]
+fn app_cmd() -> Command {
+    Command::cargo_bin("ibflex").unwrap()
+}
 
 /**
  * Tests comparison.
  * Requires a default .toml configuration file.
  */
 #[rstest::rstest]
-fn test_comparison() {
+fn test_comparison(mut app_cmd: Command) {
     // prepare
-
-    let mut cmd = Command::cargo_bin("ibflex").unwrap();
-
-    let assert = cmd.arg("cmp").assert();
+    let assert = app_cmd.arg("cmp").assert();
     //assert!(!actual.is_err());
 
     // Assertions
@@ -51,15 +54,28 @@ Complete.
     assert.success().stdout(expected);
 }
 
-#[test]
-fn test_comparison_w_effective_dates() {
-    let mut cmd = Command::cargo_bin("ibflex").unwrap();
-    let assert = cmd.args(vec!["cmp", "--effective",
+#[rstest::rstest]
+fn test_comparison_w_effective_dates(mut app_cmd: Command) {
+    let assert = app_cmd.args(vec!["cmp", "--effective",
         "--flex-report-path", "tests/tax_adj_report.xml",
-        "----symbols-path", "tests/symbols.csv",
+        "--symbols-path", "tests/symbols.csv",
+        "--ledger-init-file", "tests/init.ledger",
+        "--comparison-date", "2023-01-15",
         ]).assert();
 
     let expected = "expected";
 
     assert.success().stdout(expected);
+}
+
+#[rstest::rstest]
+fn test_start_date_parameter(mut app_cmd: Command) {
+    let assert = app_cmd.args(vec!["cmp",
+    "--comparison-date", "2023-01-15",
+    "--flex-report-path", "tests/report_1.xml",
+    "--symbols-path", "tests/symbols.csv",
+    "--ledger-init-file", "tests/init.ledger"])
+    .assert();
+
+    assert.success();
 }

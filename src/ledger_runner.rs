@@ -2,20 +2,24 @@
  * Runs Ledger-cli to retrieve required reports.
  */
 
-use std::process::{Command, Output};
+use std::{
+    process::{Command, Output},
+};
 
-use chrono::{Days, Local};
+use chrono::{Days, Local, NaiveDate};
 
-use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction};
+use crate::{
+    compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction, ISO_DATE_FORMAT,
+};
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
-pub fn get_ledger_tx(ledger_init_file: Option<String>, use_effective_dates: bool) -> Vec<CommonTransaction> {
-    let end_date = Local::now().date_naive();
-    let start_date = end_date
-        .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
-        .expect("calculated start date");
-    let date_param = start_date.format("%Y-%m-%d").to_string();
+pub fn get_ledger_tx(
+    ledger_init_file: Option<String>,
+    comparison_date: Option<String>,
+    use_effective_dates: bool,
+) -> Vec<CommonTransaction> {
+    let date_param = get_ledger_date_param(comparison_date);
 
     let cmd = get_ledger_cmd(&date_param, ledger_init_file, use_effective_dates);
 
@@ -44,7 +48,26 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>, use_effective_dates: bool
     txs
 }
 
-#[allow(unused)]
+/// Determines the starting date from which to take Ledger transactions.
+/// This is one month from the comparison date.
+fn get_ledger_date_param(comparison_date: Option<String>) -> String {
+    let end_date = match &comparison_date {
+        Some(date_value) => {
+            NaiveDate::parse_from_str(&date_value, ISO_DATE_FORMAT).expect("correct date")
+        }
+        None => Local::now().date_naive(),
+    };
+
+    let start_date = end_date
+        .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
+        .expect("calculated start date");
+    let date_param = start_date.format(ISO_DATE_FORMAT).to_string();
+
+    log::debug!("Ledger start date: {:?} -> {:?}", comparison_date, date_param);
+
+    date_param
+}
+
 fn run_ledger_args(args: Vec<String>) -> Output {
     log::debug!("ledger args: {:?}", args);
 
@@ -56,10 +79,16 @@ fn run_ledger_args(args: Vec<String>) -> Output {
     output
 }
 
-fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>, effective_dates: bool) -> String {
+/// Assemble the Ledger query command.
+fn get_ledger_cmd(
+    date_param: &str,
+    ledger_init_file: Option<String>,
+    effective_dates: bool,
+) -> String {
     let mut cmd = format!("ledger r -b {date_param} -d");
 
-    cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#);
+    cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or"#);
+    cmd.push_str(r#" (account =~ /expenses/ and account =~ /ib/ and account =~ /withh/)""#);
 
     if effective_dates {
         cmd.push_str(" --effective");
@@ -133,7 +162,7 @@ mod tests {
         println!("ledger_init_path: {:?}", ledger_init_path);
 
         let path_opt = Some(ledger_init_path);
-        let actual = get_ledger_tx(path_opt, false);
+        let actual = get_ledger_tx(path_opt, None, false);
 
         println!("txs: {:?}", actual);
 

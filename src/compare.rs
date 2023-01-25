@@ -2,7 +2,11 @@
  * Compares the downloaded Flex report with Ledger
  */
 
-use std::{collections::HashMap, ops::Mul, path::PathBuf};
+use std::{
+    collections::HashMap,
+    ops::Mul,
+    path::{Path, PathBuf},
+};
 
 use anyhow::{Error, Ok};
 use as_symbols::SymbolMetadata;
@@ -38,7 +42,11 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     }
 
     // get_ledger_tx
-    let ledger_txs = ledger_runner::get_ledger_tx(cfg.ledger_init_file, params.effective_dates);
+    let ledger_txs = ledger_runner::get_ledger_tx(
+        cfg.ledger_init_file,
+        params.comparison_date,
+        params.effective_dates,
+    );
     log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
@@ -55,13 +63,15 @@ fn compare_txs(
     let mut result = String::default();
 
     for ibtx in ib_txs {
+        log::debug!("Matching ib tx: {:?}", ibtx);
+
         let ib_comparison_date = if use_effective_dates {
-            ibtx.date.to_string()
+            ibtx.date.format(ISO_DATE_FORMAT).to_string()
         } else {
             // actual date
             ibtx.report_date.to_owned()
         };
-        log::debug!("ib date for comparison: {:?}", ib_comparison_date);
+        log::debug!("using ib date: {:?}", ib_comparison_date);
 
         let matches: Vec<&CommonTransaction> = ledger_txs
             .iter()
@@ -92,6 +102,12 @@ fn compare_txs(
 /// The resulting hashmap is <symbol, ledger symbol>.
 fn load_symbols(path: &PathBuf) -> Result<HashMap<String, String>, Error> {
     log::debug!("loading symbols from {:?}", path);
+
+    // confirm the path exists
+    let real_path = Path::new(path);
+    if !real_path.exists() {
+        panic!("The symbols file {:?} does not exist!", path);
+    }
 
     let securities = as_symbols::read_symbols(path)
         .expect("Parsed symbols")
@@ -141,7 +157,12 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
     log::debug!("to include: {:?}", to_include);
 
     for tx in ib_txs {
-        log::debug!("Converting ib tx: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
+        log::debug!(
+            "Converting ib tx: {:?} {:?} ({:?})",
+            tx.symbol,
+            tx.r#type,
+            cash_action(&tx.r#type)
+        );
 
         // skip any not matching the expected types.
         if !to_include.contains(&cash_action(&tx.r#type)) {
@@ -195,6 +216,7 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
  */
 #[derive(Debug)]
 pub struct CompareParams {
+    pub comparison_date: Option<String>,
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
@@ -242,7 +264,7 @@ mod tests {
     fn test_compare_tx(cmp_config: Config) {
         let ib_txs = get_ib_tx(&cmp_config);
         let use_effective_dates = false;
-        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file, use_effective_dates);
+        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file, None, use_effective_dates);
 
         log::debug!("comparing {:?} *** and *** {:?}", ib_txs, ledger_txs);
 
@@ -265,11 +287,12 @@ mod tests {
     /// tax adjustments come on one day and match several records in the past year.
     /// The report date needs to be matched to the effective date in this case,
     /// in addition to the transaction date/transaction date.
-    /// 
+    ///
     /// `ledger r --init-file tests/tax_adj.ledgerrc`
     #[test_log::test]
     fn test_compare_w_multiple_matches() {
         let cmp_params = CompareParams {
+            comparison_date: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
@@ -289,6 +312,7 @@ mod tests {
     #[test_log::test]
     fn test_compare_w_multiple_matches_effective_dates() {
         let cmp_params = CompareParams {
+            comparison_date: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
@@ -302,7 +326,8 @@ mod tests {
         let expected = r#"New: 2023-01-24/2022-04-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-30 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
-New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX"#;
+New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+"#;
 
         /* These are in the ledger file:
         New: 2023-01-24/2022-03-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX

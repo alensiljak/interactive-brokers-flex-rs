@@ -30,6 +30,10 @@ pub struct DlParams {
 
 #[derive(Debug, clap::Args)]
 pub struct CmpParams {
+    /// The date on which to run the comparison.
+    /// The range for ledger transactions is one month up to this date.
+    #[arg(short, long)]
+    pub comparison_date: Option<String>,
     #[arg(short, long, help="The report .xml to use for comparison")]
     pub flex_report_path: Option<String>,
     #[arg(short='d', long, help="Directory that contains the Flex .xml reports")]

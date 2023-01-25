@@ -29,6 +29,7 @@ fn parse_file_test() {
         .push(tx1);
 
     let cmp_params = CompareParams {
+        comparison_date: None,
         flex_report_path: Some("tests/report_1.xml".to_string()),
         flex_reports_dir: None,
         ledger_init_file: None,

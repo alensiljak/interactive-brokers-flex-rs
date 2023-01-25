@@ -1,6 +1,6 @@
 ; journal to demo tax adjustment records
 
-2023-01-24=2022-03-01 BBN Tax Adjustment
-    Expense:Withholding Tax:IB   -0.66 USD
-    Expense:Withholding Tax:IB    0.53 USD
-    Assets:Cash
+2023-01-24=2022-12-01 BBN Tax Adjustment
+    Expenses:Withholding Tax:IB   -0.66 USD
+    Expenses:Withholding Tax:IB    0.53 USD
+    Assets:Investment:Cash
