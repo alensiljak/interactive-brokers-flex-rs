@@ -24,7 +24,7 @@ pub(crate) const DATE_MODE: &str = "book"; // "book" / "effective"
 /**
  * Compares transactions in the downloaded IB Flex report to Ledger.
  */
-pub fn compare(params: CompareParams) -> anyhow::Result<()> {
+pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     log::debug!("comparing distributions, params: {:?}", params);
     let cfg = get_cmp_config(&params);
 
@@ -32,8 +32,9 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     let ib_txs = get_ib_tx(&cfg);
     log::debug!("Found {} IB transactions", ib_txs.len());
     if ib_txs.len() == 0 {
-        println!("No new IB transactions found. Exiting...");
-        return Ok(());
+        let msg = "No new IB transactions found. Exiting...";
+        println!("{}", msg);
+        return Ok(msg.into());
     }
 
     // get_ledger_tx
@@ -41,9 +42,9 @@ pub fn compare(params: CompareParams) -> anyhow::Result<()> {
     log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
-    compare_txs(ib_txs, ledger_txs)?;
+    let result = compare_txs(ib_txs, ledger_txs)?;
 
-    Ok(())
+    Ok(result)
 }
 
 /// Load the symbol mappings.
@@ -85,10 +86,9 @@ fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
 
 /// Converts IB CashTransaction XML record into a Common Transaction.
 fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<CommonTransaction> {
+    // load symbols. Need a mapping to the ledger symbols for comparison.
     let symbols_path = PathBuf::from(symbols_path_str);
     log::debug!("loading symbols from {:?}", symbols_path);
-
-    // load symbols. Need a mapping to the ledger symbols for comparison.
     let symbols = load_symbols(&symbols_path).unwrap();
     log::debug!("symbols loaded: {:?}", symbols);
 
@@ -152,8 +152,11 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
 fn compare_txs(
     ib_txs: Vec<CommonTransaction>,
     ledger_txs: Vec<CommonTransaction>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<String> {
+    let mut result = String::default();
+
     for ibtx in ib_txs {
+
         let matches: Vec<&CommonTransaction> = if DATE_MODE == "effective" {
             todo!("complete");
         } else {
@@ -173,12 +176,14 @@ fn compare_txs(
         log::debug!("matches: {:?}", matches);
 
         if matches.is_empty() {
-            println!("New: {}", ibtx);
+            let output = format!("New: {}", ibtx);
+            println!("{}", output);
+            result.push_str(&output);
         }
     }
     println!("Complete.");
 
-    Ok(())
+    Ok(result)
 }
 
 /**
@@ -254,7 +259,7 @@ mod tests {
     /// tax adjustments come on one day and match several records in the past year.
     /// The report date needs to be matched to the effective date in this case,
     /// in addition to the transaction date/transaction date.
-    // #[test]
+    #[test]
     fn test_compare_w_multiple_matches() {
         let cmp_params = CompareParams {
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
@@ -262,9 +267,23 @@ mod tests {
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
             symbols_path: Some("tests/symbols.csv".into()),
         };
-        let actual = compare(cmp_params);
+        let actual = compare(cmp_params).unwrap();
 
         println!("result: {:?}", actual);
+
+        let expected = r#"Using tests/tax_adj_report.xml
+New: 2023-01-24/2022-04-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+New: 2023-01-24/2022-04-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+New: 2023-01-24/2022-04-30 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+Complete."#;
+
+/* These are in the ledger file:
+New: 2023-01-24/2022-03-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+New: 2023-01-24/2022-03-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+ */
+
+        assert_eq!(expected, actual);
 
         assert!(false);
     }

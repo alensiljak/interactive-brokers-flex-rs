@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- returning the comparison result string from `compare`
+
 ## [0.6.2] - 2023-01-20
 
 ### Changed
