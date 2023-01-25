@@ -32,7 +32,7 @@ pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction>
     }
     let out = cli_runner::get_stdout(&output);
 
-    log::debug!("ledger output: {:?}", out);
+    // log::debug!("ledger output: {:?}", out);
 
     let lines: Vec<&str> = out.lines().collect();
 
@@ -134,14 +134,7 @@ mod tests {
     fn run_ledger_test(ledger_init_path: String) {
         let mut cmd = "b active and cash --init-file ".to_string();
         cmd.push_str(&ledger_init_path);
-        // let actual = run_ledger(&cmd);
 
-        // let mut args = vec!["b".to_owned()];
-        // args.push("active".to_owned());
-        // args.push("and".to_owned());
-        // args.push("cash".to_owned());
-        // args.push("--init-file".to_owned());
-        // args.push(ledger_init_path);
         let args = cmd
             .split_whitespace()
             .into_iter()

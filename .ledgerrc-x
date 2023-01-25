@@ -1,0 +1,39 @@
+; My ledger options
+
+;--file ./book/commodities.ledger
+;--file ./book/accounts.ledger
+;--file ./book/journal.2000.ledger
+;--file ./book/journal.2001.ledger
+;--file ./book/journal.2002.ledger
+;--file ./book/journal.2003-2007.ledger
+;--file ./book/journal.2008.ledger
+;--file ./book/journal.2009.ledger
+;--file ./book/journal.2010-2012.ledger
+;--file ./book/journal.2013.ledger
+;--file ./book/journal.2014.ledger
+;--file ./book/journal.2015.ledger
+;--file ./book/journal.2016.ledger
+;--file ./book/journal.2017.ledger
+;--file ./book/journal.2018.ledger
+;--file ./book/journal.2019.ledger
+;--file ./book/journal.2020.ledger
+;--file ./book/journal.2021.ledger
+;--file ./book/journal.2022.ledger
+
+; or
+
+--file p:/mydocuments/finance/ledger/book/book.ledger
+
+--price-db p:/mydocuments/finance/ledger/prices/prices.ledger
+
+--date-format %Y-%m-%d
+--wide
+
+;; Strict causes errors while pedantic causes warnings
+;--strict
+;--no-total
+
+; === Options ===
+
+; --init-file FILE
+;    Specify the location of the init file. The default is home directory ~/.ledgerrc, or current directory ./.ledgerrc if not found in home directory.

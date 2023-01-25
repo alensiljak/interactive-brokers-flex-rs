@@ -1,3 +1,6 @@
 namespace,symbol,currency,updater,updater_symbol,ledger_symbol,ib_symbol,remarks
-CURRENCY,AUD,EUR,fixerio,,, 
-XETRA,EL4X,EUR,yahoo_finance,,EL4X_DE,
+CURRENCY,AUD,EUR,fixerio,,,,
+NYSE,BBN,USD,yahoo_finance,,,,
+AMS,TRET,EUR,,,TRET_AS,,
+AMS,TCBT,EUR,,,TCBT_AS,,
+XETRA,EL4X,EUR,yahoo_finance,,EL4X_DE,,

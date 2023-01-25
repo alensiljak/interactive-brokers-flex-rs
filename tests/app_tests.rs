@@ -34,9 +34,10 @@ fn test_comparison() {
     //assert!(!actual.is_err());
 
     // Assertions
-    let expected = r#"New: 2022-11-25/2022-11-25 DGS     CommAdj 0.33225725 USD, Refund (DGS, 10, 2022-10-26)
-New: 2022-11-30/2022-11-30         DepositWithdraw    1500 EUR, CASH RECEIPTS / ELECTRONIC FUND TRANSFERS
-New: 2022-12-05/2022-12-05         BrokerIntRcvd    2.77 AUD, AUD CREDIT INT FOR NOV-2022
+    let expected = r#"Using ./tests/report_1.xml
+Skip: 2022-11-25/2022-11-25 DGS     ARCA Commission Adjustments 0.33225725 USD, Refund (DGS, 10, 2022-10-26)
+Skip: 2022-11-30/2022-11-30          Deposits/Withdrawals    1500 EUR, CASH RECEIPTS / ELECTRONIC FUND TRANSFERS
+Skip: 2022-12-05/2022-12-05          Broker Interest Received    2.77 AUD, AUD CREDIT INT FOR NOV-2022
 New: 2022-12-14/2022-12-15 TCBT_AS Dividend    6.05 EUR, TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE (Ordinary Dividend)
 New: 2022-12-14/2022-12-15 TCBT_AS WhTax   -0.91 EUR, TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX
 Complete.

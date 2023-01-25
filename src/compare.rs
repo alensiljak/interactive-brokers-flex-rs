@@ -88,7 +88,7 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
     let symbols_path = PathBuf::from(symbols_path_str);
     log::debug!("loading symbols from {:?}", symbols_path);
 
-    // load symbols
+    // load symbols. Need a mapping to the ledger symbols for comparison.
     let symbols = load_symbols(&symbols_path).unwrap();
     log::debug!("symbols loaded: {:?}", symbols);
 
@@ -249,5 +249,23 @@ mod tests {
         let actual = compare(cmp_params);
 
         assert!(!actual.is_err());
+    }
+
+    /// tax adjustments come on one day and match several records in the past year.
+    /// The report date needs to be matched to the effective date in this case,
+    /// in addition to the transaction date/transaction date.
+    // #[test]
+    fn test_compare_w_multiple_matches() {
+        let cmp_params = CompareParams {
+            flex_report_path: Some("tests/tax_adj_report.xml".into()),
+            flex_reports_dir: None,
+            ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
+            symbols_path: Some("tests/symbols.csv".into()),
+        };
+        let actual = compare(cmp_params);
+
+        println!("result: {:?}", actual);
+
+        assert!(false);
     }
 }

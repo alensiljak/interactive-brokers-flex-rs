@@ -90,7 +90,8 @@ mod tests {
         //let expected = path.as_os_str().to_str().unwrap();
         let mut expected = "tests".to_string();
         expected.push(MAIN_SEPARATOR);
-        expected.push_str("report_1.xml");
+        // expected.push_str("report_1.xml");
+        expected.push_str("tax_adj_report.xml");
         assert_eq!(expected, actual);
     }
 
