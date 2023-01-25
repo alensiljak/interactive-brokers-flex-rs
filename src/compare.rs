@@ -19,7 +19,7 @@ use crate::{
 };
 
 pub const TRANSACTION_DAYS: u8 = 60;
-pub(crate) const DATE_MODE: &str = "book"; // "book" / "effective"
+//pub(crate) const DATE_MODE: &str = "book"; // "book" / "effective"
 
 /**
  * Compares transactions in the downloaded IB Flex report to Ledger.
@@ -38,11 +38,43 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     }
 
     // get_ledger_tx
-    let ledger_txs = ledger_runner::get_ledger_tx(cfg.ledger_init_file);
+    let ledger_txs = ledger_runner::get_ledger_tx(cfg.ledger_init_file, params.effective_dates);
     log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
     let result = compare_txs(ib_txs, ledger_txs)?;
+
+    Ok(result)
+}
+
+fn compare_txs(
+    ib_txs: Vec<CommonTransaction>,
+    ledger_txs: Vec<CommonTransaction>,
+) -> anyhow::Result<String> {
+    let mut result = String::default();
+
+    for ibtx in ib_txs {
+        let matches: Vec<&CommonTransaction> = ledger_txs
+            .iter()
+            .filter(|tx| {
+                // Compare:
+                tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date
+                    && tx.symbol == ibtx.symbol
+                    && tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE)
+                    && tx.currency == ibtx.currency
+                    && tx.r#type == ibtx.r#type
+            })
+            .collect();
+
+        log::debug!("matches: {:?}", matches);
+
+        if matches.is_empty() {
+            let output = format!("New: {}", ibtx);
+            println!("{}", output);
+            result.push_str(&output);
+        }
+    }
+    println!("Complete.");
 
     Ok(result)
 }
@@ -149,43 +181,6 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
     ib_txs
 }
 
-fn compare_txs(
-    ib_txs: Vec<CommonTransaction>,
-    ledger_txs: Vec<CommonTransaction>,
-) -> anyhow::Result<String> {
-    let mut result = String::default();
-
-    for ibtx in ib_txs {
-
-        let matches: Vec<&CommonTransaction> = if DATE_MODE == "effective" {
-            todo!("complete");
-        } else {
-            ledger_txs
-                .iter()
-                .filter(|tx| {
-                    // Compare:
-                    tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date
-                        && tx.symbol == ibtx.symbol
-                        && tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE)
-                        && tx.currency == ibtx.currency
-                        && tx.r#type == ibtx.r#type
-                })
-                .collect()
-        };
-
-        log::debug!("matches: {:?}", matches);
-
-        if matches.is_empty() {
-            let output = format!("New: {}", ibtx);
-            println!("{}", output);
-            result.push_str(&output);
-        }
-    }
-    println!("Complete.");
-
-    Ok(result)
-}
-
 /**
  * Parameters for comparing the IB Flex report and Ledger report.
  */
@@ -195,6 +190,7 @@ pub struct CompareParams {
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
     pub symbols_path: Option<String>,
+    pub effective_dates: bool,
 }
 
 // Tests
@@ -236,7 +232,7 @@ mod tests {
     #[test_log::test]
     fn test_compare_tx(cmp_config: Config) {
         let ib_txs = get_ib_tx(&cmp_config);
-        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file);
+        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file, false);
 
         log::debug!("comparing {:?} *** and *** {:?}", ib_txs, ledger_txs);
 
@@ -266,6 +262,7 @@ mod tests {
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
             symbols_path: Some("tests/symbols.csv".into()),
+            effective_dates: false,
         };
         let actual = compare(cmp_params).unwrap();
 
@@ -278,10 +275,10 @@ New: 2023-01-24/2022-04-30 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIV
 New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 Complete."#;
 
-/* These are in the ledger file:
-New: 2023-01-24/2022-03-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
-New: 2023-01-24/2022-03-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
- */
+        /* These are in the ledger file:
+        New: 2023-01-24/2022-03-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+        New: 2023-01-24/2022-03-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+         */
 
         assert_eq!(expected, actual);
 

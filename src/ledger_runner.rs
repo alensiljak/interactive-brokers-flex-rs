@@ -10,15 +10,14 @@ use crate::{compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTr
 
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
-pub fn get_ledger_tx(ledger_init_file: Option<String>) -> Vec<CommonTransaction> {
+pub fn get_ledger_tx(ledger_init_file: Option<String>, use_effective_dates: bool) -> Vec<CommonTransaction> {
     let end_date = Local::now().date_naive();
     let start_date = end_date
         .checked_sub_days(Days::new(TRANSACTION_DAYS.into()))
         .expect("calculated start date");
-
     let date_param = start_date.format("%Y-%m-%d").to_string();
 
-    let cmd = get_ledger_cmd(&date_param, ledger_init_file);
+    let cmd = get_ledger_cmd(&date_param, ledger_init_file, use_effective_dates);
 
     log::debug!("running: {}", cmd);
 
@@ -57,32 +56,29 @@ fn run_ledger_args(args: Vec<String>) -> Output {
     output
 }
 
-#[allow(unused)]
-fn get_ledger_args(date_param: &str, ledger_init_file: Option<String>) -> Vec<String> {
-    let mut args: Vec<String> = vec!["r".to_owned()];
-    args.push("-b".to_owned());
-    args.push(date_param.to_owned());
-    args.push("-d".to_owned());
-    args.push(r#""(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#.to_owned());
+//#[allow(unused)]
+// fn get_ledger_args(date_param: &str, ledger_init_file: Option<String>, effective_dates: bool) -> Vec<String> {
+//     let mut args: Vec<String> = vec!["r".to_owned()];
+//     args.push("-b".to_owned());
+//     args.push(date_param.to_owned());
+//     args.push("-d".to_owned());
+//     args.push(r#""(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#.to_owned());
+//     if effective_dates {
+//         args.push("--effective".to_owned());
+//     }
+//     if let Some(init_file) = ledger_init_file {
+//         args.push("--init-file".to_owned());
+//         args.push(init_file.to_owned());
+//     }
+//     args
+// }
 
-    if crate::compare::DATE_MODE == "effective" {
-        args.push("--effective".to_owned());
-    }
-
-    if let Some(init_file) = ledger_init_file {
-        args.push("--init-file".to_owned());
-        args.push(init_file.to_owned());
-    }
-
-    args
-}
-
-fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>) -> String {
+fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>, effective_dates: bool) -> String {
     let mut cmd = format!("ledger r -b {date_param} -d");
 
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#);
 
-    if crate::compare::DATE_MODE == "effective" {
+    if effective_dates {
         cmd.push_str(" --effective");
     }
 
@@ -154,7 +150,7 @@ mod tests {
         println!("ledger_init_path: {:?}", ledger_init_path);
 
         let path_opt = Some(ledger_init_path);
-        let actual = get_ledger_tx(path_opt);
+        let actual = get_ledger_tx(path_opt, false);
 
         println!("txs: {:?}", actual);
 

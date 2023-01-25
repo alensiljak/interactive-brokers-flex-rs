@@ -25,7 +25,7 @@ pub struct DlParams {
     #[arg(short, long)]
     pub query_id: Option<u32>,
     #[arg(short, long)]
-    pub token: Option<String>
+    pub token: Option<String>,
 }
 
 #[derive(Debug, clap::Args)]
@@ -37,5 +37,8 @@ pub struct CmpParams {
     #[arg(short, long, help="Ledger init file (.ledgerrc)")]
     pub ledger_init_file: Option<String>,
     #[arg(short, long, help="The symbols data file")]
-    pub symbols_path: Option<String>
+    pub symbols_path: Option<String>,
+    /// Use Ledger's effective dates
+    #[arg(short, long)]
+    pub effective: bool,
 }
