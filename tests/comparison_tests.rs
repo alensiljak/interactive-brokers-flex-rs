@@ -75,8 +75,6 @@ fn test_comparison_w_effective_dates(mut app_cmd: Command) {
             "tests/symbols.csv",
             "--ledger-init-file",
             "tests/tax_adj.ledgerrc",
-            "--comparison-date",
-            "2023-01-15",
         ])
         .assert();
 
@@ -101,8 +99,6 @@ fn test_start_date_parameter(mut app_cmd: Command) {
     let assert = app_cmd
         .args(vec![
             "cmp",
-            "--comparison-date",
-            "2023-01-15",
             "--flex-report-path",
             "tests/report_1.xml",
             "--symbols-path",

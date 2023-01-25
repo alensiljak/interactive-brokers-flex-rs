@@ -16,10 +16,11 @@ use crate::{
 /// Ledger must be callable from the current directory.
 pub fn get_ledger_tx(
     ledger_init_file: Option<String>,
-    comparison_date: Option<String>,
+    start_date: String,
     use_effective_dates: bool,
 ) -> Vec<CommonTransaction> {
-    let date_param = get_ledger_date_param(comparison_date);
+    //let date_param = get_ledger_date_param(comparison_date);
+    let date_param = start_date;
 
     let cmd = get_ledger_cmd(&date_param, ledger_init_file, use_effective_dates);
 
@@ -50,7 +51,7 @@ pub fn get_ledger_tx(
 
 /// Determines the starting date from which to take Ledger transactions.
 /// This is one month from the comparison date.
-fn get_ledger_date_param(comparison_date: Option<String>) -> String {
+pub fn get_ledger_start_date(comparison_date: Option<String>) -> String {
     let end_date = match &comparison_date {
         Some(date_value) => {
             NaiveDate::parse_from_str(&date_value, ISO_DATE_FORMAT).expect("correct date")
@@ -81,11 +82,11 @@ fn run_ledger_args(args: Vec<String>) -> Output {
 
 /// Assemble the Ledger query command.
 fn get_ledger_cmd(
-    date_param: &str,
+    start_date: &str,
     ledger_init_file: Option<String>,
     effective_dates: bool,
 ) -> String {
-    let mut cmd = format!("ledger r -b {date_param} -d");
+    let mut cmd = format!("ledger r -b {start_date} -d");
 
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or"#);
     cmd.push_str(r#" (account =~ /expenses/ and account =~ /ib/ and account =~ /withh/)""#);
@@ -134,6 +135,7 @@ fn run_ledger(args: Vec<String>) -> Vec<String> {
 mod tests {
     use super::get_ledger_tx;
     use super::run_ledger;
+    use crate::ledger_runner::get_ledger_start_date;
     use crate::test_fixtures::*;
 
     /// Confirm that Ledger can be invoked from the current directory.
@@ -162,7 +164,8 @@ mod tests {
         println!("ledger_init_path: {:?}", ledger_init_path);
 
         let path_opt = Some(ledger_init_path);
-        let actual = get_ledger_tx(path_opt, None, false);
+        let start_date = get_ledger_start_date(None);
+        let actual = get_ledger_tx(path_opt, start_date, false);
 
         println!("txs: {:?}", actual);
 

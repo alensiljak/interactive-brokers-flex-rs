@@ -5,6 +5,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- using the earliest date from the Flex report to time-box Ledger transactions
+
+### Removed
+
+- `comparison_date` parameter, which is now redundant
+
+## [0.7.1] - 2023-01-25
+
 ### Added
 
 - added `comparison_date` argument to run comparison on arbitrary dates.

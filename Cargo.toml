@@ -1,7 +1,7 @@
 [package]
 name = "ibflex"
 description = "A library and a CLI for reading Interactive Brokers Flex reports and comparing to Ledger-cli transactions"
-version = "0.7.1"
+version = "0.8.0"
 edition = "2021"
 authors = ["Alen Šiljak <dev@alensiljak.eu.org>"]
 license = 'GPL-3.0-or-later'
