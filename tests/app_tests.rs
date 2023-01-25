@@ -55,7 +55,8 @@ Complete.
 fn test_comparison_w_effective_dates() {
     let mut cmd = Command::cargo_bin("ibflex").unwrap();
     let assert = cmd.args(vec!["cmp", "--effective",
-        "--flex-report-path", "tests/tax_adj_report.xml"
+        "--flex-report-path", "tests/tax_adj_report.xml",
+        "----symbols-path", "tests/symbols.csv",
         ]).assert();
 
     let expected = "expected";

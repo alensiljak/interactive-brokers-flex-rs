@@ -5,6 +5,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- using IB transaction book date when comparing using `--effective`
+
+### Changed
+
+- Changing `Skip` to `N/A` for equal spacing.
+
 ## [0.7.0] - 2023-01-25
 
 ### Added

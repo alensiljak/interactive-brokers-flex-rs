@@ -32,8 +32,8 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     let ib_txs = get_ib_tx(&cfg);
     log::debug!("Found {} IB transactions", ib_txs.len());
     if ib_txs.len() == 0 {
-        let msg = "No new IB transactions found. Exiting...";
-        println!("{}", msg);
+        let msg = "No new IB transactions found. Exiting...\n";
+        print!("{}", msg);
         return Ok(msg.into());
     }
 
@@ -42,7 +42,7 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
-    let result = compare_txs(ib_txs, ledger_txs)?;
+    let result = compare_txs(ib_txs, ledger_txs, params.effective_dates)?;
 
     Ok(result)
 }
@@ -50,15 +50,24 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
 fn compare_txs(
     ib_txs: Vec<CommonTransaction>,
     ledger_txs: Vec<CommonTransaction>,
+    use_effective_dates: bool,
 ) -> anyhow::Result<String> {
     let mut result = String::default();
 
     for ibtx in ib_txs {
+        let ib_comparison_date = if use_effective_dates {
+            ibtx.date.to_string()
+        } else {
+            // actual date
+            ibtx.report_date.to_owned()
+        };
+        log::debug!("ib date: {:?}", ib_comparison_date);
+
         let matches: Vec<&CommonTransaction> = ledger_txs
             .iter()
             .filter(|tx| {
                 // Compare:
-                tx.date.date().format(ISO_DATE_FORMAT).to_string() == ibtx.report_date
+                tx.date.date().format(ISO_DATE_FORMAT).to_string() == ib_comparison_date
                     && tx.symbol == ibtx.symbol
                     && tx.amount == ibtx.amount.mul(Decimal::NEGATIVE_ONE)
                     && tx.currency == ibtx.currency
@@ -69,8 +78,8 @@ fn compare_txs(
         log::debug!("matches: {:?}", matches);
 
         if matches.is_empty() {
-            let output = format!("New: {}", ibtx);
-            println!("{}", output);
+            let output = format!("New: {}\n", ibtx);
+            print!("{}", output);
             result.push_str(&output);
         }
     }
@@ -133,11 +142,11 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
     log::debug!("to include: {:?}", to_include);
 
     for tx in ib_txs {
-        // log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
+        log::debug!("trying: {:?} {:?} ({:?})", tx.symbol, tx.r#type, cash_action(&tx.r#type));
 
         // skip any not matching the expected types.
         if !to_include.contains(&cash_action(&tx.r#type)) {
-            println!("Skip: {}", tx);
+            println!("N/A: {}", tx);
             continue;
         }
 
@@ -232,11 +241,12 @@ mod tests {
     #[test_log::test]
     fn test_compare_tx(cmp_config: Config) {
         let ib_txs = get_ib_tx(&cmp_config);
-        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file, false);
+        let use_effective_dates = false;
+        let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file, use_effective_dates);
 
         log::debug!("comparing {:?} *** and *** {:?}", ib_txs, ledger_txs);
 
-        let actual = compare_txs(ib_txs, ledger_txs);
+        let actual = compare_txs(ib_txs, ledger_txs, use_effective_dates);
 
         assert!(actual.is_ok());
         // assert!(false)
@@ -268,8 +278,7 @@ mod tests {
 
         println!("result: {:?}", actual);
 
-        let expected = r#"Using tests/tax_adj_report.xml
-New: 2023-01-24/2022-04-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+        let expected = r#"New: 2023-01-24/2022-04-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-30 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
 New: 2023-01-24/2022-04-30 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
