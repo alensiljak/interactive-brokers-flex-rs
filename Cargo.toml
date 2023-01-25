@@ -14,17 +14,17 @@ keywords = ["interactivebrokers", "finance", "cli", "flex", "reports"]
 
 [dependencies]
 anyhow = "1.0.68"
-as-symbols = "0.2.1"
+as-symbols = "0.4.2"
 assert_cmd = "2.0.8"
 chrono = "0.4.23"
-clap = { version = "4.1.1", features = ["derive"] }
+clap = { version = "4.1.4", features = ["derive"] }
 cli_runner = "0.2.1"
 confy = "0.5.1"
 env_logger = "0.10.0"
 glob = "0.3.1"
 log = "0.4.17"
 reqwest = { version = "0.11.14", features = ["json"] }
-rust_decimal = "1.27.0"
+rust_decimal = "1.28.0"
 serde = { version = "1.0.151", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 shell-words = "1.1.0"

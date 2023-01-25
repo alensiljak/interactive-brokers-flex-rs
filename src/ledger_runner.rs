@@ -56,23 +56,6 @@ fn run_ledger_args(args: Vec<String>) -> Output {
     output
 }
 
-//#[allow(unused)]
-// fn get_ledger_args(date_param: &str, ledger_init_file: Option<String>, effective_dates: bool) -> Vec<String> {
-//     let mut args: Vec<String> = vec!["r".to_owned()];
-//     args.push("-b".to_owned());
-//     args.push(date_param.to_owned());
-//     args.push("-d".to_owned());
-//     args.push(r#""(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)""#.to_owned());
-//     if effective_dates {
-//         args.push("--effective".to_owned());
-//     }
-//     if let Some(init_file) = ledger_init_file {
-//         args.push("--init-file".to_owned());
-//         args.push(init_file.to_owned());
-//     }
-//     args
-// }
-
 fn get_ledger_cmd(date_param: &str, ledger_init_file: Option<String>, effective_dates: bool) -> String {
     let mut cmd = format!("ledger r -b {date_param} -d");
 

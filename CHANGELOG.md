@@ -5,9 +5,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `--effective` argument, to use Ledger's effective dates
+
 ### Changed
 
 - returning the comparison result string from `compare`
+
+### Security
+
+- updated dependencies
 
 ## [0.6.2] - 2023-01-20
 
