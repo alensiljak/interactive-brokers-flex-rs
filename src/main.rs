@@ -29,6 +29,7 @@ async fn main() {
 
         Commands::Cmp(params) => {
             let cmp_params = CompareParams {
+                config_path: params.config_path.to_owned(),
                 flex_report_path: params.flex_report_path.to_owned(),
                 flex_reports_dir: params.flex_reports_dir.to_owned(),
                 ledger_init_file: params.ledger_init_file.to_owned(),

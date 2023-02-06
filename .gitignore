@@ -13,8 +13,3 @@ Cargo.lock
 # Added by cargo
 
 /target
-
-# Custom
-.ledgerrc
-report.rest
-ibflex.toml

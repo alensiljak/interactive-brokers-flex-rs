@@ -32,13 +32,17 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     let cfg = get_cmp_config(&params);
 
     // get_ib_report_tx
-    let ib_txs = get_ib_tx(&cfg);
+    let mut ib_txs = get_ib_tx(&cfg);
     log::debug!("Found {} IB transactions", ib_txs.len());
     if ib_txs.len() == 0 {
         let msg = "No new IB transactions found. Exiting...\n";
         print!("{}", msg);
         return Ok(msg.into());
     }
+
+    // sort IB records by date and note
+    ib_txs.sort_unstable_by_key(|tx| (tx.date, tx.description.to_owned()));
+    log::debug!("sorted: {:?}", ib_txs);
 
     // identify the start date for the tx range:
     let start_date = get_oldest_ib_date(&ib_txs, params.effective_dates);
@@ -151,9 +155,9 @@ fn map_symbols(symbol: &SymbolMetadata) -> (String, String) {
 }
 
 /**
- * Returns transactions from the Flex Report, for comparison.
- * symbols is a HashMap of symbol rewrites.
- */
+Returns transactions from the Flex Report, for comparison.
+symbols is a HashMap of symbol rewrites.
+*/
 fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
     let ib_txs = read_flex_report(cfg);
 
@@ -235,6 +239,7 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
  */
 #[derive(Debug)]
 pub struct CompareParams {
+    pub config_path: Option<String>,
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
@@ -307,6 +312,7 @@ mod tests {
     #[test_log::test]
     fn test_compare_w_multiple_matches() {
         let cmp_params = CompareParams {
+            config_path: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
@@ -326,6 +332,7 @@ mod tests {
     #[test_log::test]
     fn test_compare_w_multiple_matches_effective_dates() {
         let cmp_params = CompareParams {
+            config_path: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),

@@ -38,6 +38,8 @@ pub struct CmpParams {
     pub ledger_init_file: Option<String>,
     #[arg(short, long, help="The symbols data file")]
     pub symbols_path: Option<String>,
+    #[arg(short, long, help="Specify the configuration file to use")]
+    pub config_path: Option<String>,
     /// Use Ledger's effective dates
     #[arg(short, long)]
     pub effective: bool,

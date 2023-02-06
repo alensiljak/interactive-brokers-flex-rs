@@ -23,13 +23,13 @@ pub struct Config {
 }
 
 /**
- * Collects the  configuration values in order of priority:
- * 1.) command-line parameters,
- * 2.) environment variables,
- * 3.) config file in the current directory
- */
+Collects the  configuration values in order of priority:
+1.) command-line parameters,
+2.) environment variables,
+3.) config file in the current directory
+*/
 pub fn get_dl_config(params: DownloadParams) -> Config {
-    let mut cfg = read_config_file();
+    let mut cfg = read_config_file(None);
 
     // overwrite the file values if provided by other means
     
@@ -49,7 +49,11 @@ pub fn get_dl_config(params: DownloadParams) -> Config {
 }
 
 pub fn get_cmp_config(params: &CompareParams) -> Config {
-    let mut cfg = read_config_file();
+    // Which config file to use?
+    let mut cfg = match &params.config_path {
+        Some(cfg_path) => read_config_file(Some(cfg_path.to_owned())),
+        None => read_config_file(None),
+    };
 
     // mix CLI parameters with those in the config file.
 
@@ -74,10 +78,13 @@ pub fn get_cmp_config(params: &CompareParams) -> Config {
  * Reads the current configuration from the config file.
  * The config file is expected to be in the current directory and be named `ibflex.toml`.
  */
-pub fn read_config_file() -> Config {
+pub fn read_config_file(cfg_path: Option<String>) -> Config {
     // confy::load(APP_NAME, None)
 
-    let path = "./ibflex.toml";
+    let path = match cfg_path {
+        Some(given_path) => given_path.to_owned(),
+        None => "./ibflex.toml".to_owned(),
+    };
 
     confy::load_path(path).expect("configuration loaded")
 }
