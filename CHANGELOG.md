@@ -5,6 +5,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- a parameter to specify a config file for the Compare command
+
+### Changed
+
+- sorting IB transactions by date
+
 ### Security
 
 - updated dependencies
