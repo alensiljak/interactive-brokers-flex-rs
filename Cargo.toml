@@ -13,7 +13,7 @@ keywords = ["interactivebrokers", "finance", "cli", "flex", "reports"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.68"
+anyhow = "1.0.69"
 as-symbols = "0.4.2"
 assert_cmd = "2.0.8"
 chrono = "0.4.23"
@@ -25,7 +25,7 @@ glob = "0.3.1"
 log = "0.4.17"
 reqwest = { version = "0.11.14", features = ["json"] }
 rust_decimal = "1.28.0"
-serde = { version = "1.0.151", features = ["derive"] }
+serde = { version = "1.0.152", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 shell-words = "1.1.0"
 tokio = { version="1.24.2", features=["rt-multi-thread", "macros"] }

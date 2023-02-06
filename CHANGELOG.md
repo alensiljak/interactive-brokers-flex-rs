@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- updated dependencies
+
 ### Changed
 
 - using the earliest date from the Flex report to time-box Ledger transactions
