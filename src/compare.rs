@@ -41,7 +41,7 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     }
 
     // sort IB records by date and note
-    ib_txs.sort_unstable_by_key(|tx| (tx.date, tx.description.to_owned()));
+    ib_txs.sort_unstable_by_key(|tx| (tx.report_date.to_owned(), tx.description.to_owned()));
     log::debug!("sorted: {:?}", ib_txs);
 
     // identify the start date for the tx range:
