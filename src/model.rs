@@ -69,7 +69,7 @@ impl Display for CommonTransaction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}/{} {:7} {} {:>7} {}, {}",
+            "{}/{} {:7} {:8} {:>7} {}, {}",
             self.report_date,
             self.date.date(),
             self.symbol,

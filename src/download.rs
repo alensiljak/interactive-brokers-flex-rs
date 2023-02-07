@@ -40,8 +40,18 @@ pub async fn download(params: DownloadParams) -> String {
     // get the configuration
     let cfg = get_dl_config(params);
 
+    // handle configuration values
+    let query_id = match cfg.flex_query_id {
+        Some(qid) => qid,
+        None => panic!("The query id is mandatory for the report download!"),
+    };
+    let token = match cfg.ib_token {
+        Some(tkn) => tkn,
+        None => panic!("The token is mandatory for the report download!"),
+    };
+
     // download the report
-    let report = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
+    let report = download_report(&query_id, &token).await;
 
     // save to text file
     let today_date = Local::now().date_naive();
@@ -125,7 +135,8 @@ mod tests {
     #[allow(unused)]
     async fn request_report_test() {
         let cfg = crate::config::get_dl_config(DownloadParams::default());
-        let actual = request_statement(&cfg.flex_query_id, &cfg.ib_token).await;
+        let actual = request_statement(&cfg.flex_query_id.unwrap(), 
+        &cfg.ib_token.unwrap()).await;
         
         println!("received: {:?}", actual);
 

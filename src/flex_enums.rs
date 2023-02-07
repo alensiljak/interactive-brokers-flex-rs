@@ -32,7 +32,6 @@ impl Display for CashAction {
 /// let type = cash_action("Deposits/Withdrawals");
 pub fn cash_action(action: &str) -> String {
     match action {
-        // "Deposits & Withdrawals" => "DEPOSITWITHDRAW",
         "Deposits/Withdrawals" => CashAction::DepositWithdraw.to_string(),
         "Broker Interest Paid" => CashAction::BrokerIntPaid.to_string(),
         "Broker Interest Received" => CashAction::BrokerIntRcvd.to_string(),

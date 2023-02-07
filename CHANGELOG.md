@@ -5,6 +5,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- aligning amounts in the comparison display
+
+### Changed
+
+- flex query id and token are now optional configuration settings
+
 ## [0.9.2] - 2023-02-06
 
 ### Changed

@@ -1,0 +1,3 @@
+symbols_path = './tests/symbols.csv'
+flex_report_path = "./tests/report_1.xml"
+ledger_init_file = "./tests/init.ledger"
