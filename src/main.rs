@@ -39,7 +39,7 @@ async fn main() {
             ibflex::compare::compare(cmp_params).expect("transactions compared");
         }
 
-        Commands::Cfg => {
+        Commands::Setup => {
             let cfg = get_dl_config(DownloadParams::default());
             println!("{:?}", cfg);
         }
