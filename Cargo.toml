@@ -17,18 +17,18 @@ anyhow = "1.0.69"
 as-symbols = "^0.4.2"
 assert_cmd = "2.0.8"
 chrono = "0.4.23"
-clap = { version = "4.1.6", features = ["derive"] }
+clap = { version = "4.1.8", features = ["derive"] }
 cli_runner = "0.2.1"
 confy = "0.5.1"
 env_logger = "0.10.0"
 glob = "0.3.1"
 log = "^0.4.17"
-reqwest = { version = "0.11.14", features = ["json"] }
+reqwest = { version = "^0.11.14", features = ["json"] }
 rust_decimal = "1.28.1"
-serde = { version = "^1.0.152", features = ["derive"] }
+serde = { version = "^1.0.153", features = ["derive"] }
 serde-xml-rs = "^0.6.0"
 shell-words = "1.1.0"
-tokio = { version="1.25.0", features=["rt-multi-thread", "macros"] }
+tokio = { version="1.26.0", features=["rt-multi-thread", "macros"] }
 
 [dev-dependencies]
 rstest = "0.16.0"
