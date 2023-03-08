@@ -115,6 +115,8 @@ fn parse_posting_row(line: &str) -> CommonTransaction {
 mod tests {
     use std::fs;
 
+    use rust_decimal::{Decimal, prelude::FromPrimitive};
+
     use crate::ledger_print_output_parser::parse_print_output;
 
     #[test_log::test]
@@ -125,6 +127,8 @@ mod tests {
         let actual = parse_print_output(lines);
 
         assert!(!actual.is_empty());
-        assert_eq!(3, actual.len());
+        // 7 transaction records / postings.
+        assert_eq!(7, actual.len());
+        //assert_eq!(Decimal::from_i16(3).unwrap(), actual[6].amount);
     }
 }
