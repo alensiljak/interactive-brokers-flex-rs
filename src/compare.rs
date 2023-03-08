@@ -56,7 +56,7 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
 
     // get_ledger_tx
     let ledger_txs =
-        ledger_runner::get_ledger_tx(cfg.ledger_init_file, start_date, params.effective_dates);
+        ledger_runner::get_ledger_tx(cfg.ledger_init_file, cfg.ledger_journal_file, start_date, params.effective_dates);
     log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
@@ -250,6 +250,7 @@ pub struct CompareParams {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
+    pub ledger_journal_file: Option<String>,
     pub symbols_path: Option<String>,
     pub effective_dates: bool,
 }
@@ -323,6 +324,7 @@ mod tests {
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
+            ledger_journal_file: None,
             symbols_path: Some("tests/symbols.csv".into()),
             effective_dates: false,
         };
@@ -343,6 +345,7 @@ mod tests {
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
+            ledger_journal_file: None,
             symbols_path: Some("tests/symbols.csv".into()),
             effective_dates: true,
         };
@@ -360,6 +363,24 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
         New: 2023-01-24/2022-03-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
         New: 2023-01-24/2022-03-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
          */
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_tcf() {
+        let cmp_params = CompareParams {
+            config_path: Some("tests/tcf.toml".into()),
+            flex_report_path: Some("tests/tcf.xml".into()),
+            flex_reports_dir: None,
+            ledger_init_file: None,
+            ledger_journal_file: Some("tests/tcf.ledger".into()),
+            symbols_path: Some("tests/symbols.csv".into()),
+            effective_dates: true,
+        };
+        let actual = compare(cmp_params).unwrap();
+
+        let expected = "";
 
         assert_eq!(expected, actual);
     }

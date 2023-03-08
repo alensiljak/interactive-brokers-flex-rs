@@ -110,3 +110,20 @@ fn test_start_date_parameter(mut app_cmd: Command) {
 
     assert.success();
 }
+
+#[rstest::rstest]
+fn test_tcf(mut app_cmd: Command) {
+    let assert = app_cmd
+        .args(vec![
+            "cmp",
+            "--flex-report-path",
+            "tests/tcf.xml",
+            "--symbols-path",
+            "tests/symbols.csv",
+            "--ledger-journal-file",
+            "tests/tcf.ledger",
+        ])
+        .assert();
+
+    assert.success();
+}

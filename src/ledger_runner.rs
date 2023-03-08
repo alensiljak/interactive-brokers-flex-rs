@@ -16,13 +16,14 @@ use crate::{
 /// Ledger must be callable from the current directory.
 pub fn get_ledger_tx(
     ledger_init_file: Option<String>,
+    ledger_journal_file: Option<String>,
     start_date: String,
     use_effective_dates: bool,
 ) -> Vec<CommonTransaction> {
     //let date_param = get_ledger_date_param(comparison_date);
     let date_param = start_date;
 
-    let cmd = get_ledger_cmd(&date_param, ledger_init_file, use_effective_dates);
+    let cmd = get_ledger_cmd(&date_param, ledger_init_file, ledger_journal_file, use_effective_dates);
 
     log::debug!("running: {}", cmd);
 
@@ -85,6 +86,7 @@ fn run_ledger_args(args: Vec<String>) -> Output {
 fn get_ledger_cmd(
     start_date: &str,
     ledger_init_file: Option<String>,
+    ledger_journal_file: Option<String>,
     effective_dates: bool,
 ) -> String {
     let mut cmd = format!("ledger p -b {start_date} -d");
@@ -100,6 +102,11 @@ fn get_ledger_cmd(
         cmd.push_str(" --init-file ");
         cmd.push_str(&init_file);
     };
+
+    if let Some(journal_file) = ledger_journal_file {
+        cmd.push_str(" -f ");
+        cmd.push_str(&journal_file);
+    }
 
     cmd
 }
@@ -166,7 +173,7 @@ mod tests {
 
         let path_opt = Some(ledger_init_path);
         let start_date = get_ledger_start_date(None);
-        let actual = get_ledger_tx(path_opt, start_date, false);
+        let actual = get_ledger_tx(path_opt, None, start_date, false);
 
         println!("txs: {:?}", actual);
 

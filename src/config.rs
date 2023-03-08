@@ -18,6 +18,7 @@ pub struct Config {
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_init_file: Option<String>,
+    pub ledger_journal_file: Option<String>,
     /// The symbols path is mandatory.
     pub symbols_path: String
 }
@@ -29,7 +30,7 @@ Collects the  configuration values in order of priority:
 3.) config file in the current directory
 */
 pub fn get_dl_config(params: DownloadParams) -> Config {
-    let mut cfg = read_config_file(None);
+    let mut cfg = read_config_file(&None);
 
     // overwrite the file values if provided by other means
     
@@ -50,10 +51,7 @@ pub fn get_dl_config(params: DownloadParams) -> Config {
 
 pub fn get_cmp_config(params: &CompareParams) -> Config {
     // Which config file to use?
-    let mut cfg = match &params.config_path {
-        Some(cfg_path) => read_config_file(Some(cfg_path.to_owned())),
-        None => read_config_file(None),
-    };
+    let mut cfg = read_config_file(&params.config_path);
 
     // mix CLI parameters with those in the config file.
 
@@ -65,6 +63,9 @@ pub fn get_cmp_config(params: &CompareParams) -> Config {
     }
     if let Some(ledger_init_file) = &params.ledger_init_file {
         cfg.ledger_init_file = Some(ledger_init_file.to_owned());
+    }
+    if let Some(ledger_journal_file) = &params.ledger_journal_file {
+        cfg.ledger_journal_file = Some(ledger_journal_file.to_owned());
     }
 
     if let Some(symbols_path) = &params.symbols_path {
@@ -78,7 +79,7 @@ pub fn get_cmp_config(params: &CompareParams) -> Config {
  * Reads the current configuration from the config file.
  * The config file is expected to be in the current directory and be named `ibflex.toml`.
  */
-pub fn read_config_file(cfg_path: Option<String>) -> Config {
+pub fn read_config_file(cfg_path: &Option<String>) -> Config {
     // confy::load(APP_NAME, None)
 
     let path = match cfg_path {

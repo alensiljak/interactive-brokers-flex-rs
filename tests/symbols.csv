@@ -1,4 +1,5 @@
 namespace,symbol,currency,updater,updater_symbol,ledger_symbol,ib_symbol,remarks
+ASX,VCF,AUD,yahoo_finance,,VCF_AX,,
 CURRENCY,AUD,EUR,fixerio,,,,
 NYSE,BBN,USD,yahoo_finance,,,,
 AMS,TRET,EUR,,,TRET_AS,,

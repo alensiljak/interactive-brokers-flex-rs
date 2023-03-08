@@ -1,0 +1,4 @@
+symbols_path = './tests/symbols.csv'
+flex_report_path = "./tests/tcf.xml"
+#ledger_init_file =
+ledger_journal_file =  "./tests/tcf.ledger"

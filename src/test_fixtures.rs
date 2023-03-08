@@ -42,6 +42,7 @@ pub fn cmp_params(flex_report_path: String, ledger_init_path: String,
         flex_report_path: Some(flex_report_path),
         flex_reports_dir: None,
         ledger_init_file: Some(ledger_init_path),
+        ledger_journal_file: None,
         symbols_path: Some(symbols_path.as_path().to_str().unwrap().to_owned()),
         effective_dates: false,
     }
