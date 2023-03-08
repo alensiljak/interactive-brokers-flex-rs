@@ -1,6 +1,7 @@
-use std::ops::Index;
+use std::str::FromStr;
 
-use chrono::{NaiveDate, ParseError};
+use chrono::NaiveDate;
+use rust_decimal::Decimal;
 
 use crate::{model::CommonTransaction, ISO_DATE_FORMAT};
 
@@ -9,34 +10,42 @@ Parses the output of the `ledger print` command.
 This is the regular Ledger syntax.
 */
 pub(crate) fn parse_print_output(lines: Vec<&str>) -> Vec<CommonTransaction> {
-    let mut tx: Option<CommonTransaction> = None;
+    let mut tx = CommonTransaction::default();
+    let mut result: Vec<CommonTransaction> = vec![];
 
     for line in lines {
+        let trimmed = line.trim();
+
         // lines to ignore
-        if line.starts_with(';') {
+        if trimmed.starts_with(';') {
             continue;
         }
-        if line == "" {
+        if trimmed == "" {
             continue;
         }
 
         // data lines
-        tx = parse_tx_row(line);
+        let have_tx = parse_tx_row(trimmed);
 
-        if tx.is_some() {
+        if have_tx.is_some() {
             // got the (new) transaction header.
+            tx = have_tx.unwrap();
             continue;
         }
 
         // otherwise parse the postings.
-        let posting = parse_posting_row(line);
+        let mut posting = parse_posting_row(trimmed);
 
-        //todo!("merge posting and tx");
+        // merge posting and tx header
+        posting.date = tx.date;
+        posting.payee = tx.payee.to_owned();
 
-        println!("line {}", line);
+        // println!("line {}", line);
+
+        result.push(posting);
     }
 
-    todo!("complete")
+    result
 }
 
 fn parse_tx_row(line: &str) -> Option<CommonTransaction> {
@@ -58,9 +67,10 @@ fn parse_tx_row(line: &str) -> Option<CommonTransaction> {
     let payee = &line[payee_start_index..payee_end_index];
 
     let mut tx = CommonTransaction::default();
-    // tx.date = date.unwrap();
+    tx.date = date.unwrap().and_hms_opt(0, 0, 0).unwrap();
+    tx.payee = payee.to_owned();
 
-    todo!("parse tx header")
+    Some(tx)
 }
 
 fn get_date_from_line(line: &str) -> Option<NaiveDate> {
@@ -73,7 +83,32 @@ fn get_date_from_line(line: &str) -> Option<NaiveDate> {
 }
 
 fn parse_posting_row(line: &str) -> CommonTransaction {
-    todo!("parse posting")
+    let mut tx = CommonTransaction::default();
+
+    let have_amount = line.find("  ");
+
+    // let parts: Vec<&str> = line.split("  ").collect();
+    tx.account = match have_amount {
+        Some(split_index) => line[0..split_index].to_owned(),
+        None => line.to_owned(),
+    };
+
+    // is there an amount?
+    if have_amount.is_some() {
+        let amount_index = have_amount.unwrap();
+        let mut amount_str = &line[amount_index..];
+        // log::debug!("starting amount parse from '{:0}'", amount_str);
+        amount_str = amount_str.trim();
+        log::debug!("amount string is '{:0}'", amount_str);
+
+        // split the currency
+        let amount_parts: Vec<&str> = amount_str.split(' ').collect();
+
+        tx.amount = Decimal::from_str(amount_parts[0]).expect("amount value");
+        tx.currency = amount_parts[1].to_owned();
+    }
+
+    tx
 }
 
 #[cfg(test)]
@@ -82,7 +117,7 @@ mod tests {
 
     use crate::ledger_print_output_parser::parse_print_output;
 
-    #[test]
+    #[test_log::test]
     fn parse_print() {
         let journal = fs::read_to_string("tests/journal.ledger").expect("test file read");
         let lines = journal.lines().collect();
