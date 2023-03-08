@@ -103,8 +103,11 @@ fn parse_posting_row(line: &str) -> CommonTransaction {
 
         // split the currency
         let amount_parts: Vec<&str> = amount_str.split(' ').collect();
+        // using only dot as the decimal point currently
+        let amount_str = amount_parts[0].replace(',', "");
+        log::debug!("amount str: {:0}", amount_str);
 
-        tx.amount = Decimal::from_str(amount_parts[0]).expect("amount value");
+        tx.amount = Decimal::from_str(&amount_str).expect("amount value");
         tx.currency = amount_parts[1].to_owned();
     }
 
@@ -114,8 +117,6 @@ fn parse_posting_row(line: &str) -> CommonTransaction {
 #[cfg(test)]
 mod tests {
     use std::fs;
-
-    use rust_decimal::{Decimal, prelude::FromPrimitive};
 
     use crate::ledger_print_output_parser::parse_print_output;
 
@@ -128,7 +129,8 @@ mod tests {
 
         assert!(!actual.is_empty());
         // 7 transaction records / postings.
-        assert_eq!(7, actual.len());
+        assert_eq!(9, actual.len());
         //assert_eq!(Decimal::from_i16(3).unwrap(), actual[6].amount);
+        // log::debug!("amount {:0}", actual[8].amount);
     }
 }
