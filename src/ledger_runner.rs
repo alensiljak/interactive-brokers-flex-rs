@@ -9,7 +9,7 @@ use std::{
 use chrono::{Days, Local, NaiveDate};
 
 use crate::{
-    compare::TRANSACTION_DAYS, ledger_reg_output_parser, model::CommonTransaction, ISO_DATE_FORMAT,
+    compare::TRANSACTION_DAYS, model::CommonTransaction, ISO_DATE_FORMAT, ledger_print_output_parser,
 };
 
 /// Get ledger transactions
@@ -41,10 +41,11 @@ pub fn get_ledger_tx(
     let lines: Vec<&str> = out.lines().collect();
 
     // cleanup
-    let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
+    // let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
 
     // Parse output.
-    let txs = ledger_reg_output_parser::get_rows_from_register(clean_lines);
+    //let txs = ledger_reg_output_parser::get_rows_from_register(clean_lines);
+    let txs = ledger_print_output_parser::parse_print_output(lines);
 
     txs
 }
@@ -86,7 +87,7 @@ fn get_ledger_cmd(
     ledger_init_file: Option<String>,
     effective_dates: bool,
 ) -> String {
-    let mut cmd = format!("ledger r -b {start_date} -d");
+    let mut cmd = format!("ledger p -b {start_date} -d");
 
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or"#);
     cmd.push_str(r#" (account =~ /expenses/ and account =~ /ib/ and account =~ /withh/)""#);

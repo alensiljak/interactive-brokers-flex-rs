@@ -10,6 +10,7 @@ pub mod download;
 pub mod flex_query;
 pub mod flex_reader;
 pub mod flex_statement;
+pub mod ledger_print_output_parser;
 pub mod ledger_reg_output_parser;
 pub mod ledger_runner;
 pub mod model;

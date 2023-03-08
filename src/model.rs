@@ -12,6 +12,8 @@ use crate::{flex_query::CashTransaction, ISO_DATE_FORMAT, flex_enums};
 /**
  * The ledger transaction record.
  * Used for comparison between IB (translated) and Ledger records.
+ * This transaction has only one posting. The posting is merged together with the
+ * transaction details because the Flex report has individual lines only.
  */
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct CommonTransaction {

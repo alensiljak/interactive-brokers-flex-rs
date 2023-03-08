@@ -1,0 +1,110 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Compare",
+            "program": "${workspaceFolder}/target/debug/ibflex.exe",
+            "args": ["cmp"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'ibflex'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=ibflex"
+                ],
+                "filter": {
+                    "name": "ibflex",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'ibflex'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=ibflex",
+                    "--package=ibflex"
+                ],
+                "filter": {
+                    "name": "ibflex",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'ibflex'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=ibflex",
+                    "--package=ibflex"
+                ],
+                "filter": {
+                    "name": "ibflex",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'comparison_tests'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=comparison_tests",
+                    "--package=ibflex"
+                ],
+                "filter": {
+                    "name": "comparison_tests",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'flex_report_parser_tests'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=flex_report_parser_tests",
+                    "--package=ibflex"
+                ],
+                "filter": {
+                    "name": "flex_report_parser_tests",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
