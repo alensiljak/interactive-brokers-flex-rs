@@ -118,14 +118,14 @@ fn get_oldest_ib_date(ib_txs: &Vec<CommonTransaction>, use_effective_date: bool)
     }
 
     //ib_txs.sort_unstable_by_key(|ibtx| get_comparison_date(&ibtx, use_effective_date) );
-    let oldest_record = ib_txs
+    let oldest_date_record = ib_txs
         .iter()
         .min_by_key(|ibtx| get_comparison_date(&ibtx, use_effective_date))
         .expect("got oldest date");
 
-    log::debug!("oldest tx: {:?}", oldest_record);
+    log::debug!("oldest tx: {:?}", oldest_date_record);
 
-    get_comparison_date(&oldest_record, use_effective_date)
+    get_comparison_date(&oldest_date_record, use_effective_date)
 }
 
 /// Load the symbol mappings.
@@ -367,7 +367,7 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
         assert_eq!(expected, actual);
     }
 
-    #[test]
+    #[test_log::test]
     fn test_tcf() {
         let cmp_params = CompareParams {
             config_path: Some("tests/tcf.toml".into()),
@@ -376,7 +376,7 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
             ledger_init_file: None,
             ledger_journal_file: Some("tests/tcf.ledger".into()),
             symbols_path: Some("tests/symbols.csv".into()),
-            effective_dates: true,
+            effective_dates: false,
         };
         let actual = compare(cmp_params).unwrap();
 
