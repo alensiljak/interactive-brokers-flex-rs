@@ -40,8 +40,8 @@ fn test_comparison_actual_date(mut app_cmd: Command) {
             "tests/report_1.xml",
             "--symbols-path",
             "tests/symbols.csv",
-            "--ledger-init-file",
-            "tests/init.ledger",
+            "--ledger-journal-file",
+            "tests/journal.ledger",
         ])
         .assert();
 
@@ -73,8 +73,8 @@ fn test_comparison_w_effective_dates(mut app_cmd: Command) {
             "tests/tax_adj_report.xml",
             "--symbols-path",
             "tests/symbols.csv",
-            "--ledger-init-file",
-            "tests/tax_adj.ledgerrc",
+            "--ledger-journal-file",
+            "tests/tax_adj_journal.ledger",
         ])
         .assert();
 
@@ -103,8 +103,8 @@ fn test_start_date_parameter(mut app_cmd: Command) {
             "tests/report_1.xml",
             "--symbols-path",
             "tests/symbols.csv",
-            "--ledger-init-file",
-            "tests/init.ledger",
+            "--ledger-journal-file",
+            "tests/journal.ledger",
         ])
         .assert();
 

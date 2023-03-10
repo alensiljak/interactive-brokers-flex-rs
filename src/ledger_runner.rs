@@ -159,7 +159,6 @@ fn run_ledger(args: Vec<String>) -> Vec<String> {
 mod tests {
     use super::get_ledger_tx;
     use super::run_ledger;
-    use crate::ledger_runner::get_ledger_start_date;
     use crate::test_fixtures::*;
 
     /// Confirm that Ledger can be invoked from the current directory.
@@ -178,7 +177,7 @@ mod tests {
 
         assert!(!actual.is_empty());
         assert_ne!(actual[0], String::default());
-        assert_eq!("           -3.00 EUR  Assets:Active:Cash", actual[0]);
+        assert_eq!("        -1003.00 EUR  Assets:Active:Cash", actual[0]);
     }
 
     /// Test fetching the required Ledger transactions.
@@ -188,7 +187,8 @@ mod tests {
         println!("ledger_journal_path: {:?}", ledger_journal_path);
 
         let path_opt = Some(ledger_journal_path);
-        let start_date = get_ledger_start_date(None);
+        //let start_date = get_ledger_start_date(None);
+        let start_date = "2022-01-01".to_owned();
         let actual = get_ledger_tx(path_opt, start_date, false);
 
         println!("txs: {:?}", actual);
