@@ -32,7 +32,6 @@ fn parse_file_test() {
         config_path: None,
         flex_report_path: Some("tests/report_1.xml".to_string()),
         flex_reports_dir: None,
-        ledger_init_file: None,
         ledger_journal_file: None,
         symbols_path: Some("tests/symbols.csv".to_owned()),
         effective_dates: false,

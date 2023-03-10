@@ -56,7 +56,6 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
 
     // get_ledger_tx
     let ledger_txs = ledger_runner::get_ledger_tx(
-        cfg.ledger_init_file,
         cfg.ledger_journal_file,
         start_date,
         params.effective_dates,
@@ -258,7 +257,6 @@ pub struct CompareParams {
     pub config_path: Option<String>,
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
-    pub ledger_init_file: Option<String>,
     pub ledger_journal_file: Option<String>,
     pub symbols_path: Option<String>,
     pub effective_dates: bool,
@@ -297,20 +295,6 @@ mod tests {
         assert!(!ib_tx.is_empty());
     }
 
-    // #[rstest::rstest]
-    // #[test_log::test]
-    // fn test_compare_tx(cmp_config: Config) {
-    //     let ib_txs = get_ib_tx(&cmp_config);
-    //     let use_effective_dates = false;
-    //     let ledger_txs = get_ledger_tx(cmp_config.ledger_init_file, None, use_effective_dates);
-
-    //     log::debug!("comparing {:?} *** and *** {:?}", ib_txs, ledger_txs);
-
-    //     let actual = compare_txs(ib_txs, ledger_txs, use_effective_dates);
-
-    //     assert!(actual.is_ok());
-    // }
-
     #[rstest::rstest]
     #[test_log::test]
     fn test_compare(cmp_params: CompareParams) {
@@ -324,16 +308,13 @@ mod tests {
     /// tax adjustments come on one day and match several records in the past year.
     /// The report date needs to be matched to the effective date in this case,
     /// in addition to the transaction date/transaction date.
-    ///
-    /// `ledger r --init-file tests/tax_adj.ledgerrc`
     #[test_log::test]
     fn test_compare_w_multiple_matches() {
         let cmp_params = CompareParams {
             config_path: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
-            ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
-            ledger_journal_file: None,
+            ledger_journal_file: Some("tests/tax_adj_journal.ledger".into()),
             symbols_path: Some("tests/symbols.csv".into()),
             effective_dates: false,
         };
@@ -353,8 +334,7 @@ mod tests {
             config_path: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
-            ledger_init_file: Some("tests/tax_adj.ledgerrc".into()),
-            ledger_journal_file: None,
+            ledger_journal_file: Some("tests/tax_adj_journal.ledger".into()),
             symbols_path: Some("tests/symbols.csv".into()),
             effective_dates: true,
         };
@@ -382,7 +362,6 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
             config_path: Some("tests/tcf.toml".into()),
             flex_report_path: Some("tests/tcf.xml".into()),
             flex_reports_dir: None,
-            ledger_init_file: None,
             ledger_journal_file: Some("tests/tcf.ledger".into()),
             symbols_path: Some("tests/symbols.csv".into()),
             effective_dates: false,

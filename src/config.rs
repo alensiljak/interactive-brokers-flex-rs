@@ -17,7 +17,6 @@ pub struct Config {
     // Comparison
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
-    pub ledger_init_file: Option<String>,
     pub ledger_journal_file: Option<String>,
     /// The symbols path is mandatory.
     pub symbols_path: String
@@ -60,9 +59,6 @@ pub fn get_cmp_config(params: &CompareParams) -> Config {
     }
     if let Some(flex_reports_dir) = &params.flex_reports_dir {
         cfg.flex_reports_dir = Some(flex_reports_dir.to_owned());
-    }
-    if let Some(ledger_init_file) = &params.ledger_init_file {
-        cfg.ledger_init_file = Some(ledger_init_file.to_owned());
     }
     if let Some(ledger_journal_file) = &params.ledger_journal_file {
         cfg.ledger_journal_file = Some(ledger_journal_file.to_owned());

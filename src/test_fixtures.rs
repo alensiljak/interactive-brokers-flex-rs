@@ -35,14 +35,20 @@ pub fn ledger_init_path(tests_directory_path: String) -> String {
 }
 
 #[fixture]
-pub fn cmp_params(flex_report_path: String, ledger_init_path: String,
+pub fn ledger_journal_path(tests_directory_path: String) -> String {
+    let path = format!("{tests_directory_path}{}", "journal.ledger");
+
+    path
+}
+
+#[fixture]
+pub fn cmp_params(flex_report_path: String, ledger_journal_path: String,
     symbols_path: PathBuf) -> CompareParams {
     CompareParams {
         config_path: None,
         flex_report_path: Some(flex_report_path),
         flex_reports_dir: None,
-        ledger_init_file: Some(ledger_init_path),
-        ledger_journal_file: None,
+        ledger_journal_file: Some(ledger_journal_path),
         symbols_path: Some(symbols_path.as_path().to_str().unwrap().to_owned()),
         effective_dates: false,
     }

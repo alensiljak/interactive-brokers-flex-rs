@@ -32,7 +32,6 @@ async fn main() {
                 config_path: params.config_path.to_owned(),
                 flex_report_path: params.flex_report_path.to_owned(),
                 flex_reports_dir: params.flex_reports_dir.to_owned(),
-                ledger_init_file: params.ledger_init_file.to_owned(),
                 ledger_journal_file: params.ledger_journal_file.to_owned(),
                 symbols_path: params.symbols_path.to_owned(),
                 effective_dates: params.effective,

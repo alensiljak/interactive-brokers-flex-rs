@@ -14,7 +14,6 @@ use crate::{
 /// Get ledger transactions
 /// Ledger must be callable from the current directory.
 pub fn get_ledger_tx(
-    ledger_init_file: Option<String>,
     ledger_journal_file: Option<String>,
     start_date: String,
     use_effective_dates: bool,
@@ -24,7 +23,6 @@ pub fn get_ledger_tx(
 
     let cmd = get_ledger_cmd(
         &date_param,
-        ledger_init_file,
         ledger_journal_file,
         use_effective_dates,
     );
@@ -45,7 +43,7 @@ pub fn get_ledger_tx(
 
     let lines: Vec<&str> = out.lines().collect();
 
-    let parser = 1;
+    let parser = 0;
     let txs = match parser {
         0 => {
             // Register parsing
@@ -104,11 +102,10 @@ fn run_ledger_args(args: Vec<String>) -> Output {
 /// Assemble the Ledger query command.
 fn get_ledger_cmd(
     start_date: &str,
-    ledger_init_file: Option<String>,
     ledger_journal_file: Option<String>,
     effective_dates: bool,
 ) -> String {
-    let mut cmd = format!("ledger p -b {start_date} -d");
+    let mut cmd = format!("ledger r -b {start_date} -d");
 
     cmd.push_str(r#" "(account =~ /income/ and account =~ /ib/) or"#);
     cmd.push_str(r#" (account =~ /expenses/ and account =~ /ib/ and account =~ /withh/)""#);
@@ -117,11 +114,6 @@ fn get_ledger_cmd(
         cmd.push_str(" --effective");
     }
 
-    if let Some(init_file) = ledger_init_file {
-        cmd.push_str(" --init-file ");
-        cmd.push_str(&init_file);
-    };
-
     if let Some(journal_file) = ledger_journal_file {
         cmd.push_str(" -f ");
         cmd.push_str(&journal_file);
@@ -129,6 +121,8 @@ fn get_ledger_cmd(
 
     // Ensure ISO date format, for parsing.
     cmd.push_str(" --date-format %Y-%m-%d");
+    // use wide display
+    cmd.push_str(" --wide");
 
     cmd
 }
@@ -190,12 +184,12 @@ mod tests {
     /// Test fetching the required Ledger transactions.
     #[rstest::rstest]
     #[test_log::test]
-    fn test_get_ledger_tx(ledger_init_path: String) {
-        println!("ledger_init_path: {:?}", ledger_init_path);
+    fn test_get_ledger_tx(ledger_journal_path: String) {
+        println!("ledger_journal_path: {:?}", ledger_journal_path);
 
-        let path_opt = Some(ledger_init_path);
+        let path_opt = Some(ledger_journal_path);
         let start_date = get_ledger_start_date(None);
-        let actual = get_ledger_tx(path_opt, None, start_date, false);
+        let actual = get_ledger_tx(path_opt, start_date, false);
 
         println!("txs: {:?}", actual);
 

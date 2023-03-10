@@ -5,9 +5,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- an option to specify the ledger file path
+
 ### Changed
 
-- Parsing ledger transactions from `print` output instead of `register`
+- `date-format` and `wide` display are now set automatically
+
+### Removed
+
+- the option to specify the ledger init file
 
 ### Security
 

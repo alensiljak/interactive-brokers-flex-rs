@@ -91,7 +91,8 @@ mod tests {
         let mut expected = "tests".to_string();
         expected.push(MAIN_SEPARATOR);
         // expected.push_str("report_1.xml");
-        expected.push_str("tax_adj_report.xml");
+        // expected.push_str("tax_adj_report.xml");
+        expected.push_str("tcf.xml");
         assert_eq!(expected, actual);
     }
 
