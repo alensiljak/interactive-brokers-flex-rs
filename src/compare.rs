@@ -55,8 +55,12 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     let start_date = get_oldest_ib_date(&ib_txs, params.effective_dates);
 
     // get_ledger_tx
-    let ledger_txs =
-        ledger_runner::get_ledger_tx(cfg.ledger_init_file, cfg.ledger_journal_file, start_date, params.effective_dates);
+    let ledger_txs = ledger_runner::get_ledger_tx(
+        cfg.ledger_init_file,
+        cfg.ledger_journal_file,
+        start_date,
+        params.effective_dates,
+    );
     log::debug!("Found {} Ledger transactions", ledger_txs.len());
 
     // compare
@@ -73,10 +77,14 @@ fn compare_txs(
     let mut result = String::default();
 
     for ibtx in ib_txs {
-        log::debug!("Matching ib tx: {:?}", ibtx);
+        log::debug!(
+            "Searching for matches for ib tx: {:?}\n among {:?}",
+            ibtx,
+            ledger_txs
+        );
 
         let ib_comparison_date = get_comparison_date(&ibtx, use_effective_date);
-        log::debug!("using ib date: {:?}", ib_comparison_date);
+        log::debug!("using ib date for comparison: {:?}", ib_comparison_date);
 
         let matches: Vec<&CommonTransaction> = ledger_txs
             .iter()
@@ -89,7 +97,8 @@ fn compare_txs(
                     && tx.r#type == ibtx.r#type
             })
             .collect();
-
+        
+        // log::debug!("date: {:?}", ledger_txs[0].date.date().format(ISO_DATE_FORMAT).to_string());
         log::debug!("matching ledger txs: {:?}", matches);
 
         if matches.is_empty() {

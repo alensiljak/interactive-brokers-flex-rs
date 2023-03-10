@@ -2,14 +2,13 @@
  * Runs Ledger-cli to retrieve required reports.
  */
 
-use std::{
-    process::{Command, Output},
-};
+use std::process::{Command, Output};
 
 use chrono::{Days, Local, NaiveDate};
 
 use crate::{
-    compare::TRANSACTION_DAYS, model::CommonTransaction, ISO_DATE_FORMAT, ledger_print_output_parser,
+    compare::TRANSACTION_DAYS, ledger_print_output_parser, ledger_reg_output_parser,
+    model::CommonTransaction, ISO_DATE_FORMAT,
 };
 
 /// Get ledger transactions
@@ -23,7 +22,12 @@ pub fn get_ledger_tx(
     //let date_param = get_ledger_date_param(comparison_date);
     let date_param = start_date;
 
-    let cmd = get_ledger_cmd(&date_param, ledger_init_file, ledger_journal_file, use_effective_dates);
+    let cmd = get_ledger_cmd(
+        &date_param,
+        ledger_init_file,
+        ledger_journal_file,
+        use_effective_dates,
+    );
 
     log::debug!("running: {}", cmd);
 
@@ -41,12 +45,23 @@ pub fn get_ledger_tx(
 
     let lines: Vec<&str> = out.lines().collect();
 
-    // cleanup
-    // let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
-
-    // Parse output.
-    //let txs = ledger_reg_output_parser::get_rows_from_register(clean_lines);
-    let txs = ledger_print_output_parser::parse_print_output(lines);
+    let parser = 1;
+    let txs = match parser {
+        0 => {
+            // Register parsing
+            // cleanup
+            let clean_lines = ledger_reg_output_parser::clean_up_register_output(lines);
+            // Parse output.
+            ledger_reg_output_parser::get_rows_from_register(clean_lines)
+        }
+        1 => {
+            // Print parsing
+            ledger_print_output_parser::parse_print_output(lines)
+        }
+        _ => {
+            panic!("invalid value!");
+        }
+    };
 
     txs
 }
@@ -66,7 +81,11 @@ pub fn get_ledger_start_date(comparison_date: Option<String>) -> String {
         .expect("calculated start date");
     let date_param = start_date.format(ISO_DATE_FORMAT).to_string();
 
-    log::debug!("Ledger start date: {:?} -> {:?}", comparison_date, date_param);
+    log::debug!(
+        "Ledger start date: {:?} -> {:?}",
+        comparison_date,
+        date_param
+    );
 
     date_param
 }
@@ -107,6 +126,9 @@ fn get_ledger_cmd(
         cmd.push_str(" -f ");
         cmd.push_str(&journal_file);
     }
+
+    // Ensure ISO date format, for parsing.
+    cmd.push_str(" --date-format %Y-%m-%d");
 
     cmd
 }
