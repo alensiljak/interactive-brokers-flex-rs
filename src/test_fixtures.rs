@@ -28,13 +28,6 @@ pub fn symbols_path(tests_directory_path: String) -> PathBuf {
 }
 
 #[fixture]
-pub fn ledger_init_path(tests_directory_path: String) -> String {
-    let path = format!("{tests_directory_path}{}", "init.ledger");
-
-    path
-}
-
-#[fixture]
 pub fn ledger_journal_path(tests_directory_path: String) -> String {
     let path = format!("{tests_directory_path}{}", "journal.ledger");
 

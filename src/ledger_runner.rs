@@ -164,9 +164,9 @@ mod tests {
     /// Confirm that Ledger can be invoked from the current directory.
     #[rstest::rstest]
     #[test_log::test]
-    fn run_ledger_test(ledger_init_path: String) {
-        let mut cmd = "b active and cash --init-file ".to_string();
-        cmd.push_str(&ledger_init_path);
+    fn run_ledger_test(ledger_journal_path: String) {
+        let mut cmd = "b active and cash -f ".to_string();
+        cmd.push_str(&ledger_journal_path);
 
         let args = cmd
             .split_whitespace()
@@ -200,7 +200,7 @@ mod tests {
     /// Run the complex query on Ledger, using shell-words.
     #[test_log::test]
     fn test_ledger_words() {
-        let cmd = r#"r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
+        let cmd = r#"r -b 2022-03-01 -d  "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" -f tests/journal.ledger --wide --date-format %Y-%m-%d"#;
         let args = shell_words::split(cmd).unwrap();
 
         let actual = run_ledger(args);
@@ -225,7 +225,7 @@ mod tests {
 
     #[test_log::test]
     fn test_cli_runner() {
-        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
+        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" -f tests/journal.ledger"#;
 
         let actual = cli_runner::run(cmd);
 
@@ -238,7 +238,7 @@ mod tests {
 
     #[test_log::test]
     fn test_output_conversion() {
-        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" --init-file tests/init.ledger"#;
+        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" -f tests/journal.ledger"#;
         let output = cli_runner::run(cmd);
 
         let so = cli_runner::get_stdout(&output);
