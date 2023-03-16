@@ -4,7 +4,7 @@
 
 use clap::Parser;
 use cli::{Cli, Commands};
-use ibflex::{compare::CompareParams, config::get_dl_config, download::DownloadParams};
+use ibflex::{compare::CompareParams, download::DownloadParams};
 
 /*
  * CLI for operating the library
@@ -29,7 +29,6 @@ async fn main() {
 
         Commands::Cmp(params) => {
             let cmp_params = CompareParams {
-                config_path: params.config_path.to_owned(),
                 flex_report_path: params.flex_report_path.to_owned(),
                 flex_reports_dir: params.flex_reports_dir.to_owned(),
                 ledger_journal_file: params.ledger_journal_file.to_owned(),
@@ -39,9 +38,9 @@ async fn main() {
             ibflex::compare::compare(cmp_params).expect("transactions compared");
         }
 
-        Commands::Setup => {
-            let cfg = get_dl_config(DownloadParams::default());
-            println!("{:?}", cfg);
-        }
+        // Commands::Setup => {
+        //     let cfg = get_dl_config(DownloadParams::default());
+        //     println!("{:?}", cfg);
+        // }
     }
 }

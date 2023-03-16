@@ -12,8 +12,6 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    #[command(about = "display configuration settings")]
-    Setup,
     #[command(about = "downloads the IB Flex Cash Tx report")]
     Dl(DlParams),
     #[command(about = "compares IB Flex Cash Tx report and Ledger")]
@@ -37,9 +35,7 @@ pub struct CmpParams {
     #[arg(short='j', long, help="Ledger journal file to use (.ledger)")]
     pub ledger_journal_file: Option<String>,
     #[arg(short, long, help="The symbols data file")]
-    pub symbols_path: Option<String>,
-    #[arg(short, long, help="Specify the configuration file to use")]
-    pub config_path: Option<String>,
+    pub symbols_path: String,
     /// Use Ledger's effective dates
     #[arg(short, long)]
     pub effective: bool,

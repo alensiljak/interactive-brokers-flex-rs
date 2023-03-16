@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use chrono::Local;
 use rstest::fixture;
 
-use crate::{compare::CompareParams, flex_query::CashTransaction, ISO_DATE_FORMAT, config::{Config, get_cmp_config}};
+use crate::{compare::CompareParams, flex_query::CashTransaction, ISO_DATE_FORMAT};
 
 #[fixture]
 pub fn tests_directory_path() -> String {
@@ -38,18 +38,12 @@ pub fn ledger_journal_path(tests_directory_path: String) -> String {
 pub fn cmp_params(flex_report_path: String, ledger_journal_path: String,
     symbols_path: PathBuf) -> CompareParams {
     CompareParams {
-        config_path: None,
         flex_report_path: Some(flex_report_path),
         flex_reports_dir: None,
         ledger_journal_file: Some(ledger_journal_path),
-        symbols_path: Some(symbols_path.as_path().to_str().unwrap().to_owned()),
+        symbols_path: symbols_path.as_path().to_str().unwrap().to_owned(),
         effective_dates: false,
     }
-}
-
-#[fixture]
-pub fn cmp_config(cmp_params: CompareParams) -> Config {
-    get_cmp_config(&cmp_params)
 }
 
 #[fixture]

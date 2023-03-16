@@ -13,7 +13,6 @@ use as_symbols::SymbolMetadata;
 use rust_decimal::Decimal;
 
 use crate::{
-    config::{get_cmp_config, Config},
     flex_enums::{cash_action, CashAction},
     flex_query::{CashTransaction, FlexQueryResponse},
     flex_reader::load_report,
@@ -29,10 +28,10 @@ pub const TRANSACTION_DAYS: u8 = 60;
  */
 pub fn compare(params: CompareParams) -> anyhow::Result<String> {
     log::debug!("comparing distributions, params: {:?}", params);
-    let cfg = get_cmp_config(&params);
+    // let cfg = get_cmp_config(&params);
 
     // get_ib_report_tx
-    let mut ib_txs = get_ib_tx(&cfg);
+    let mut ib_txs = get_ib_tx(&params);
     log::debug!("Found {} IB transactions", ib_txs.len());
     if ib_txs.len() == 0 {
         let msg = "No new IB transactions found. Exiting...\n";
@@ -56,7 +55,7 @@ pub fn compare(params: CompareParams) -> anyhow::Result<String> {
 
     // get_ledger_tx
     let ledger_txs = ledger_runner::get_ledger_tx(
-        cfg.ledger_journal_file,
+        params.ledger_journal_file,
         start_date,
         params.effective_dates,
     );
@@ -173,10 +172,10 @@ fn map_symbols(symbol: &SymbolMetadata) -> (String, String) {
 Returns transactions from the Flex Report, for comparison.
 symbols is a HashMap of symbol rewrites.
 */
-fn get_ib_tx(cfg: &Config) -> Vec<CommonTransaction> {
+fn get_ib_tx(cfg: &CompareParams) -> Vec<CommonTransaction> {
     let ib_txs = read_flex_report(cfg);
 
-    convert_ib_txs(ib_txs, &cfg.symbols_path)
+    convert_ib_txs(ib_txs, cfg.symbols_path.as_str())
 }
 
 /// Converts IB CashTransaction XML record into a Common Transaction.
@@ -228,8 +227,8 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
  * Reads the Cash Transaction records from the Flex Report.
  * Sorts by date/time, symbol, type.
  */
-fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
-    let content = load_report(cfg);
+fn read_flex_report(cfg: &CompareParams) -> Vec<CashTransaction> {
+    let content = load_report(cfg.flex_report_path.to_owned(), cfg.flex_reports_dir.to_owned());
     let response = FlexQueryResponse::from(content);
 
     let mut ib_txs = response
@@ -255,11 +254,10 @@ fn read_flex_report(cfg: &Config) -> Vec<CashTransaction> {
  */
 #[derive(Debug)]
 pub struct CompareParams {
-    pub config_path: Option<String>,
     pub flex_report_path: Option<String>,
     pub flex_reports_dir: Option<String>,
     pub ledger_journal_file: Option<String>,
-    pub symbols_path: Option<String>,
+    pub symbols_path: String,
     pub effective_dates: bool,
 }
 
@@ -312,11 +310,10 @@ mod tests {
     #[test_log::test]
     fn test_compare_w_multiple_matches() {
         let cmp_params = CompareParams {
-            config_path: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_journal_file: Some("tests/tax_adj_journal.ledger".into()),
-            symbols_path: Some("tests/symbols.csv".into()),
+            symbols_path: "tests/symbols.csv".to_owned(),
             effective_dates: false,
         };
         let actual = compare(cmp_params).unwrap();
@@ -332,11 +329,10 @@ mod tests {
     #[test_log::test]
     fn test_compare_w_multiple_matches_effective_dates() {
         let cmp_params = CompareParams {
-            config_path: None,
             flex_report_path: Some("tests/tax_adj_report.xml".into()),
             flex_reports_dir: None,
             ledger_journal_file: Some("tests/tax_adj_journal.ledger".into()),
-            symbols_path: Some("tests/symbols.csv".into()),
+            symbols_path: "tests/symbols.csv".into(),
             effective_dates: true,
         };
         let actual = compare(cmp_params).unwrap();
@@ -360,11 +356,10 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
     #[test_log::test]
     fn test_tcf() {
         let cmp_params = CompareParams {
-            config_path: Some("tests/tcf.toml".into()),
             flex_report_path: Some("tests/tcf.xml".into()),
             flex_reports_dir: None,
             ledger_journal_file: Some("tests/tcf.ledger".into()),
-            symbols_path: Some("tests/symbols.csv".into()),
+            symbols_path: "tests/symbols.csv".into(),
             effective_dates: false,
         };
         let actual = compare(cmp_params).unwrap();

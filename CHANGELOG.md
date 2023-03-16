@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- 
+- the command to display the configuration
+- the configuration file (ibflex.toml) functionality. The parameters should always be passed directly to a command.
 
 ## [1.1.0] - 2023-03-10
 

@@ -6,7 +6,7 @@
 
 use chrono::Local;
 
-use crate::{config::get_dl_config, flex_statement};
+use crate::{flex_statement};
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
 const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
@@ -38,14 +38,14 @@ impl DownloadParams {
  */
 pub async fn download(params: DownloadParams) -> String {
     // get the configuration
-    let cfg = get_dl_config(params);
+    // let cfg = get_dl_config(params);
 
     // handle configuration values
-    let query_id = match cfg.flex_query_id {
-        Some(qid) => qid,
+    let query_id = match params.query_id {
+        Some(qid) => qid.to_string(),
         None => panic!("The query id is mandatory for the report download!"),
     };
-    let token = match cfg.ib_token {
+    let token = match params.token {
         Some(tkn) => tkn,
         None => panic!("The token is mandatory for the report download!"),
     };
@@ -134,9 +134,10 @@ mod tests {
     // #[tokio::test]
     #[allow(unused)]
     async fn request_report_test() {
-        let cfg = crate::config::get_dl_config(DownloadParams::default());
-        let actual = request_statement(&cfg.flex_query_id.unwrap(), 
-        &cfg.ib_token.unwrap()).await;
+        //let cfg = crate::config::get_dl_config(DownloadParams::default());
+        let cfg = DownloadParams::default();
+        let actual = request_statement(&cfg.query_id.unwrap().to_string(), 
+        &cfg.token.unwrap()).await;
         
         println!("received: {:?}", actual);
 

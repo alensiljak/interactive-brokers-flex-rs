@@ -3,8 +3,6 @@
  * The logic for choosing a file.
  */
 
-use crate::config::Config;
-
 const FILE_SUFFIX: &str = "_cash-tx.xml";
 
 /**
@@ -14,12 +12,12 @@ const FILE_SUFFIX: &str = "_cash-tx.xml";
  * If the path to the directory is given, the latest report from that directory
  * will be loaded.
  */
-pub fn load_report(cfg: &Config) -> String {
-    log::debug!("load_report with: {:?}", cfg);
+pub fn load_report(flex_report_path: Option<String>, flex_reports_dir: Option<String>) -> String {
+    log::debug!("load_report with: {:?}, {:?}", flex_report_path, flex_reports_dir);
 
-    let report_path = match &cfg.flex_report_path {
+    let report_path = match flex_report_path {
         Some(file_path) => file_path.to_owned(),
-        None => get_latest_report_path(cfg.flex_reports_dir.to_owned()),
+        None => get_latest_report_path(flex_reports_dir),
     };
 
     println!("Using {}", report_path);
@@ -77,7 +75,7 @@ mod tests {
     use std::path::MAIN_SEPARATOR;
 
     use crate::{flex_query::FlexQueryResponse, flex_reader::load_report, 
-        test_fixtures::*, config::Config};
+        test_fixtures::*, compare::CompareParams};
 
     use super::get_latest_filename;
 
@@ -97,8 +95,8 @@ mod tests {
     }
 
     #[rstest::rstest]
-    fn test_parse_file(cmp_config: Config) -> anyhow::Result<()> {
-        let report = load_report(&cmp_config);
+    fn test_parse_file(cmp_params: CompareParams) -> anyhow::Result<()> {
+        let report = load_report(cmp_params.flex_report_path, cmp_params.flex_reports_dir);
         let actual = FlexQueryResponse::from(report);
 
         assert_ne!(

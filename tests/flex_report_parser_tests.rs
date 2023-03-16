@@ -4,7 +4,7 @@
 
 use ibflex::{
     compare::CompareParams,
-    flex_query::{CashTransaction, FlexQueryResponse}, config::get_cmp_config,
+    flex_query::{CashTransaction, FlexQueryResponse},
 };
 
 #[rstest::rstest]
@@ -29,16 +29,14 @@ fn parse_file_test() {
         .push(tx1);
 
     let cmp_params = CompareParams {
-        config_path: None,
         flex_report_path: Some("tests/report_1.xml".to_string()),
         flex_reports_dir: None,
         ledger_journal_file: None,
-        symbols_path: Some("tests/symbols.csv".to_owned()),
+        symbols_path: "tests/symbols.csv".to_owned(),
         effective_dates: false,
     };
-    let cmp_config = get_cmp_config(&cmp_params);
 
-    let report = ibflex::flex_reader::load_report(&cmp_config);
+    let report = ibflex::flex_reader::load_report(cmp_params.flex_report_path, cmp_params.flex_reports_dir);
     let actual = FlexQueryResponse::from(report);
 
     //assert_eq!(expected, actual);
