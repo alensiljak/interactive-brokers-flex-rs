@@ -191,6 +191,7 @@ fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<C
     let to_include = [
         CashAction::WhTax.to_string(),
         CashAction::Dividend.to_string(),
+        CashAction::PaymentInLieu.to_string()
     ];
     log::debug!("to include: {:?}", to_include);
 

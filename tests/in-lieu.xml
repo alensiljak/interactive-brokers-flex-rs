@@ -1,0 +1,9 @@
+<FlexQueryResponse queryName="cash tx, last 30 days" type="AF">
+<FlexStatements count="1">
+<FlexStatement accountId="A0000001" fromDate="2023-02-14" toDate="2023-03-15" period="Last30CalendarDays" whenGenerated="2023-03-16;18:45:56">
+<CashTransactions>
+<CashTransaction reportDate="2023-03-15" dateTime="2023-03-16;11:20:00" symbol="EXXWd" listingExchange="IBIS" type="Payment In Lieu Of Dividends" amount="3.74" currency="EUR" description="EXXW(DE000A0H0744) PAYMENT IN LIEU OF DIVIDEND (Mixed Income)" />
+</CashTransactions>
+</FlexStatement>
+</FlexStatements>
+</FlexQueryResponse>

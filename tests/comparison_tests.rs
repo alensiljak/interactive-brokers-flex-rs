@@ -86,10 +86,10 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
 Complete.
 "#;
 
-/* These should be recognized:
-New: 2023-01-24/2022-12-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
-New: 2023-01-24/2022-12-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
- */
+    /* These should be recognized:
+    New: 2023-01-24/2022-12-01 BBN     WhTax    0.66 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+    New: 2023-01-24/2022-12-01 BBN     WhTax   -0.53 USD, BBN(US09248X1000) CASH DIVIDEND USD 0.1229 PER SHARE - US TAX
+     */
 
     assert.success().stdout(expected);
 }
@@ -126,4 +126,18 @@ fn test_tcf(mut app_cmd: Command) {
         .assert();
 
     assert.success();
+}
+
+#[rstest::rstest]
+fn test_in_lieu(mut app_cmd: Command) {
+    let assert = app_cmd
+        .args(vec![
+            "cmp",
+            "--flex-report-path", "tests/in-lieu.xml",
+            "--symbols-path", "tests/symbols.csv",
+            "--ledger-journal-file", "tests/in-lieu.ledger",
+        ])
+        .assert();
+
+    assert.success().stdout("");
 }

@@ -1,0 +1,6 @@
+; journal for matching the in-lieu payment
+
+2023-03-15 EXXW distribution
+    ; payment in-lieu
+    Income:Investment:IB:EXXW
+    Assets:Investment:IB:Cash  3.74 EUR
