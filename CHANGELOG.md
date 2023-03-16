@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-03-16
+
 ### Added
 
 - parsing the payments in-lieu of dividends
@@ -13,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - the command to display the configuration
 - the configuration file (ibflex.toml) functionality. The parameters should always be passed directly to a command.
+
+### Security
+
+- updated dependencies
 
 ## [1.1.0] - 2023-03-10
 
