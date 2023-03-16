@@ -7,7 +7,7 @@ use std::{fmt::Display, str::FromStr};
 use chrono::{NaiveDateTime, NaiveDate};
 use rust_decimal::Decimal;
 
-use crate::{flex_query::CashTransaction, ISO_DATE_FORMAT, flex_enums};
+use crate::{flex_query::CashTransaction, ISO_DATE_FORMAT, flex_enums::{self, CashAction}};
 
 /**
  * The ledger transaction record.
@@ -61,9 +61,20 @@ impl From<&CashTransaction> for CommonTransaction {
             amount: Decimal::from_str(value.amount.as_str()).unwrap(),
             currency: value.currency.to_owned(),
             symbol,
-            r#type: flex_enums::cash_action(value.r#type.as_str()).to_owned(),
+            r#type: get_simplified_tx_type(&value.r#type),
             description: value.description.to_owned(),
         }
+    }
+}
+
+fn get_simplified_tx_type(ib_tx_type: &String) -> String {
+    let tx_type = flex_enums::cash_action(ib_tx_type.as_str()).to_owned();
+
+    // mask in-lieu payments as regular dividends (?!) for comparison
+    if tx_type == CashAction::PaymentInLieu.to_string() {
+        CashAction::Dividend.to_string()
+    } else {
+        tx_type
     }
 }
 

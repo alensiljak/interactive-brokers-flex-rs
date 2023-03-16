@@ -368,4 +368,22 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
 
         assert_eq!(expected, actual);
     }
+
+    #[test]
+    fn test_in_lieu() {
+        let params = CompareParams {
+            flex_report_path: Some("tests/in-lieu.xml".to_owned()),
+            flex_reports_dir: None,
+            ledger_journal_file: Some("tests/in-lieu.ledger".into()),
+            symbols_path: "tests/symbols.csv".into(),
+            effective_dates: false,
+        };
+
+        let actual = compare(params).unwrap();
+
+        //let expected = r#"New: 2023-03-15/2023-03-16 EXXW    PaymentInLieu    3.74 EUR, EXXW(DE000A0H0744) PAYMENT IN LIEU OF DIVIDEND (Mixed Income)\n"#;
+        let expected = "";
+        
+        assert_eq!(expected, actual);
+    }
 }
