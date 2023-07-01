@@ -133,7 +133,7 @@ fn get_row_from_register_line(line: &str, header: &CommonTransaction) -> CommonT
     if parts.len() > 2 {
         println!("cannot parse: {:?}", tx);
     }
-    assert!(parts.len() == 2);
+    assert!(parts.len() == 2, "Invalid amount in ledger: {:?}", amount_str);
 
     let amount = parts[0].replace(",", "");
     tx.amount = Decimal::from_str(&amount).expect("a valid number");
