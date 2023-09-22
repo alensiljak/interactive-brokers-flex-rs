@@ -42,6 +42,10 @@ impl From<&CashTransaction> for CommonTransaction {
             symbol = symbol[..symbol.len() - 1].to_string();
         }
 
+        // Add the exchange
+        symbol = format!("{}:{}", value.listing_exchange, symbol);
+        // TODO: lookup the ledger symbol
+
         CommonTransaction {
             date: match value.date_time.len() {
                 10 => {

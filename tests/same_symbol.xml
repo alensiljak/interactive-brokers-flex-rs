@@ -1,0 +1,10 @@
+<FlexQueryResponse queryName="same symbols" type="AF">
+<FlexStatements count="1">
+<FlexStatement accountId="U1234567" fromDate="2023-08-23" toDate="2023-09-21" period="Last30CalendarDays" whenGenerated="2023-09-22;16:51:23">
+<CashTransactions>
+<CashTransaction reportDate="2023-09-14" dateTime="2023-09-15;10:20:00" symbol="SDIV" listingExchange="ARCA" type="Dividends" amount="5.04" currency="USD" description="SDIV(US37960A6698) CASH DIVIDEND USD 0.21 PER SHARE (Ordinary Dividend)" />
+<CashTransaction reportDate="2023-09-21" dateTime="2023-09-22;10:20:00" symbol="SDIV" listingExchange="BVME.ETF" type="Dividends" amount="10.26" currency="USD" description="SDIV(IE00077FRP95) CASH DIVIDEND USD 0.09 PER SHARE (Mixed Income)" />
+</CashTransactions>
+</FlexStatement>
+</FlexStatements>
+</FlexQueryResponse>

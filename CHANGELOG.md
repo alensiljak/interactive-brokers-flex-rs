@@ -5,6 +5,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2023-09-22
+
+### Changed
+
+- using the exchange/namespace to uniquely identify the symbol for comparison. Used for the symbols that are the same but on different exchanges.
+
+### Security
+
+- updated dependencies
+
 ## [1.2.1] - 2023-07-01
 
 ### Added

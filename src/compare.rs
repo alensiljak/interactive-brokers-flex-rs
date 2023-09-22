@@ -155,15 +155,20 @@ fn load_symbols(path: &PathBuf) -> Result<HashMap<String, String>, Error> {
 }
 
 /// Maps the SymbolMetadata into a hashmap of (ib_symbol, ledger_symbol) records.
-fn map_symbols(symbol: &SymbolMetadata) -> (String, String) {
+fn map_symbols(meta: &SymbolMetadata) -> (String, String) {
     (
-        match &symbol.ib_symbol {
+        match &meta.ib_symbol {
             Some(ib_sym) => ib_sym.to_owned(),
-            None => symbol.symbol.to_owned(),
+            None => {
+                let Some(ref namespace) = meta.namespace
+                    else { panic!("Missing namespace found!") };
+
+                format!("{}:{}", namespace, meta.symbol)
+            },
         },
-        match &symbol.ledger_symbol {
+        match &meta.ledger_symbol {
             Some(ldg_sym) => ldg_sym.to_owned(),
-            None => symbol.symbol.to_owned(),
+            None => meta.symbol.to_owned(),
         },
     )
 }
@@ -175,11 +180,11 @@ symbols is a HashMap of symbol rewrites.
 fn get_ib_tx(cfg: &CompareParams) -> Vec<CommonTransaction> {
     let ib_txs = read_flex_report(cfg);
 
-    convert_ib_txs(ib_txs, cfg.symbols_path.as_str())
+    convert_ib_txs_into_common(ib_txs, cfg.symbols_path.as_str())
 }
 
 /// Converts IB CashTransaction XML record into a Common Transaction.
-fn convert_ib_txs(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<CommonTransaction> {
+fn convert_ib_txs_into_common(ib_txs: Vec<CashTransaction>, symbols_path_str: &str) -> Vec<CommonTransaction> {
     // load symbols. Need a mapping to the ledger symbols for comparison.
     let symbols_path = PathBuf::from(symbols_path_str);
     let symbols = load_symbols(&symbols_path).unwrap();
@@ -269,7 +274,7 @@ mod tests {
 
     use super::{compare, load_symbols};
     use crate::{
-        compare::{convert_ib_txs, CompareParams},
+        compare::{convert_ib_txs_into_common, CompareParams},
         flex_query::CashTransaction,
         test_fixtures::*,
     };
@@ -289,7 +294,7 @@ mod tests {
     fn test_convert_ib_txs(cash_transactions: Vec<CashTransaction>) {
         let symbols_path = "tests/symbols.csv";
 
-        let ib_tx = convert_ib_txs(cash_transactions, symbols_path);
+        let ib_tx = convert_ib_txs_into_common(cash_transactions, symbols_path);
 
         assert!(!ib_tx.is_empty());
     }
@@ -384,6 +389,24 @@ New: 2023-01-24/2022-04-30 BBN     WhTax      -0.53 USD, BBN(US09248X1000) CASH 
         //let expected = r#"New: 2023-03-15/2023-03-16 EXXW    PaymentInLieu    3.74 EUR, EXXW(DE000A0H0744) PAYMENT IN LIEU OF DIVIDEND (Mixed Income)\n"#;
         let expected = "";
         
+        assert_eq!(expected, actual);
+    }
+
+    #[test_log::test]
+    fn test_same_symbols_different_exchange() {
+        let cmp_params = CompareParams {
+            flex_report_path: Some("tests/same_symbol.xml".into()),
+            flex_reports_dir: None,
+            ledger_journal_file: Some("tests/same_symbol.ledger".into()),
+            symbols_path: "tests/symbols.csv".into(),
+            effective_dates: false,
+        };
+        let actual = compare(cmp_params).unwrap();
+
+//         let expected = r#"New: 2023-09-14/2023-09-15 ARCA:SDIV Dividend    5.04 USD, SDIV(US37960A6698) CASH DIVIDEND USD 0.21 PER SHARE (Ordinary Dividend)
+// New: 2023-09-21/2023-09-22 BVME.ETF:SDIV    Dividend   10.26 USD, SDIV(IE00077FRP95) CASH DIVIDEND USD 0.09 PER SHARE (Mixed Income)"#;
+        let expected = "";
+
         assert_eq!(expected, actual);
     }
 }
