@@ -4,6 +4,12 @@ Tools to assist with IB Flex reports and Ledger-cli comparison
 
 This crate contains a CLI application and is also a library which assists working with Flex Reports from Interactive Brokers. It simplifies the Flex Query download and compares the downloaded transactions (distributions and tax) to the records in Ledger-cli, identifying missing ones.
 
+## Background
+
+The application downloads Flex Query reports from Interactive Brokers and parses them into Ledger transaction records. The generated records are deduplicated against an existing book.
+
+## Structure
+
 There are several components in the package:
 
 - The command-line application (CLI) `ibflex`, provides all the features of the `ibflex` library
@@ -17,16 +23,6 @@ There are several components in the package:
 The project started as a rewrite of my Python scripts and is intended to be expanded as needed, to parse Flex Queries.
 
 ## Configuration
-
-To view the current configuration, run
-
-```sh
-ibflex cfg
-```
-
-The config file will be created automatically if it does not exist.
-
-To edit the values, use any text editor.
 
 ### Symbols Configuration
 
@@ -42,19 +38,14 @@ Downloading the Flex Query report requires Query Id and the Token. These can be 
 
   The application will read the values from environment variables:
 
-- `IBFLEX_TOKEN`
-- `IBFLEX_QUERYID`
+   - `IBFLEX_TOKEN`
+   - `IBFLEX_QUERYID`
 
-1) in the configuration file: The application will read the configuration file `ibflex.toml`, which is located in the current directory. See the section below.
+3) in the configuration file: The application will read the configuration file `ibflex.toml`, which is located in the current directory. See the section below.
 
 ### Download
 
-The required parameters for downloading the Flex report are:
-
-- `flex_query_id`
-- `ib_token`
-
-Once this is set up, invoke the CLI:
+Once the configuration is set up, invoke the CLI:
 
 ```sh
 ifblex dl
@@ -64,6 +55,7 @@ This will save the report in the current directory. The filename will contain to
 
 ### Comparison
 
+The generated transactions are in Ledger format.
 To compare the transactions, run
 
 ```sh
