@@ -16,7 +16,7 @@ See tests.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FlexStatementResponse {
-    #[serde(rename = "timestamp", default)]
+    #[serde(rename = "@timestamp")]
     pub timestamp: String,
 
     pub status: String,
@@ -24,8 +24,8 @@ pub struct FlexStatementResponse {
     pub url: String,
 }
 
-pub fn parse_response_text(text: &str) -> Result<FlexStatementResponse, serde_xml_rs::Error> {
-    serde_xml_rs::from_str(text)
+pub fn parse_response_text(text: &str) -> Result<FlexStatementResponse, quick_xml::DeError> {
+    quick_xml::de::from_str(text)
 }
 
 #[cfg(test)]
@@ -48,8 +48,7 @@ mod tests {
         println!("parsed: {:?}", actual);
 
         assert_eq!("Success", actual.status);
-        // serde_xml_rs 0.8 drops XML attributes; timestamp will be empty
-        assert_eq!("", actual.timestamp);
+        assert_eq!("17 January, 2023 12:51 PM EST", actual.timestamp);
         assert_eq!("1234567890", actual.reference_code);
         assert_eq!("https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement",
             actual.url);
