@@ -73,6 +73,14 @@ async fn download_report(query_id: &str, token: &str) -> String {
     // parse
     let stmt_resp = flex_statement::parse_response_text(&resp);
 
+    // Wait before requesting the actual report, as IB needs time to prepare it.
+    for i in (1..=5).rev() {
+        print!("\rDownloading report in {i}s...");
+        std::io::Write::flush(&mut std::io::stdout()).ok();
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    }
+    println!();
+
     // Now request the actual report.
     let stmt_text = download_statement_text(&stmt_resp.reference_code, token).await;
 
