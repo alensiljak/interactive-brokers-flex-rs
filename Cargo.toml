@@ -1,9 +1,9 @@
 [package]
 name = "ibflex"
 description = "A library and a CLI for reading Interactive Brokers Flex reports and comparing to Ledger-cli transactions"
-version = "1.4.0"
+version = "1.4.1"
 edition = "2021"
-authors = ["Alen Šiljak <dev@alensiljak.eu.org>"]
+authors = ["Alen Šiljak"]
 license = 'GPL-3.0-or-later'
 repository = 'https://github.com/alensiljak/interactive-brokers-flex-rs'
 
@@ -17,16 +17,14 @@ anyhow = "1.0.75"
 as-symbols = "^0.5.0"
 chrono = "0.4.31"
 clap = { version = "4.4.4", features = ["derive"] }
-cli_runner = "^0.2.1"
 env_logger = "^0.11.10"
 glob = "^0.3.1"
 log = "^0.4.20"
-reqwest = { version = "^0.13.2" }
 rust_decimal = "^1.32.0"
 serde = { version = "^1.0.188", features = ["derive"] }
 serde-xml-rs = "^0.8.2"
 shell-words = "^1.1.0"
-tokio = { version="1.32.0", features=["rt", "macros", "time"] }
+ureq = "2"
 
 [dev-dependencies]
 assert_cmd = "2.0.12"

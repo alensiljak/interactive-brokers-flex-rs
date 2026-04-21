@@ -6,7 +6,7 @@
 
 use chrono::Local;
 
-use crate::{flex_statement};
+use crate::flex_statement;
 
 const FLEX_URL: &str = "https://gdcdyn.interactivebrokers.com/Universal/servlet/";
 const REQUEST_ENDPOINT: &str = "FlexStatementService.SendRequest";
@@ -36,11 +36,7 @@ impl DownloadParams {
 /**
  * Downloads the Flex Query Cash Transactions report into a file in the current directory.
  */
-pub async fn download(params: DownloadParams) -> String {
-    // get the configuration
-    // let cfg = get_dl_config(params);
-
-    // handle configuration values
+pub fn download(params: DownloadParams) -> String {
     let query_id = match params.query_id {
         Some(qid) => qid.to_string(),
         None => panic!("The query id is mandatory for the report download!"),
@@ -50,10 +46,8 @@ pub async fn download(params: DownloadParams) -> String {
         None => panic!("The token is mandatory for the report download!"),
     };
 
-    // download the report
-    let report = download_report(&query_id, &token).await;
+    let report = download_report(&query_id, &token);
 
-    // save to text file
     let today_date = Local::now().date_naive();
     let today = today_date.format("%Y-%m-%d");
     let output_filename = format!("{today}_cash-tx.xml");
@@ -68,85 +62,80 @@ pub async fn download(params: DownloadParams) -> String {
  * You need to supply the token (Reports / Settings / FlexWeb Service),
  * and the query id (Reports / Flex Queries / Custom Flex Queries / Configure).
  */
-async fn download_report(query_id: &str, token: &str) -> String {
-    let resp = request_statement(query_id, token).await;
-    // parse
-    let stmt_resp = flex_statement::parse_response_text(&resp);
+fn download_report(query_id: &str, token: &str) -> String {
+    let resp = request_statement(query_id, token);
+    let stmt_resp = flex_statement::parse_response_text(&resp)
+        .unwrap_or_else(|e| panic!("Parse failed: {e}\nRaw response:\n{resp}"));
 
     // Wait before requesting the actual report, as IB needs time to prepare it.
     for i in (1..=5).rev() {
         print!("\rDownloading report in {i}s...");
         std::io::Write::flush(&mut std::io::stdout()).ok();
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
     println!();
 
-    // Now request the actual report.
-    let stmt_text = download_statement_text(&stmt_resp.reference_code, token).await;
-
-    stmt_text
+    download_statement_text(&stmt_resp.reference_code, token)
 }
 
 /**
  * Requests the statement. Receives the request id.
  * Returns the text of the response, the content is xml.
  */
-async fn request_statement(query_id: &str, token: &str) -> String {
+fn request_statement(query_id: &str, token: &str) -> String {
     let url = format!("{FLEX_URL}{REQUEST_ENDPOINT}?v=3&t={token}&q={query_id}");
-
-    let client = reqwest::Client::new();
-    let res = client
-        .get(url)
-        .header("User-Agent", "Java")
-        .send()
-        .await
-        .expect("response received");
-
-    res.text().await.expect("contents of the response")
+    ureq::get(&url)
+        .set("User-Agent", "Java")
+        .call()
+        .expect("response received")
+        .into_string()
+        .expect("contents of the response")
 }
 
 /**
  * Downloads the actual report. 2nd step.
  * Requires the reference code received in the 1st step.
  */
-async fn download_statement_text(ref_code: &String, token: &str) -> String {
+fn download_statement_text(ref_code: &str, token: &str) -> String {
     let url = format!("{FLEX_URL}{STMT_ENDPOINT}?v=3&q={ref_code}&t={token}");
-
-    reqwest::get(url)
-        .await
+    ureq::get(&url)
+        .call()
         .expect("downloaded statement")
-        .text()
-        .await
+        .into_string()
         .expect("text response (xml)")
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{download::{FLEX_URL, REQUEST_ENDPOINT, request_statement, DownloadParams}};
+    use crate::download::{FLEX_URL, REQUEST_ENDPOINT};
 
     #[test]
     /// Test concatenating constants.
     fn constants_test() {
         let actual = format!("{FLEX_URL}{REQUEST_ENDPOINT}");
 
-        assert_eq!("https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest",
-        actual);
+        assert_eq!(
+            "https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest",
+            actual
+        );
     }
 
     /**
      * Test sending the Flex request. This is step 1 of the 2-step process.
      *
      * To run the test, create ibflex.toml config and populate with valid parameters.
-     * Uncomment the [tokio::test] line below.
+     * Uncomment the [test] line below.
      */
-    // #[tokio::test]
+    // #[test]
     #[allow(unused)]
-    async fn request_report_test() {
-        //let cfg = crate::config::get_dl_config(DownloadParams::default());
+    fn request_report_test() {
+        use super::{request_statement, DownloadParams};
         let cfg = DownloadParams::default();
-        let actual = request_statement(&cfg.query_id.unwrap().to_string(), 
-        &cfg.token.unwrap()).await;
-        
+        let actual = request_statement(
+            &cfg.query_id.unwrap().to_string(),
+            &cfg.token.unwrap(),
+        );
+
         println!("received: {:?}", actual);
 
         assert_ne!(String::default(), actual);
@@ -154,16 +143,4 @@ mod tests {
 
         assert!(false);
     }
-
-    // /**
-    //  * Request the full Flex report, using 2-step process.
-    //  *
-    //  * To run the test, create ibflex.toml config and populate with valid parameters.
-    //  */
-    // #[tokio::test]
-    // async fn report_download_test() {
-    //     let cfg = crate::config::get_dl_config(DownloadParams::default());
-    //     let result = download_report(&cfg.flex_query_id, &cfg.ib_token).await;
-    //     assert!(result.contains("FlexQueryResponse"));
-    // }
 }

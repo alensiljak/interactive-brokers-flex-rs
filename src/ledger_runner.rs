@@ -29,15 +29,17 @@ pub fn get_ledger_tx(
 
     log::debug!("running: {}", cmd);
 
-    let output = cli_runner::run(&cmd);
+    let args = shell_words::split(&cmd).expect("valid ledger command");
+    let output = Command::new(&args[0])
+        .args(&args[1..])
+        .output()
+        .expect("ledger command ran");
 
     if !output.status.success() {
-        let err = cli_runner::get_stderr(&output);
+        let err = String::from_utf8_lossy(&output.stderr);
         panic!("Error running Ledger command: {}", err);
-        // log::debug!("error: {:?}", err);
-        // assert!(err.is_empty());
     }
-    let out = cli_runner::get_stdout(&output);
+    let out = String::from_utf8(output.stdout).expect("utf8 stdout");
 
     // log::debug!("ledger output: {:?}", out);
 
@@ -160,6 +162,7 @@ mod tests {
     use super::get_ledger_tx;
     use super::run_ledger;
     use crate::test_fixtures::*;
+    use std::process::Command;
 
     /// Confirm that Ledger can be invoked from the current directory.
     #[rstest::rstest]
@@ -224,28 +227,18 @@ mod tests {
     }
 
     #[test_log::test]
-    fn test_cli_runner() {
+    fn test_run_command() {
         let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" -f tests/journal.ledger"#;
+        let args = shell_words::split(cmd).unwrap();
+        let output = Command::new(&args[0])
+            .args(&args[1..])
+            .output()
+            .expect("ran");
 
-        let actual = cli_runner::run(cmd);
-
-        let stderr: String = String::from_utf8(actual.stderr).expect("stdout string");
-        let stdout: String = String::from_utf8(actual.stdout).expect("stdout string");
+        let stderr = String::from_utf8(output.stderr).expect("stderr string");
+        let stdout = String::from_utf8(output.stdout).expect("stdout string");
 
         assert!(!stdout.is_empty());
         assert!(stderr.is_empty());
-    }
-
-    #[test_log::test]
-    fn test_output_conversion() {
-        let cmd = r#"ledger r -b 2022-03-01 -d "(account =~ /income/ and account =~ /ib/) or (account =~ /ib/ and account =~ /withh/)" -f tests/journal.ledger"#;
-        let output = cli_runner::run(cmd);
-
-        let so = cli_runner::get_stdout(&output);
-        log::debug!("so: {:?}", so);
-        assert!(!so.is_empty());
-
-        let se = cli_runner::get_stderr(&output);
-        assert!(se.is_empty());
     }
 }

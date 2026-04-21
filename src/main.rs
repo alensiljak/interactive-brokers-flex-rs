@@ -11,8 +11,7 @@ use ibflex::{compare::CompareParams, download::DownloadParams};
  */
 mod cli;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     env_logger::init();
 
     let cli = Cli::parse();
@@ -22,7 +21,7 @@ async fn main() {
             println!("downloading report...");
 
             let dl_params = DownloadParams::new(params.query_id, &params.token);
-            let path = ibflex::download::download(dl_params).await;
+            let path = ibflex::download::download(dl_params);
 
             println!("Flex Query saved to {path}");
         }
