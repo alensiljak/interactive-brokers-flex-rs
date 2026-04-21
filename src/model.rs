@@ -43,7 +43,7 @@ impl From<&CashTransaction> for CommonTransaction {
         }
 
         // Add the exchange
-        symbol = format!("{}:{}", value.listing_exchange, symbol);
+        symbol = format!("{}:{}", value.listing_exchange.as_deref().unwrap_or(""), symbol);
         // TODO: lookup the ledger symbol
 
         CommonTransaction {

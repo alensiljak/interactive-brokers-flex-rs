@@ -70,8 +70,8 @@ pub struct CashTransaction {
     pub date_time: String,
     #[serde(rename = "@symbol")]
     pub symbol: String,
-    #[serde(rename = "@listingExchange")]
-    pub listing_exchange: String,
+    #[serde(rename = "@listingExchange", default)]
+    pub listing_exchange: Option<String>,
     #[serde(rename = "@type")]
     pub r#type: String,
     #[serde(rename = "@amount")]
@@ -90,7 +90,7 @@ impl Display for CashTransaction {
             self.report_date,
             &self.date_time[..10],
             self.symbol,
-            self.listing_exchange,
+            self.listing_exchange.as_deref().unwrap_or(""),
             self.r#type,
             self.amount,
             self.currency,
