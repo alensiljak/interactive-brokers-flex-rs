@@ -56,6 +56,7 @@ pub fn cash_transactions() -> Vec<CashTransaction> {
         description: "TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX".to_string(),
         listing_exchange: "AEB".to_string(),
         symbol: "TCBT".to_string(),
+        isin: String::new(),
         r#type: "Withholding Tax".to_string(),
     };
 
@@ -68,6 +69,7 @@ pub fn cash_transactions() -> Vec<CashTransaction> {
         r#type: "Dividends".into(),
         listing_exchange: "AMS".into(),
         symbol: "TCBT".into(),
+        isin: String::new(),
     };
 
     vec![tx1, dist]

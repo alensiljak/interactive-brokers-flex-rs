@@ -99,15 +99,13 @@ mod tests {
         let report = load_report(cmp_params.flex_report_path, cmp_params.flex_reports_dir);
         let actual = FlexQueryResponse::from(report);
 
-        assert_ne!(
-            0,
-            actual
-                .flex_statements
-                .flex_statement
-                .cash_transactions
-                .cash_transaction
-                .len()
-        );
+        let total_txs: usize = actual
+            .flex_statements
+            .flex_statement
+            .iter()
+            .map(|s| s.cash_transactions.cash_transaction.len())
+            .sum();
+        assert_ne!(0, total_txs);
 
         Ok(())
     }

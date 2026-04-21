@@ -236,11 +236,12 @@ fn read_flex_report(cfg: &CompareParams) -> Vec<CashTransaction> {
     let content = load_report(cfg.flex_report_path.to_owned(), cfg.flex_reports_dir.to_owned());
     let response = FlexQueryResponse::from(content);
 
-    let mut ib_txs = response
+    let mut ib_txs: Vec<CashTransaction> = response
         .flex_statements
         .flex_statement
-        .cash_transactions
-        .cash_transaction;
+        .into_iter()
+        .flat_map(|s| s.cash_transactions.cash_transaction)
+        .collect();
 
     // txs.sort(key=operator.attrgetter("dateTime", "symbol", "type.name"))
     ib_txs.sort_unstable_by_key(|ct| {
