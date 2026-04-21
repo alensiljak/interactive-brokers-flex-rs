@@ -1,7 +1,8 @@
 # interactive-brokers-flex-rs
+
 Tools to assist with IB Flex reports and Ledger-cli comparison
 
-This crate contains a CLI application and is also a library which assists working with Flex Reports from Interactive Brokers. It simplifies the Flex Query download and compares the downloaded transactions (distributions and tax) to the records in Ledger, identifying missing ones.
+This crate contains a CLI application and is also a library which assists working with Flex Reports from Interactive Brokers. It simplifies the Flex Query download and compares the downloaded transactions (distributions and tax) to the records in Ledger-cli, identifying missing ones.
 
 There are several components in the package:
 
@@ -15,11 +16,11 @@ There are several components in the package:
 
 The project started as a rewrite of my Python scripts and is intended to be expanded as needed, to parse Flex Queries.
 
-# Configuration
+## Configuration
 
 To view the current configuration, run
 
-```
+```sh
 ibflex cfg
 ```
 
@@ -27,12 +28,12 @@ The config file will be created automatically if it does not exist.
 
 To edit the values, use any text editor.
 
-## Symbols Configuration
+### Symbols Configuration
 
 See `as-symbols` [crate](https://crates.io/crates/as-symbols) for instructions on how to set up the symbols data file.
 At the moment this is required for the symbol mapping. The symbols in IB (i.e. VHYL) may be mapped to a different symbol in Ledger (i.e. VHYL_AS).
 
-# Usage
+## Usage
 
 Downloading the Flex Query report requires Query Id and the Token. These can be passed in several ways:
 
@@ -41,12 +42,12 @@ Downloading the Flex Query report requires Query Id and the Token. These can be 
 
   The application will read the values from environment variables:
 
-  - `IBFLEX_TOKEN`
-  - `IBFLEX_QUERYID`
+- `IBFLEX_TOKEN`
+- `IBFLEX_QUERYID`
 
-3) in the configuration file: The application will read the configuration file `ibflex.toml`, which is located in the current directory. See the section below.
+1) in the configuration file: The application will read the configuration file `ibflex.toml`, which is located in the current directory. See the section below.
 
-## Download
+### Download
 
 The required parameters for downloading the Flex report are:
 
@@ -55,30 +56,30 @@ The required parameters for downloading the Flex report are:
 
 Once this is set up, invoke the CLI:
 
-```
+```sh
 ifblex dl
 ```
 
 This will save the report in the current directory. The filename will contain today's date.
 
-## Comparison
+### Comparison
 
 To compare the transactions, run
 
-```
+```sh
 ibflex cmp
 ```
 
 This will compare the downloaded IB transactions to the transactions in Ledger. The new Dividend and Tax transactions will be reported as New. The other transactions will be reported as Skipped.
 
-# Changelog
+## Changelog
 
 See [Changelog](CHANGELOG.md)
 
-# Credits
+## Credits
 
 - [ibflex](https://github.com/csingley/ibflex) Python library
 
-# License
+## License
 
 See [LICENSE](LICENSE) file.
