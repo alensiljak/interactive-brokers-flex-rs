@@ -17,7 +17,7 @@ fn parse_file_test() {
         currency: "EUR".to_string(),
         date_time: "2022-12-15;12:20:00".to_string(),
         description: "TCBT(NL0009690247) CASH DIVIDEND EUR 0.05 PER SHARE - NL TAX".to_string(),
-        listing_exchange: "AEB".to_string(),
+        listing_exchange: Some("AEB".to_string()),
         symbol: "TCBT".to_string(),
         r#type: "Withholding Tax".to_string(),
     };
